@@ -12,7 +12,7 @@ Make sure both are installed before attempting to build any package:
 
 To install the built package(s).
 
-    pacman -U ${package-name}*.pkg.tar.xz
+    pacman -U ${package-name}*.pkg.tar.zst
 
 ## License
 
