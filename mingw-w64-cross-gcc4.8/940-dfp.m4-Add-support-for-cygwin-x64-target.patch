@@ -1,0 +1,45 @@
+From 45364b17775eae7d4c4745d5480ba8585b1c6b99 Mon Sep 17 00:00:00 2001
+From: Tim S <tim.stahlhut@gmail.com>
+Date: Fri, 17 Jul 2020 12:02:07 -0400
+Subject: cygwin: Backport SVN 197170
+
+2013-03-27 Kai Tietz <ktietz@redhat.com>
+
+Add support for cygwin x64 target.
+
+        * dfp.m4: Add support for cygwin x64 target.
+        * picflag.m4: Likewise.
+---
+ config/dfp.m4     | 2 +-
+ config/picflag.m4 | 4 +++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/config/dfp.m4 b/config/dfp.m4
+index e971db4dc91..48683f0f97b 100644
+--- a/config/dfp.m4
++++ b/config/dfp.m4
+@@ -23,7 +23,7 @@ Valid choices are 'yes', 'bid', 'dpd', and 'no'.]) ;;
+     powerpc*-*-linux* | i?86*-*-linux* | x86_64*-*-linux* | s390*-*-linux* | \
+     i?86*-*-gnu* | \
+     i?86*-*-mingw* | x86_64*-*-mingw* | \
+-    i?86*-*-cygwin*)
++    i?86*-*-cygwin* | x86_64*-*-cygwin*)
+       enable_decimal_float=yes
+       ;;
+     *)
+diff --git a/config/picflag.m4 b/config/picflag.m4
+index bd818125a66..2ee5cd0785f 100644
+--- a/config/picflag.m4
++++ b/config/picflag.m4
+@@ -17,7 +17,9 @@ case "${$2}" in
+     hppa*64*-*-hpux*)
+ 	# PIC is the default for 64-bit PA HP-UX.
+ 	;;
+-    i[[34567]]86-*-cygwin* | i[[34567]]86-*-mingw* | x86_64-*-mingw*)
++    i[[34567]]86-*-cygwin* | x86_64-*-cygwin*)
++	;;
++    i[[34567]]86-*-mingw* | x86_64-*-mingw*)
+ 	;;
+     i[[34567]]86-*-interix[[3-9]]*)
+ 	# Interix 3.x gcc -fpic/-fPIC options generate broken code.
+-- 

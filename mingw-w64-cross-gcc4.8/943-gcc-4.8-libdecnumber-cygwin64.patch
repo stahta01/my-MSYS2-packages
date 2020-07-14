@@ -1,0 +1,24 @@
+From 01680d9896f7b8d25d8438b947e973cfb50d8814 Mon Sep 17 00:00:00 2001
+From: Kai Tietz <ktietz@redhat.com>
+Date: Wed, 27 Mar 2013 23:01:39 +0100
+Subject: Backport of SVN 197179
+
+	* configure: Regenerated.
+
+---
+ libdecnumber/configure | 2 +-
+
+diff --git a/libdecnumber/configure b/libdecnumber/configure
+index 0466371c7a2..91721dea2ac 100755
+--- a/libdecnumber/configure
++++ b/libdecnumber/configure
+@@ -4613,7 +4613,7 @@ else
+     powerpc*-*-linux* | i?86*-*-linux* | x86_64*-*-linux* | s390*-*-linux* | \
+     i?86*-*-gnu* | \
+     i?86*-*-mingw* | x86_64*-*-mingw* | \
+-    i?86*-*-cygwin*)
++    i?86*-*-cygwin* | x86_64*-*-cygwin*)
+       enable_decimal_float=yes
+       ;;
+     *)
+-- 
