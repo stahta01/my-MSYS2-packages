@@ -1,0 +1,595 @@
+From 0f36743f521ffdbfe4e71aea75eb8f5f66f74b2b Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Thu, 16 Jul 2020 11:59:38 -0400
+Subject: Backport of SVN 227275
+
+ 2015-08-27  Sebastian Pop  <s.pop@samsung.com>
+ remove -floop-unroll-and-jam
+
+	* common.opt (floop-unroll-and-jam): Make alias of floop-nest-optimize.
+	* doc/invoke.texi (-floop-unroll-and-jam): Document as alias of
+	-floop-nest-optimize.
+	* graphite-isl-ast-to-gimple.c (generate_luj_sepclass_opt): Remove.
+	(generate_luj_sepclass): Remove.
+	(generate_luj_options): Remove.
+	(set_options): Remove opt_luj.
+	(scop_to_isl_ast): Remove opt_luj.
+	* graphite-optimize-isl.c (getScheduleForBand): Remove check for
+	flag_loop_unroll_jam.
+	(getPrevectorMap_full): Remove.
+	(getScheduleForBandList): Remove map_sepcl.
+	(getScheduleMap): Same.
+	(apply_schedule_map_to_scop): Remove sepcl.
+	(optimize_isl): Same.
+	* graphite-poly.c (apply_poly_transforms): Remove check for
+	flag_loop_unroll_jam.
+	(new_poly_bb): Remove map_sepclass.
+	* graphite-poly.h (struct poly_bb): Same.
+	* graphite.c (gate_graphite_transforms): Remove flag_loop_unroll_jam.
+	* params.def (PARAM_LOOP_UNROLL_JAM_SIZE)
+	(PARAM_LOOP_UNROLL_JAM_DEPTH): Remove.
+	* toplev.c (process_options): Remove flag_loop_unroll_jam.
+---
+ gcc/common.opt                   |   4 +-
+ gcc/doc/invoke.texi              |   8 +-
+ gcc/graphite-isl-ast-to-gimple.c | 102 +-----------------
+ gcc/graphite-optimize-isl.c      | 179 +++----------------------------
+ gcc/graphite-poly.c              |   3 +-
+ gcc/graphite-poly.h              |   3 -
+ gcc/graphite.c                   |   3 +-
+ gcc/params.def                   |  15 ---
+ gcc/toplev.c                     |   3 +-
+ 9 files changed, 29 insertions(+), 291 deletions(-)
+
+diff --git a/gcc/common.opt b/gcc/common.opt
+index ac6546c24a3..a3240ae6aae 100644
+--- a/gcc/common.opt
++++ b/gcc/common.opt
+@@ -1333,8 +1333,8 @@ Common Report Var(flag_loop_block) Optimization
+ Enable Loop Blocking transformation
+ 
+ floop-unroll-and-jam
+-Common Report Var(flag_loop_unroll_jam) Optimization
+-Enable Loop Unroll Jam transformation
++Common Alias(floop-nest-optimize)
++Enable loop nest transforms.  Same as -floop-nest-optimize
+  
+ fgnu-tm
+ Common Report Var(flag_tm)
+diff --git a/gcc/doc/invoke.texi b/gcc/doc/invoke.texi
+index 6353fe7b68c..3747770c62f 100644
+--- a/gcc/doc/invoke.texi
++++ b/gcc/doc/invoke.texi
+@@ -8724,10 +8724,10 @@ is experimental.
+ 
+ @item -floop-unroll-and-jam
+ @opindex floop-unroll-and-jam
+-Enable unroll and jam for the ISL based loop nest optimizer.  The unroll 
+-factor can be changed using the @option{loop-unroll-jam-size} parameter.
+-The unrolled dimension (counting from the most inner one) can be changed 
+-using the @option{loop-unroll-jam-depth} parameter.                 .
++Perform loop nest transformations.  Same as
++@option{-floop-nest-optimize}.  To use this code transformation, GCC has
++to be configured with @option{--with-isl} to enable the Graphite loop
++transformation infrastructure.
+ 
+ @item -floop-parallelize-all
+ @opindex floop-parallelize-all
+diff --git a/gcc/graphite-isl-ast-to-gimple.c b/gcc/graphite-isl-ast-to-gimple.c
+index 3216460b625..220c95e9e0b 100644
+--- a/gcc/graphite-isl-ast-to-gimple.c
++++ b/gcc/graphite-isl-ast-to-gimple.c
+@@ -842,92 +842,6 @@ extend_schedule (__isl_take isl_map *schedule, int nb_schedule_dims)
+   return schedule;
+ }
+ 
+-/* Set the separation_class option for unroll and jam. */
+-
+-static __isl_give isl_union_map *
+-generate_luj_sepclass_opt (scop_p scop, __isl_take isl_union_set *domain, 
+-			int dim, int cl)
+-{
+-  isl_map  *map;
+-  isl_space *space, *space_sep;
+-  isl_ctx *ctx;
+-  isl_union_map *mapu;
+-  int nsched = get_max_schedule_dimensions (scop);
+- 
+-  ctx = scop->ctx;
+-  space_sep = isl_space_alloc (ctx, 0, 1, 1);
+-  space_sep = isl_space_wrap (space_sep);
+-  space_sep = isl_space_set_tuple_name (space_sep, isl_dim_set,
+-				        "separation_class");
+-  space = isl_set_get_space (scop->context);
+-  space_sep = isl_space_align_params (space_sep, isl_space_copy(space));
+-  space = isl_space_map_from_domain_and_range (space, space_sep);
+-  space = isl_space_add_dims (space,isl_dim_in, nsched);
+-  map = isl_map_universe (space);
+-  isl_map_fix_si (map,isl_dim_out,0,dim);
+-  isl_map_fix_si (map,isl_dim_out,1,cl);
+-
+-  mapu = isl_union_map_intersect_domain (isl_union_map_from_map (map), 
+-					 domain);
+-  return (mapu);
+-}
+-
+-/* Compute the separation class for loop unroll and jam.  */
+-
+-static __isl_give isl_union_set *
+-generate_luj_sepclass (scop_p scop)
+-{
+-  int i;
+-  poly_bb_p pbb;
+-  isl_union_set *domain_isl;
+-
+-  domain_isl = isl_union_set_empty (isl_set_get_space (scop->context));
+-
+-  FOR_EACH_VEC_ELT (SCOP_BBS (scop), i, pbb)
+-    {
+-      isl_set *bb_domain;
+-      isl_set *bb_domain_s;
+-
+-      if (pbb->map_sepclass == NULL)
+-	continue;
+-
+-      if (isl_set_is_empty (pbb->domain))
+-	continue;
+-
+-      bb_domain = isl_set_copy (pbb->domain);
+-      bb_domain_s = isl_set_apply (bb_domain, pbb->map_sepclass);
+-      pbb->map_sepclass = NULL;
+-
+-      domain_isl =
+-	isl_union_set_union (domain_isl, isl_union_set_from_set (bb_domain_s));
+-    }
+-
+-  return domain_isl;
+-}
+-
+-/* Set the AST built options for loop unroll and jam. */
+- 
+-static __isl_give isl_union_map *
+-generate_luj_options (scop_p scop)
+-{
+-  isl_union_set *domain_isl;
+-  isl_union_map *options_isl_ss;
+-  isl_union_map *options_isl =
+-    isl_union_map_empty (isl_set_get_space (scop->context));
+-  int dim = get_max_schedule_dimensions (scop) - 1;
+-  int dim1 = dim - PARAM_VALUE (PARAM_LOOP_UNROLL_JAM_DEPTH);
+-
+-  if (!flag_loop_unroll_jam)
+-    return options_isl;
+-
+-  domain_isl = generate_luj_sepclass (scop);
+-
+-  options_isl_ss = generate_luj_sepclass_opt (scop, domain_isl, dim1, 0);
+-  options_isl = isl_union_map_union (options_isl, options_isl_ss);
+-
+-  return options_isl;
+-}
+-
+ /* Generates a schedule, which specifies an order used to
+    visit elements in a domain.  */
+ 
+@@ -976,13 +890,11 @@ ast_build_before_for (__isl_keep isl_ast_build *build, void *user)
+ }
+ 
+ /* Set the separate option for all dimensions.
+-   This helps to reduce control overhead.
+-   Set the options for unroll and jam.  */
++   This helps to reduce control overhead.  */
+ 
+ static __isl_give isl_ast_build *
+ set_options (__isl_take isl_ast_build *control,
+-	     __isl_keep isl_union_map *schedule,
+-	     __isl_take isl_union_map *opt_luj)
++	     __isl_keep isl_union_map *schedule)
+ {
+   isl_ctx *ctx = isl_union_map_get_ctx (schedule);
+   isl_space *range_space = isl_space_set_alloc (ctx, 0, 1);
+@@ -993,9 +905,6 @@ set_options (__isl_take isl_ast_build *control,
+   isl_union_set *domain = isl_union_map_range (isl_union_map_copy (schedule));
+   domain = isl_union_set_universe (domain);
+   isl_union_map *options = isl_union_map_from_domain_and_range (domain, range);
+-
+-  options = isl_union_map_union (options, opt_luj);
+-
+   return isl_ast_build_set_options (control, options);
+ }
+ 
+@@ -1009,14 +918,9 @@ scop_to_isl_ast (scop_p scop, ivs_params &ip)
+   isl_options_set_ast_build_atomic_upper_bound (scop->ctx, true);
+ 
+   add_parameters_to_ivs_params (scop, ip);
+-
+-  isl_union_map *options_luj = generate_luj_options (scop);
+-
+   isl_union_map *schedule_isl = generate_isl_schedule (scop);
+   isl_ast_build *context_isl = generate_isl_context (scop);
+-
+-  context_isl = set_options (context_isl, schedule_isl, options_luj);
+-
++  context_isl = set_options (context_isl, schedule_isl);
+   isl_union_map *dependences = NULL;
+   if (flag_loop_parallelize_all)
+   {
+diff --git a/gcc/graphite-optimize-isl.c b/gcc/graphite-optimize-isl.c
+index e0c566be388..1565996a980 100644
+--- a/gcc/graphite-optimize-isl.c
++++ b/gcc/graphite-optimize-isl.c
+@@ -195,7 +195,7 @@ getScheduleForBand (isl_band *Band, int *Dimensions)
+   PartialSchedule = isl_band_get_partial_schedule (Band);
+   *Dimensions = isl_band_n_member (Band);
+ 
+-  if (DisableTiling || flag_loop_unroll_jam)
++  if (DisableTiling)
+     return PartialSchedule;
+ 
+   /* It does not make any sense to tile a band with just one dimension.  */
+@@ -250,9 +250,7 @@ getScheduleForBand (isl_band *Band, int *Dimensions)
+    constant number of iterations, if the number of loop iterations at
+    DimToVectorize can be devided by VectorWidth. The default VectorWidth is
+    currently constant and not yet target specific. This function does not reason
+-   about parallelism.
+-
+-  */
++   about parallelism.  */
+ static isl_map *
+ getPrevectorMap (isl_ctx *ctx, int DimToVectorize,
+ 		 int ScheduleDimensions,
+@@ -319,109 +317,15 @@ getPrevectorMap (isl_ctx *ctx, int DimToVectorize,
+   return TilingMap;
+ }
+ 
+-/* Compute an auxiliary map to getPrevectorMap, for computing the separating 
+-   class defined by full tiles.  Used in graphite_isl_ast_to_gimple.c to set the 
+-   corresponding option for AST build.
+-
+-   The map (for VectorWidth=4):
+-
+-   [i,j] -> [it,j,ip] : it % 4 = 0 and it <= ip <= it + 3 and it + 3 = i and
+-                        ip >= 0
+-
+-   The image of this map is the separation class. The range of this map includes
+-   all the i multiple of 4 in the domain such as i + 3 is in the domain too.
+-    
+- */ 
+-static isl_map *
+-getPrevectorMap_full (isl_ctx *ctx, int DimToVectorize,
+-		 int ScheduleDimensions,
+-		 int VectorWidth)
+-{
+-  isl_space *Space;
+-  isl_local_space *LocalSpace, *LocalSpaceRange;
+-  isl_set *Modulo;
+-  isl_map *TilingMap;
+-  isl_constraint *c;
+-  isl_aff *Aff;
+-  int PointDimension; /* ip */
+-  int TileDimension;  /* it */
+-  isl_val *VectorWidthMP;
+-  int i;
+-
+-  /* assert (0 <= DimToVectorize && DimToVectorize < ScheduleDimensions);*/
+-
+-  Space = isl_space_alloc (ctx, 0, ScheduleDimensions, ScheduleDimensions + 1);
+-  TilingMap = isl_map_universe (isl_space_copy (Space));
+-  LocalSpace = isl_local_space_from_space (Space);
+-  PointDimension = ScheduleDimensions;
+-  TileDimension = DimToVectorize;
+-
+-  /* Create an identity map for everything except DimToVectorize and the 
+-     point loop. */
+-  for (i = 0; i < ScheduleDimensions; i++)
+-    {
+-      if (i == DimToVectorize)
+-        continue;
+-
+-      c = isl_equality_alloc (isl_local_space_copy (LocalSpace));
+-
+-      isl_constraint_set_coefficient_si (c, isl_dim_in, i, -1);
+-      isl_constraint_set_coefficient_si (c, isl_dim_out, i, 1);
+-
+-      TilingMap = isl_map_add_constraint (TilingMap, c);
+-    }
+-
+-  /* it % 'VectorWidth' = 0  */
+-  LocalSpaceRange = isl_local_space_range (isl_local_space_copy (LocalSpace));
+-  Aff = isl_aff_zero_on_domain (LocalSpaceRange);
+-  Aff = isl_aff_set_constant_si (Aff, VectorWidth);
+-  Aff = isl_aff_set_coefficient_si (Aff, isl_dim_in, TileDimension, 1);
+-
+-  VectorWidthMP = isl_val_int_from_si (ctx, VectorWidth);
+-  Aff = isl_aff_mod_val (Aff, VectorWidthMP);
+-  Modulo = isl_pw_aff_zero_set (isl_pw_aff_from_aff (Aff));
+-  TilingMap = isl_map_intersect_range (TilingMap, Modulo);
+-
+-  /* it + ('VectorWidth' - 1) = i0  */
+-  c = isl_equality_alloc (isl_local_space_copy(LocalSpace));
+-  isl_constraint_set_coefficient_si (c, isl_dim_out, TileDimension,-1);
+-  isl_constraint_set_coefficient_si (c, isl_dim_in, TileDimension, 1);
+-  isl_constraint_set_constant_si (c, -VectorWidth + 1);
+-  TilingMap = isl_map_add_constraint (TilingMap, c);
+-
+-  /* ip >= 0 */
+-  c = isl_inequality_alloc (isl_local_space_copy (LocalSpace));
+-  isl_constraint_set_coefficient_si (c, isl_dim_out, PointDimension, 1);
+-  isl_constraint_set_constant_si (c, 0);
+-  TilingMap = isl_map_add_constraint (TilingMap, c);
+-
+-  /* it <= ip */
+-  c = isl_inequality_alloc (isl_local_space_copy (LocalSpace));
+-  isl_constraint_set_coefficient_si (c, isl_dim_out, TileDimension, -1);
+-  isl_constraint_set_coefficient_si (c, isl_dim_out, PointDimension, 1);
+-  TilingMap = isl_map_add_constraint (TilingMap, c);
+-
+-  /* ip <= it + ('VectorWidth' - 1) */
+-  c = isl_inequality_alloc (LocalSpace);
+-  isl_constraint_set_coefficient_si (c, isl_dim_out, TileDimension, 1);
+-  isl_constraint_set_coefficient_si (c, isl_dim_out, PointDimension, -1);
+-  isl_constraint_set_constant_si (c, VectorWidth - 1);
+-  TilingMap = isl_map_add_constraint (TilingMap, c);
+-
+-  return TilingMap;
+-}
+-
+ static bool EnablePollyVector = false;
+ 
+ /* getScheduleForBandList - Get the scheduling map for a list of bands.
+-    
++
+    We walk recursively the forest of bands to combine the schedules of the
+    individual bands to the overall schedule. In case tiling is requested,
+-   the individual bands are tiled.
+-   For unroll and jam the map the schedule for full tiles of the unrolled
+-   dimnesion is computed.  */
++   the individual bands are tiled.  */
+ static isl_union_map *
+-getScheduleForBandList (isl_band_list *BandList, isl_union_map **map_sepcl)
++getScheduleForBandList (isl_band_list *BandList)
+ {
+   int NumBands, i;
+   isl_union_map *Schedule;
+@@ -438,37 +342,25 @@ getScheduleForBandList (isl_band_list *BandList, isl_union_map **map_sepcl)
+       int ScheduleDimensions;
+       isl_space *Space;
+ 
+-      isl_union_map *PartialSchedule_f;
+-
+       Band = isl_band_list_get_band (BandList, i);
+       PartialSchedule = getScheduleForBand (Band, &ScheduleDimensions);
+       Space = isl_union_map_get_space (PartialSchedule);
+ 
+-      PartialSchedule_f = NULL;
+-
+       if (isl_band_has_children (Band))
+ 	{
+ 	  isl_band_list *Children;
+ 	  isl_union_map *SuffixSchedule;
+ 
+ 	  Children = isl_band_get_children (Band);
+-	  SuffixSchedule = getScheduleForBandList (Children, map_sepcl);
++	  SuffixSchedule = getScheduleForBandList (Children);
+ 	  PartialSchedule = isl_union_map_flat_range_product (PartialSchedule,
+ 							      SuffixSchedule);
+ 	  isl_band_list_free (Children);
+ 	}
+-      else if (EnablePollyVector || flag_loop_unroll_jam)
++      else if (EnablePollyVector)
+ 	{
+-	  int i;
+-	  int depth;
+- 
+- 	  depth = PARAM_VALUE (PARAM_LOOP_UNROLL_JAM_DEPTH);
+-  
+ 	  for (i = ScheduleDimensions - 1 ;  i >= 0 ; i--)
+ 	    {
+-	      if (flag_loop_unroll_jam && (i != (ScheduleDimensions - depth)))
+-		continue;
+-
+ #ifdef HAVE_ISL_SCHED_CONSTRAINTS_COMPUTE_SCHEDULE
+ 	      if (isl_band_member_is_coincident (Band, i))
+ #else
+@@ -477,19 +369,8 @@ getScheduleForBandList (isl_band_list *BandList, isl_union_map **map_sepcl)
+ 		{
+ 		  isl_map *TileMap;
+ 		  isl_union_map *TileUMap;
+-		  int stride;
+ 
+-                  stride = PARAM_VALUE (PARAM_LOOP_UNROLL_JAM_SIZE);    
+-
+-		  TileMap = getPrevectorMap_full (ctx, i, ScheduleDimensions, 
+-						  stride); 
+- 		  TileUMap = isl_union_map_from_map (TileMap);
+-		  TileUMap = isl_union_map_align_params
+-		    (TileUMap, isl_space_copy (Space));
+-		  PartialSchedule_f = isl_union_map_apply_range
+-		    (isl_union_map_copy (PartialSchedule), TileUMap);
+-
+-		  TileMap = getPrevectorMap (ctx, i, ScheduleDimensions, stride);
++		  TileMap = getPrevectorMap (ctx, i, ScheduleDimensions, 4);
+ 		  TileUMap = isl_union_map_from_map (TileMap);
+ 		  TileUMap = isl_union_map_align_params
+ 		    (TileUMap, isl_space_copy (Space));
+@@ -499,35 +380,21 @@ getScheduleForBandList (isl_band_list *BandList, isl_union_map **map_sepcl)
+ 		}	
+ 	    }
+ 	}
+-      Schedule = isl_union_map_union (Schedule, 
+-                                      isl_union_map_copy(PartialSchedule));
++
++      Schedule = isl_union_map_union (Schedule, PartialSchedule);
+ 
+       isl_band_free (Band);
+       isl_space_free (Space);
+-
+-      if (!flag_loop_unroll_jam)
+-	{
+-          isl_union_map_free (PartialSchedule);
+-          continue;
+-	}
+-
+-      if (PartialSchedule_f)
+-	{
+-	  *map_sepcl = isl_union_map_union (*map_sepcl, PartialSchedule_f);
+-          isl_union_map_free (PartialSchedule);
+-	}
+-      else
+-        *map_sepcl = isl_union_map_union (*map_sepcl, PartialSchedule);
+     }
+ 
+   return Schedule;
+ }
+ 
+ static isl_union_map *
+-getScheduleMap (isl_schedule *Schedule, isl_union_map **map_sepcl)
++getScheduleMap (isl_schedule *Schedule)
+ {
+   isl_band_list *BandList = isl_schedule_get_band_forest (Schedule);
+-  isl_union_map *ScheduleMap = getScheduleForBandList (BandList, map_sepcl);
++  isl_union_map *ScheduleMap = getScheduleForBandList (BandList);
+   isl_band_list_free (BandList);
+   return ScheduleMap;
+ }
+@@ -542,7 +409,7 @@ getSingleMap (__isl_take isl_map *map, void *user)
+ }
+ 
+ static void
+-apply_schedule_map_to_scop (scop_p scop, isl_union_map *schedule_map, bool sepcl)
++apply_schedule_map_to_scop (scop_p scop, isl_union_map *schedule_map)
+ {
+   int i;
+   poly_bb_p pbb;
+@@ -557,15 +424,8 @@ apply_schedule_map_to_scop (scop_p scop, isl_union_map *schedule_map, bool sepcl
+ 	(isl_union_map_copy (schedule_map),
+ 	 isl_union_set_from_set (domain));
+       isl_union_map_foreach_map (stmtBand, getSingleMap, &stmtSchedule);
+-
+-      if (!sepcl)
+-	{
+-	  isl_map_free (pbb->transformed);
+-	  pbb->transformed = stmtSchedule;
+-	}
+-      else
+-	  pbb->map_sepclass = stmtSchedule;
+-
++      isl_map_free (pbb->transformed);
++      pbb->transformed = stmtSchedule;
+       isl_union_map_free (stmtBand);
+     }
+ }
+@@ -583,7 +443,6 @@ optimize_isl (scop_p scop)
+   isl_union_set *domain;
+   isl_union_map *validity, *proximity, *dependences;
+   isl_union_map *schedule_map;
+-  isl_union_map *schedule_map_f;
+ 
+   domain = scop_get_domains (scop);
+   dependences = scop_get_dependences (scop);
+@@ -628,13 +487,9 @@ optimize_isl (scop_p scop)
+   if (!schedule)
+     return false;
+ 
+-  schedule_map_f = isl_union_map_empty (isl_space_params_alloc (scop->ctx, 0));
+-  schedule_map = getScheduleMap (schedule, &schedule_map_f);
++  schedule_map = getScheduleMap (schedule);
+ 
+-  apply_schedule_map_to_scop (scop, schedule_map, false);
+-  if (!isl_union_map_is_empty (schedule_map_f))
+-    apply_schedule_map_to_scop (scop, schedule_map_f, true);
+-  isl_union_map_free (schedule_map_f);
++  apply_schedule_map_to_scop (scop, schedule_map);
+ 
+   isl_schedule_free (schedule);
+   isl_union_map_free (schedule_map);
+diff --git a/gcc/graphite-poly.c b/gcc/graphite-poly.c
+index c5287d2aaac..8bd43a608a0 100644
+--- a/gcc/graphite-poly.c
++++ b/gcc/graphite-poly.c
+@@ -282,7 +282,7 @@ apply_poly_transforms (scop_p scop)
+ 
+   /* This pass needs to be run at the final stage, as it does not
+      update the lst.  */
+-  if (flag_loop_optimize_isl || flag_loop_unroll_jam)
++  if (flag_loop_optimize_isl)
+     transform_done |= optimize_isl (scop);
+ 
+   return transform_done;
+@@ -333,7 +333,6 @@ new_poly_bb (scop_p scop, void *black_box)
+   pbb->schedule = NULL;
+   pbb->transformed = NULL;
+   pbb->saved = NULL;
+-  pbb->map_sepclass = NULL;
+   PBB_SCOP (pbb) = scop;
+   pbb_set_black_box (pbb, black_box);
+   PBB_TRANSFORMED (pbb) = NULL;
+diff --git a/gcc/graphite-poly.h b/gcc/graphite-poly.h
+index aa7b07c399c..bad6154befb 100644
+--- a/gcc/graphite-poly.h
++++ b/gcc/graphite-poly.h
+@@ -354,9 +354,6 @@ struct poly_bb
+   poly_scattering_p _saved;
+   isl_map *saved;
+ 
+-  /* For tiling, the map for computing the separating class.  */
+-  isl_map *map_sepclass;
+-
+   /* True when this PBB contains only a reduction statement.  */
+   bool is_reduction;
+ };
+diff --git a/gcc/graphite.c b/gcc/graphite.c
+index a0cf455b9a8..c53e588f947 100644
+--- a/gcc/graphite.c
++++ b/gcc/graphite.c
+@@ -351,8 +351,7 @@ gate_graphite_transforms (void)
+       || flag_loop_strip_mine
+       || flag_graphite_identity
+       || flag_loop_parallelize_all
+-      || flag_loop_optimize_isl
+-      || flag_loop_unroll_jam)
++      || flag_loop_optimize_isl)
+     flag_graphite = 1;
+ 
+   return flag_graphite != 0;
+diff --git a/gcc/params.def b/gcc/params.def
+index 1995f1435f6..7f43551b7df 100644
+--- a/gcc/params.def
++++ b/gcc/params.def
+@@ -857,21 +857,6 @@ DEFPARAM (PARAM_LOOP_BLOCK_TILE_SIZE,
+ 	  "size of tiles for loop blocking",
+ 	  51, 0, 0)
+ 
+-/* Size of unrolling factor for unroll-and-jam.  */
+- 
+-DEFPARAM (PARAM_LOOP_UNROLL_JAM_SIZE,
+- 	  "loop-unroll-jam-size",
+- 	  "size of unrolling factor for unroll-and-jam",
+- 	  4, 0, 0)
+-
+-/* Size of the band formed by the strip mined dimension and the most inner one for unroll-and-jam.  */
+- 
+-DEFPARAM (PARAM_LOOP_UNROLL_JAM_DEPTH,
+- 	  "loop-unroll-jam-depth",
+- 	  "depth of unrolled loop for unroll-and-jam",
+- 	  2, 0, 0)
+-
+-
+ /* Maximal number of parameters that we allow in a SCoP.  */
+ 
+ DEFPARAM (PARAM_GRAPHITE_MAX_NB_SCOP_PARAMS,
+diff --git a/gcc/toplev.c b/gcc/toplev.c
+index 237e24ef34e..dfc500759c8 100644
+--- a/gcc/toplev.c
++++ b/gcc/toplev.c
+@@ -1353,8 +1353,7 @@ process_options (void)
+       || flag_loop_block
+       || flag_loop_interchange
+       || flag_loop_strip_mine
+-      || flag_loop_parallelize_all
+-      || flag_loop_unroll_jam)
++      || flag_loop_parallelize_all)
+     sorry ("Graphite loop optimizations cannot be used (ISL is not available)" 
+ 	   "(-fgraphite, -fgraphite-identity, -floop-block, "
+ 	   "-floop-interchange, -floop-strip-mine, -floop-parallelize-all, "
+-- 

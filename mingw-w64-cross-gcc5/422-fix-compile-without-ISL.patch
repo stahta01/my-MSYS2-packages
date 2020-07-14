@@ -1,0 +1,31 @@
+From c68e36dd401013a8e3613738a987dd528813e0fb Mon Sep 17 00:00:00 2001
+From: spop <spop@138bc75d-0d04-0410-961f-82ee72b054a4>
+Date: Thu, 27 Aug 2015 21:59:06 +0000
+Subject: Backport of SVN 227282
+
+fix compile without ISL
+
+	* toplev.c (process_options): Do not use flag_loop_block,
+	flag_loop_interchange, and flag_loop_strip_mine.  Add check for
+	flag_loop_optimize_isl.
+---
+ gcc/toplev.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/gcc/toplev.c b/gcc/toplev.c
+index dfc500759c8..36f4233fc7e 100644
+--- a/gcc/toplev.c
++++ b/gcc/toplev.c
+@@ -1349,10 +1349,8 @@ process_options (void)
+ 
+ #ifndef HAVE_isl
+   if (flag_graphite
++      || flag_loop_optimize_isl
+       || flag_graphite_identity
+-      || flag_loop_block
+-      || flag_loop_interchange
+-      || flag_loop_strip_mine
+       || flag_loop_parallelize_all)
+     sorry ("Graphite loop optimizations cannot be used (ISL is not available)" 
+ 	   "(-fgraphite, -fgraphite-identity, -floop-block, "
+-- 
