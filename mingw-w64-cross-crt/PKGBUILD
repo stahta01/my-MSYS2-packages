@@ -1,0 +1,98 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+# Contributor: Martell Malone <martellmalone@gmail.com>
+
+# controls the compiler that builds the crt with _variant
+#_variant=clang
+_variant=gcc
+
+_realname=crt
+_mingw_suff=mingw-w64-cross
+pkgbase="${_mingw_suff}-${_realname}"
+pkgname="${_mingw_suff}-${_realname}"
+pkgver=7.0.0
+pkgrel=1
+pkgdesc='MinGW-w64 CRT for cross-compiler'
+arch=('i686' 'x86_64')
+url='https://mingw-w64.sourceforge.io/'
+license=('custom')
+if [ "${_variant}" = "gcc" ]; then
+groups=("${_mingw_suff}-toolchain" "${_mingw_suff}")
+fi
+depends=("${_mingw_suff}-headers=${pkgver}")
+provides=("${_mingw_suff}-${_realname}=${pkgver}")
+
+if [ "${_variant}" = "clang" ]; then
+  makedepends=("clang" "lld")
+  pkgname="${_mingw_suff}-${_realname}-clang"
+  _imptool=genlib
+else
+  makedepends=("${_mingw_suff}-gcc" "${_mingw_suff}-binutils")
+  _imptool=dlltool
+fi
+
+options=('!strip' 'staticlibs' '!emptydirs' '!buildflags')
+_sourcedir=mingw-w64-v${pkgver}
+source=("https://sourceforge.net/projects/mingw-w64/files/mingw-w64/mingw-w64-release/mingw-w64-v${pkgver}.tar.bz2"
+        "0005-handle-ctor_list-internally.patch")
+
+sha256sums=('SKIP'
+            '0eabe00375d4e26fd7e9afa56f6a9da02845fe2c0f900f5e1f829842bff8624a')
+
+_targets="x86_64-w64-mingw32 i686-w64-mingw32" #armv7-w64-mingw32
+
+prepare() {
+  cd "${srcdir}/${_sourcedir}"
+  if [ "${_variant}" = "clang" ]; then
+    patch -p1 -i "${srcdir}"/0005-handle-ctor_list-internally.patch
+  fi
+}
+
+build() {
+  for _target in ${_targets}; do
+    msg "Building ${_target} CRT"
+  case "${_target}" in
+    i686*)
+      _crt_configure_args="--disable-lib64 --enable-lib32"
+    ;;
+    x86_64*)
+      _crt_configure_args="--disable-lib32 --enable-lib64"
+    ;;
+    armv7*)
+      _crt_configure_args="--disable-lib32 --disable-lib64 --enable-libarm32"
+    ;;
+  esac
+    mkdir -p ${srcdir}/crt-${_target} && cd ${srcdir}/crt-${_target}
+
+    #--with-host-libstdcxx="-lstdc++ -lsupc++"
+    # we must stitch to this once i get it built / working :)
+    # AS = as
+
+    if [ "${_variant}" = "clang" ]; then
+      export CC="${_target}-clang" CXX="${_target}-clang++" AR="llvm-ar" RANLIB="llvm-ranlib" DLLTOOL="${_target}-dlltool" LD="lld"
+    fi
+
+    if [ "${_imptool}" = "genlib" ]; then
+      _crt_configure_args+=" --with-genlib"
+    fi
+
+    ${srcdir}/${_sourcedir}/mingw-w64-crt/configure \
+    --build=${CHOST} \
+    --prefix=/opt/${_target} \
+    --host=${_target} \
+    --enable-wildcard \
+    ${_crt_configure_args}
+
+    local _MINGW_PREFIX_WIN=$(cygpath -m ${MINGW_PREFIX})
+
+    make -j1
+
+  done
+}
+
+package() {
+  for _target in ${_targets}; do
+    msg "Installing ${_target} crt"
+    cd ${srcdir}/crt-${_target}
+    make -j1 DESTDIR=${pkgdir} install
+  done
+}
