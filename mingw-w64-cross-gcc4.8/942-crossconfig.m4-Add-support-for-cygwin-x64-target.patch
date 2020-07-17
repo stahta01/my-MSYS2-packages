@@ -1,0 +1,73 @@
+From 7e866c8b6fcd5bcb0aad24908a55743485736088 Mon Sep 17 00:00:00 2001
+From: Kai Tietz <ktietz@redhat.com>
+Date: Wed, 27 Mar 2013 22:56:57 +0100
+Subject: crossconfig.m4: Add support for cygwin x64 target.
+
+	* crossconfig.m4: Add support for cygwin x64 target.
+	* configure: Regenerated.
+
+From-SVN: r197174
+---
+ libstdc++-v3/ChangeLog      |  5 +++++
+ libstdc++-v3/configure      | 10 +++++-----
+ libstdc++-v3/crossconfig.m4 |  2 +-
+ 3 files changed, 11 insertions(+), 6 deletions(-)
+
+diff --git a/libstdc++-v3/ChangeLog b/libstdc++-v3/ChangeLog
+index c06d6ae5494..33cb70e372f 100644
+--- a/libstdc++-v3/ChangeLog
++++ b/libstdc++-v3/ChangeLog
+@@ -1,3 +1,8 @@
++2013-03-27  Kai Tietz  <ktietz@redhat.com>
++
++	* crossconfig.m4: Add support for cygwin x64 target.
++	* configure: Regenerated.
++
+ 2013-03-25  Kai Tietz  <ktietz@redhat.com>
+ 
+ 	* testsuite/18_support/50594.cc: For mingw-targets use only static
+diff --git a/libstdc++-v3/configure b/libstdc++-v3/configure
+index f40ddcff99e..d867af37114 100755
+--- a/libstdc++-v3/configure
++++ b/libstdc++-v3/configure
+@@ -3530,11 +3530,11 @@ MAKEINFO=${MAKEINFO-"${am_missing_run}makeinfo"}
+ 
+ # We need awk for the "check" target.  The system "awk" is bad on
+ # some platforms.
+-# Always define AMTAR for backward compatibility.
++# Always define AMTAR for backward compatibility.  Yes, it's still used
++# in the wild :-(  We should find a proper way to deprecate it ...
++AMTAR='$${TAR-tar}'
+ 
+-AMTAR=${AMTAR-"${am_missing_run}tar"}
+-
+-am__tar='${AMTAR} chof - "$$tardir"'; am__untar='${AMTAR} xf -'
++am__tar='$${TAR-tar} chof - "$$tardir"' am__untar='$${TAR-tar} xf -'
+ 
+ 
+ 
+@@ -46017,7 +46017,7 @@ $as_echo "#define HAVE_TLS 1" >>confdefs.h
+ 	;;
+     esac
+     ;;
+-  *-linux* | *-uclinux* | *-gnu* | *-kfreebsd*-gnu | *-knetbsd*-gnu)
++  *-linux* | *-uclinux* | *-gnu* | *-kfreebsd*-gnu | *-knetbsd*-gnu | *-cygwin*)
+ 
+   # All these tests are for C++; save the language and the compiler flags.
+   # The CXXFLAGS thing is suspicious, but based on similar bits previously
+diff --git a/libstdc++-v3/crossconfig.m4 b/libstdc++-v3/crossconfig.m4
+index 943ea676ea2..0112f6fa5c3 100644
+--- a/libstdc++-v3/crossconfig.m4
++++ b/libstdc++-v3/crossconfig.m4
+@@ -141,7 +141,7 @@ case "${host}" in
+ 	;;
+     esac
+     ;;
+-  *-linux* | *-uclinux* | *-gnu* | *-kfreebsd*-gnu | *-knetbsd*-gnu)
++  *-linux* | *-uclinux* | *-gnu* | *-kfreebsd*-gnu | *-knetbsd*-gnu | *-cygwin*)
+     GLIBCXX_CHECK_COMPILER_FEATURES
+     GLIBCXX_CHECK_LINKER_FEATURES
+     GLIBCXX_CHECK_MATH_SUPPORT
+-- 
+2.27.0.windows.1
+

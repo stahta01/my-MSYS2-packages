@@ -52,8 +52,10 @@ source=("ftp://gcc.gnu.org/pub/gcc/releases/${_realname}-${pkgver}/${_realname}-
     461-gcc-4.0-cfns-fix-mismatch-in-gnu_inline-attributes.patch
     940-dfp.m4-Add-support-for-cygwin-x64-target.patch
     941-config.build-Add-support-for-cygwin-x64-target.patch
-    942-config.host-Add-support-for-cygwin-x64-target.patch
-    943-gcc-4.8-libdecnumber-cygwin64.patch
+    942-crossconfig.m4-Add-support-for-cygwin-x64-target.patch
+    943-config.host-Add-support-for-cygwin-x64-target.patch
+    944-configure-Regenerated.patch
+    945-gcc-4.8-libdecnumber-cygwin64.patch
     '950-gcc-4.8.0-configure-msys2.patch'
     951-gcc-4.8.0-msys2-spec.patch)
 md5sums=('a3d7d63b9cb6b6ea049469a0c4a43c9d'
@@ -61,22 +63,27 @@ md5sums=('a3d7d63b9cb6b6ea049469a0c4a43c9d'
          '6eb6e080dbf7bc6825f53a0aaa6c4ef9'
          'd28f5653282c67bcfd1a8f81aebef72d'
          '928e151b33981e68d0e67a9bd387b37e'
-         'f6b5fb08ff06a7d60ee3280e14240bb2'
          '71cdb550528efcf2a5c9112464bfbabc'
-         'f7cb43c6a6a54e55027e70a9b03774b2'
-         '15da8d111f8eab15597db353537aefd3'
-         '094b047b34a044d4ba76074d98bfd8a0'
          'e553ecf0eeb3e83a149cc1241971fd10'
          'f01b3978cbd1f8aa14833a26a7891a32'
-         '78eab6229fd809e5494df53797778e0b'
          '40b0a196ff005adb442ac5b9a2f42fd8'
-         'fc7adee9dc8206aaf5e033798c358157'
          'acda6f3393d9e935953fa48f68e9d4f5'
          '3cbcce9b943b85562bb6afd7d83c5eac'
-         'e0c65906da3c1cc14cd2158a9389be74'
-         'c9fb65c97643807fcee2f21e897b5ed7'
+         'f7cb43c6a6a54e55027e70a9b03774b2'
+         '15da8d111f8eab15597db353537aefd3'
+         'fc7adee9dc8206aaf5e033798c358157'
+         '094b047b34a044d4ba76074d98bfd8a0'
          'b62de968afc68fd777c495901d2f17fa'
-         '8881847342f7fce0a105550259a3e057')
+         'f6b5fb08ff06a7d60ee3280e14240bb2'
+         '8881847342f7fce0a105550259a3e057'
+         '7c9f803191f2f7e227e09f94c7ee8e7f'
+         '681ebf6a02a739460077beabacf30bc8'
+         'd1b687d198d51ae894366481197b9010'
+         'a84b04a2cd21119d6016048d285ff7d0'
+         'ebf9e4fc59ef55a30bc54aec3763f3f5'
+         'fc5606533ab3626391da29c175c4a4cb'
+         'e0c65906da3c1cc14cd2158a9389be74'
+         'c9fb65c97643807fcee2f21e897b5ed7')
 
 # =========================================== #
 # Helper macro(s) to help make tasks easier   #
@@ -120,8 +127,10 @@ prepare() {
   apply_patch_with_msg \
     940-dfp.m4-Add-support-for-cygwin-x64-target.patch \
     941-config.build-Add-support-for-cygwin-x64-target.patch \
-    942-config.host-Add-support-for-cygwin-x64-target.patch \
-    943-gcc-4.8-libdecnumber-cygwin64.patch
+    942-crossconfig.m4-Add-support-for-cygwin-x64-target.patch \
+    943-config.host-Add-support-for-cygwin-x64-target.patch \
+    944-configure-Regenerated.patch \
+    945-gcc-4.8-libdecnumber-cygwin64.patch
 
   # MSYS2 Patches
   patch -p1 -i ${srcdir}/950-gcc-4.8.0-configure-msys2.patch

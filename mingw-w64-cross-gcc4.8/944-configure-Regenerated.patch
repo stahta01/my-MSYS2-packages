@@ -1,0 +1,43 @@
+From 071928d9dca145b25741d1dc8c64a56d7bd86241 Mon Sep 17 00:00:00 2001
+From: Kai Tietz <ktietz@redhat.com>
+Date: Wed, 27 Mar 2013 23:00:03 +0100
+Subject: configure: Regenerated.
+
+	* configure: Regenerated.
+
+From-SVN: r197177
+---
+ libiberty/ChangeLog | 4 ++++
+ libiberty/configure | 4 +++-
+ 2 files changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/libiberty/ChangeLog b/libiberty/ChangeLog
+index 06e7c1cb838..91b06fa6e50 100644
+--- a/libiberty/ChangeLog
++++ b/libiberty/ChangeLog
+@@ -1,3 +1,7 @@
++2013-03-27  Kai Tietz  <ktietz@redhat.com>
++
++	* configure: Regenerated.
++
+ 2013-03-06  Tobias Burnus  <burnus@net-b.de>
+ 
+ 	* libiberty.texi: Update comment, remove lowersections.
+diff --git a/libiberty/configure b/libiberty/configure
+index 536702742dd..17bd3c5bacb 100755
+--- a/libiberty/configure
++++ b/libiberty/configure
+@@ -4865,7 +4865,9 @@ case "${host}" in
+     hppa*64*-*-hpux*)
+ 	# PIC is the default for 64-bit PA HP-UX.
+ 	;;
+-    i[34567]86-*-cygwin* | i[34567]86-*-mingw* | x86_64-*-mingw*)
++    i[34567]86-*-cygwin* | x86_64-*-cygwin*)
++	;;
++    i[34567]86-*-mingw* | x86_64-*-mingw*)
+ 	;;
+     i[34567]86-*-interix[3-9]*)
+ 	# Interix 3.x gcc -fpic/-fPIC options generate broken code.
+-- 
+2.27.0.windows.1
+
