@@ -48,6 +48,7 @@ source=(
     943-config.host-Add-support-for-cygwin-x64-target.patch
     944-configure-Regenerated.patch
     945-gcc-4.8-libdecnumber-cygwin64.patch
+    946-configure-Regenerated.patch
     '950-gcc-4.8.0-configure-msys2.patch'
     951-gcc-4.8.0-msys2-spec.patch
     'gcc-4.8-filename-output.patch'
@@ -137,7 +138,8 @@ prepare() {
     942-crossconfig.m4-Add-support-for-cygwin-x64-target.patch \
     943-config.host-Add-support-for-cygwin-x64-target.patch \
     944-configure-Regenerated.patch \
-    945-gcc-4.8-libdecnumber-cygwin64.patch
+    945-gcc-4.8-libdecnumber-cygwin64.patch \
+    946-configure-Regenerated.patch
 
   # MSYS2 Patches
   apply_patch_with_msg \
