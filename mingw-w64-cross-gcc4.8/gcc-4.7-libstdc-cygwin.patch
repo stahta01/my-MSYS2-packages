@@ -1,14 +1,3 @@
---- origsrc/gcc-4.8-20130310/libstdc++-v3/configure	2013-03-15 02:47:51.930826600 -0500
-+++ src/gcc-4.8-20130310/libstdc++-v3/configure	2013-03-17 00:43:35.146679400 -0500
-@@ -46017,7 +46017,7 @@ $as_echo "#define HAVE_TLS 1" >>confdefs
- 	;;
-     esac
-     ;;
--  *-linux* | *-uclinux* | *-gnu* | *-kfreebsd*-gnu | *-knetbsd*-gnu)
-+  *-linux* | *-uclinux* | *-gnu* | *-kfreebsd*-gnu | *-knetbsd*-gnu | *-cygwin*)
- 
-   # All these tests are for C++; save the language and the compiler flags.
-   # The CXXFLAGS thing is suspicious, but based on similar bits previously
 --- origsrc/gcc-4.7.2/libstdc++-v3/testsuite/lib/libstdc++.exp	2012-08-06 22:34:27.000000000 +0800
 +++ src/gcc-4.7.2/libstdc++-v3/testsuite/lib/libstdc++.exp	2013-02-26 19:31:07.934763700 +0800
 @@ -146,6 +146,9 @@ proc libstdc++_init { testfile } {
