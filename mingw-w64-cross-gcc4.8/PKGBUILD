@@ -32,17 +32,8 @@ optdepends=()
 replaces=()
 backup=()
 options=('!strip' 'staticlibs' '!emptydirs' '!buildflags')
-source=("ftp://gcc.gnu.org/pub/gcc/releases/${_realname}-${pkgver}/${_realname}-${pkgver}.tar.bz2"
-    'gcc-4.8-filename-output.patch'
-    'gcc-4.8-lambda-ICE.patch'
-    'gcc-4.8-iconv.patch'
-    'gcc-4.8-libgcc-references.patch'
-    'gcc-4.7-stdthreads.patch'
-    'gcc-4.7-libstdc-cygwin.patch'
-    'gcc-4.8-libatomic-cygwin.patch'
-    'gcc-4.8-libffi-cygwin64.patch'
-    'gcc-4.8-configure-cygwin64.patch'
-    'gcc-4.8-specs-cygwin.patch'
+source=(
+    "ftp://gcc.gnu.org/pub/gcc/releases/${_realname}-${pkgver}/${_realname}-${pkgver}.tar.bz2"
     '001-4.7-execstack.patch'
     '007-4.7-libffi-noinst.patch'
     '010-4.8-lto-plugin-soname.patch'
@@ -57,18 +48,19 @@ source=("ftp://gcc.gnu.org/pub/gcc/releases/${_realname}-${pkgver}/${_realname}-
     944-configure-Regenerated.patch
     945-gcc-4.8-libdecnumber-cygwin64.patch
     '950-gcc-4.8.0-configure-msys2.patch'
-    951-gcc-4.8.0-msys2-spec.patch)
+    951-gcc-4.8.0-msys2-spec.patch
+    'gcc-4.8-filename-output.patch'
+    'gcc-4.8-lambda-ICE.patch'
+    'gcc-4.8-iconv.patch'
+    'gcc-4.8-libgcc-references.patch'
+    'gcc-4.7-stdthreads.patch'
+    'gcc-4.7-libstdc-cygwin.patch'
+    'gcc-4.8-libatomic-cygwin.patch'
+    'gcc-4.8-libffi-cygwin64.patch'
+    'gcc-4.8-configure-cygwin64.patch'
+    'gcc-4.8-specs-cygwin.patch'
+)
 sha256sums=('09dc2276c73424bbbfda1dbddc62bbbf900c9f185acf7f3e1d773ce2d7e3cdc8'
-            '9278e745190bac0b3f6ef74972aecd4e2891d4930f7b6fa8840c3d4f7fbf4f98'
-            '301cfbe339043ca14205140acbec1d0f55178f01365ff309e4ddb90a3c934031'
-            '9e0401c3e69317a45269fb689e4e89ee8f46997c2c52b11812a11c9faf142ede'
-            '52ddd5b2d5f337efa7475de211eccebd70e343c902107343b22d66951fb799d3'
-            '5e0fc1437ce0b357e78d440692e3a30a7905a5f360a67928a95b14ec8d45365b'
-            '027a411b3f222d4c43f7ea59e893d908af6d869a6c5c25d9109d1088f494e3c9'
-            '6812f82299b33c5e354e8a54fcc96149957e9ffa35d576537923621d97c6817c'
-            '7f3410ccc61f4b60ae9fc4201cc321f681771196e44fc61639bdf924a9132eec'
-            'b578eb4f15b1a5be2cb4c1922764d18fc7535da5864d8eb06132112748949892'
-            '3d33128b4ba26fe35e681dd17cb521a757b7801dec63ca7437eb784ec985d491'
             '4942e94ccdf11ce260e029400bd1cee8b63e78d071ac2bae812ba261edb7b67b'
             'af90eb0eb49e06b4735f428fee514c6b87f349c1d3669c8bc7bb6250d4126c4e'
             '6e4322814f7b0f1d3ea3dbea0c8fa233d6ec9493354d7bd54e755ee971914d74'
@@ -83,7 +75,17 @@ sha256sums=('09dc2276c73424bbbfda1dbddc62bbbf900c9f185acf7f3e1d773ce2d7e3cdc8'
             '50d5449c610804fb1b059cbb28edf849e1e51c32e326a8b8d95301dff39c85a1'
             '865ed62eb9af20142fb2cae6708c52aabdc538284e8a88648bfec97abb7ccf70'
             'c620dafb8be2dc0cfc9a4242776f55b5c98b28397638ccbb16eb10512e76010f'
-            '2106c9679c19a133ffffe64b9c950094695cf0d4e2609a90702f0d9e8bb9cfbc')
+            '2106c9679c19a133ffffe64b9c950094695cf0d4e2609a90702f0d9e8bb9cfbc'
+            '9278e745190bac0b3f6ef74972aecd4e2891d4930f7b6fa8840c3d4f7fbf4f98'
+            '301cfbe339043ca14205140acbec1d0f55178f01365ff309e4ddb90a3c934031'
+            '9e0401c3e69317a45269fb689e4e89ee8f46997c2c52b11812a11c9faf142ede'
+            '52ddd5b2d5f337efa7475de211eccebd70e343c902107343b22d66951fb799d3'
+            '5e0fc1437ce0b357e78d440692e3a30a7905a5f360a67928a95b14ec8d45365b'
+            '027a411b3f222d4c43f7ea59e893d908af6d869a6c5c25d9109d1088f494e3c9'
+            '6812f82299b33c5e354e8a54fcc96149957e9ffa35d576537923621d97c6817c'
+            '7f3410ccc61f4b60ae9fc4201cc321f681771196e44fc61639bdf924a9132eec'
+            'dfcc666d9cd36af012627a65ea4fd6e7424221876ad5ba46ed398a781aadee98'
+            '3d33128b4ba26fe35e681dd17cb521a757b7801dec63ca7437eb784ec985d491')
 
 # =========================================== #
 # Helper macro(s) to help make tasks easier   #
