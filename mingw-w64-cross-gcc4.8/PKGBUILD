@@ -60,7 +60,6 @@ source=(
     'gcc-4.7-libstdc-cygwin.patch'
     'gcc-4.8-libatomic-cygwin.patch'
     'gcc-4.8-libffi-cygwin64.patch'
-    'gcc-4.8-configure-cygwin64.patch'
     'gcc-4.8-specs-cygwin.patch'
 )
 sha256sums=('09dc2276c73424bbbfda1dbddc62bbbf900c9f185acf7f3e1d773ce2d7e3cdc8'
@@ -77,6 +76,7 @@ sha256sums=('09dc2276c73424bbbfda1dbddc62bbbf900c9f185acf7f3e1d773ce2d7e3cdc8'
             '7020b523797b5fdad1b7c0e10585a8af7c914baf977d99ca7fdfe15055efe6bd'
             '50d5449c610804fb1b059cbb28edf849e1e51c32e326a8b8d95301dff39c85a1'
             '865ed62eb9af20142fb2cae6708c52aabdc538284e8a88648bfec97abb7ccf70'
+            '543d3f18edf80e125ec185df6a8d1e77db493f4e11b052397405ea143d88efb1'
             '82e71409edd694337cc9b98b68105baf6417ca78ee3539f3d45a394376b0cb37'
             '2106c9679c19a133ffffe64b9c950094695cf0d4e2609a90702f0d9e8bb9cfbc'
             '9278e745190bac0b3f6ef74972aecd4e2891d4930f7b6fa8840c3d4f7fbf4f98'
@@ -87,8 +87,8 @@ sha256sums=('09dc2276c73424bbbfda1dbddc62bbbf900c9f185acf7f3e1d773ce2d7e3cdc8'
             '027a411b3f222d4c43f7ea59e893d908af6d869a6c5c25d9109d1088f494e3c9'
             '6812f82299b33c5e354e8a54fcc96149957e9ffa35d576537923621d97c6817c'
             '7f3410ccc61f4b60ae9fc4201cc321f681771196e44fc61639bdf924a9132eec'
-            'dfcc666d9cd36af012627a65ea4fd6e7424221876ad5ba46ed398a781aadee98'
             '3d33128b4ba26fe35e681dd17cb521a757b7801dec63ca7437eb784ec985d491')
+
 
 # =========================================== #
 # Helper macro(s) to help make tasks easier   #
@@ -99,12 +99,22 @@ apply_patch_with_msg() {
     patch -Nbp1 -i "${srcdir}"/${_fname}
   done
 }
+
+del_file_exists() {
+  for _fname in "$@"
+  do
+    if [ -f ${_fname} ]; then
+      rm -rf ${_fname}
+    fi
+  done
+}
 # =========================================== #
 
 prepare() {
   msg2 "Synchronizing source directory"
   mkdir -p "${srcdir}/${_realname}-${pkgver}"
-  rsync --recursive --times --omit-dir-times --delete --whole-file "${startdir}/${_realname}-${pkgver}"/* "${srcdir}/${_realname}-${pkgver}"
+  rsync --stats --itemize-changes --recursive --checksum --times \
+    "${startdir}/${_realname}-${pkgver}"/* "${srcdir}/${_realname}-${pkgver}"
 
   cd ${srcdir}/${_realname}-${pkgver}
 
@@ -112,6 +122,9 @@ prepare() {
   sed -i 's/install_to_$(INSTALL_DEST) //' libiberty/Makefile.in
   # hack! - some configure tests for header files using "$CPP $CPPFLAGS"
   #sed -i "/ac_cpp=/s/\$CPPFLAGS/\$CPPFLAGS -O2/" {libiberty,gcc}/configure
+
+  del_file_exists \
+    gcc/testsuite/g++.dg/cpp0x/lambda/lambda-names1.C
 
   patch -p0 -i ${srcdir}/gcc-4.8-filename-output.patch
   patch -p1 -i ${srcdir}/gcc-4.8-lambda-ICE.patch
@@ -129,7 +142,6 @@ prepare() {
   patch -p2 -i ${srcdir}/024-4.7-libitm-cygwin.patch
   patch -p2 -i ${srcdir}/gcc-4.7-libstdc-cygwin.patch
   patch -p2 -i ${srcdir}/010-4.8-lto-plugin-soname.patch
-  patch -p2 -i ${srcdir}/gcc-4.8-configure-cygwin64.patch
   patch -p0 -i ${srcdir}/gcc-4.8-specs-cygwin.patch
 
   # Cygwin Backport patches
