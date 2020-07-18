@@ -13,3 +13,8 @@
 */mingw-w64/
 *.tar.zst
 logpipe.*.lnk
+/*/*-git/
+/*/*-svn/
+/*/*-hg/
+/*/*-extracted/
+*.bak
