@@ -33,7 +33,7 @@ replaces=()
 backup=()
 options=('!strip' 'staticlibs' '!emptydirs' '!buildflags')
 source=(
-    "ftp://gcc.gnu.org/pub/gcc/releases/${_realname}-${pkgver}/${_realname}-${pkgver}.tar.bz2"
+#    "ftp://gcc.gnu.org/pub/gcc/releases/${_realname}-${pkgver}/${_realname}-${pkgver}.tar.bz2"
     '001-4.7-execstack.patch'
     '007-4.7-libffi-noinst.patch'
     '010-4.8-lto-plugin-soname.patch'
@@ -60,7 +60,8 @@ source=(
     'gcc-4.8-configure-cygwin64.patch'
     'gcc-4.8-specs-cygwin.patch'
 )
-sha256sums=('09dc2276c73424bbbfda1dbddc62bbbf900c9f185acf7f3e1d773ce2d7e3cdc8'
+sha256sums=(
+#'09dc2276c73424bbbfda1dbddc62bbbf900c9f185acf7f3e1d773ce2d7e3cdc8'
             '4942e94ccdf11ce260e029400bd1cee8b63e78d071ac2bae812ba261edb7b67b'
             'af90eb0eb49e06b4735f428fee514c6b87f349c1d3669c8bc7bb6250d4126c4e'
             '6e4322814f7b0f1d3ea3dbea0c8fa233d6ec9493354d7bd54e755ee971914d74'
@@ -99,6 +100,10 @@ apply_patch_with_msg() {
 # =========================================== #
 
 prepare() {
+  msg2 "Synchronizing source directory"
+  mkdir -p "${srcdir}/${_realname}-${pkgver}"
+  rsync --recursive --times "${startdir}/${_realname}-${pkgver}"/* "${srcdir}/${_realname}-${pkgver}"
+
   cd ${srcdir}/${_realname}-${pkgver}
 
   #do not install libiberty
