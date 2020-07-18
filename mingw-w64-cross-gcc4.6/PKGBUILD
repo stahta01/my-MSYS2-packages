@@ -36,8 +36,10 @@ options=('!strip' 'staticlibs' '!emptydirs' '!buildflags')
 noextract=("${_realname}-${pkgver}.tar.bz2")
 source=(
     "ftp://gcc.gnu.org/pub/gcc/releases/${_realname}-${pkgver}/${_realname}-${pkgver}.tar.bz2"
+    104-gcc-4.6.4-Fix-texi-docs-syntax-errors.patch
 )
-sha256sums=('35af16afa0b67af9b8eb15cafb76d2bc5f568540552522f5dc2c88dd45d977e8')
+sha256sums=('35af16afa0b67af9b8eb15cafb76d2bc5f568540552522f5dc2c88dd45d977e8'
+            '8a72e1b2cef99c78a9f7d8126d8509b580617fce68a289b8bcb05c98e4ffc548')
 
 # =========================================== #
 # Helper macro(s) to help make tasks easier   #
@@ -59,7 +61,7 @@ prepare() {
 
   msg2 "Synchronizing source directory"
   mkdir -p "${srcdir}/${_realname}-${pkgver}"
-  rsync --stats --recursive --times --whole-file --itemize-changes \
+  rsync --stats --itemize-changes --recursive --size-only --times \
     "${startdir}/${_realname}-${pkgver}-extracted"/* "${srcdir}/${_realname}-${pkgver}"
 
   cd ${srcdir}/${_realname}-${pkgver}
@@ -69,6 +71,8 @@ prepare() {
   # hack! - some configure tests for header files using "$CPP $CPPFLAGS"
   #sed -i "/ac_cpp=/s/\$CPPFLAGS/\$CPPFLAGS -O2/" {libiberty,gcc}/configure
 
+  # makeinfo Patches
+  apply_patch_with_msg 104-gcc-4.6.4-Fix-texi-docs-syntax-errors.patch
 
   # MSYS2 Patches
   # apply_patch_with_msg 
