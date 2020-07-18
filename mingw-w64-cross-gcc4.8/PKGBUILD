@@ -32,8 +32,9 @@ optdepends=()
 replaces=()
 backup=()
 options=('!strip' 'staticlibs' '!emptydirs' '!buildflags')
+noextract=("${_realname}-${pkgver}.tar.bz2")
 source=(
-#    "ftp://gcc.gnu.org/pub/gcc/releases/${_realname}-${pkgver}/${_realname}-${pkgver}.tar.bz2"
+    "ftp://gcc.gnu.org/pub/gcc/releases/${_realname}-${pkgver}/${_realname}-${pkgver}.tar.bz2"
     '001-4.7-execstack.patch'
     '007-4.7-libffi-noinst.patch'
     '010-4.8-lto-plugin-soname.patch'
@@ -60,8 +61,7 @@ source=(
     'gcc-4.8-configure-cygwin64.patch'
     'gcc-4.8-specs-cygwin.patch'
 )
-sha256sums=(
-#'09dc2276c73424bbbfda1dbddc62bbbf900c9f185acf7f3e1d773ce2d7e3cdc8'
+sha256sums=('09dc2276c73424bbbfda1dbddc62bbbf900c9f185acf7f3e1d773ce2d7e3cdc8'
             '4942e94ccdf11ce260e029400bd1cee8b63e78d071ac2bae812ba261edb7b67b'
             'af90eb0eb49e06b4735f428fee514c6b87f349c1d3669c8bc7bb6250d4126c4e'
             '6e4322814f7b0f1d3ea3dbea0c8fa233d6ec9493354d7bd54e755ee971914d74'
@@ -75,7 +75,7 @@ sha256sums=(
             '7020b523797b5fdad1b7c0e10585a8af7c914baf977d99ca7fdfe15055efe6bd'
             '50d5449c610804fb1b059cbb28edf849e1e51c32e326a8b8d95301dff39c85a1'
             '865ed62eb9af20142fb2cae6708c52aabdc538284e8a88648bfec97abb7ccf70'
-            'c620dafb8be2dc0cfc9a4242776f55b5c98b28397638ccbb16eb10512e76010f'
+            '82e71409edd694337cc9b98b68105baf6417ca78ee3539f3d45a394376b0cb37'
             '2106c9679c19a133ffffe64b9c950094695cf0d4e2609a90702f0d9e8bb9cfbc'
             '9278e745190bac0b3f6ef74972aecd4e2891d4930f7b6fa8840c3d4f7fbf4f98'
             '301cfbe339043ca14205140acbec1d0f55178f01365ff309e4ddb90a3c934031'
@@ -102,7 +102,7 @@ apply_patch_with_msg() {
 prepare() {
   msg2 "Synchronizing source directory"
   mkdir -p "${srcdir}/${_realname}-${pkgver}"
-  rsync --recursive --times "${startdir}/${_realname}-${pkgver}"/* "${srcdir}/${_realname}-${pkgver}"
+  rsync --recursive --times --omit-dir-times --delete --whole-file "${startdir}/${_realname}-${pkgver}"/* "${srcdir}/${_realname}-${pkgver}"
 
   cd ${srcdir}/${_realname}-${pkgver}
 
@@ -140,14 +140,15 @@ prepare() {
     945-gcc-4.8-libdecnumber-cygwin64.patch
 
   # MSYS2 Patches
-  patch -p1 -i ${srcdir}/950-gcc-4.8.0-configure-msys2.patch
-  patch -p1 -i ${srcdir}/951-gcc-4.8.0-msys2-spec.patch
+  apply_patch_with_msg \
+    950-gcc-4.8.0-configure-msys2.patch \
+    951-gcc-4.8.0-msys2-spec.patch
 
   # GCC Backport patches
-  patch -p1 -i ${srcdir}/104-gcc-4.6.4-Fix-texi-docs-syntax-errors.patch
+  apply_patch_with_msg 104-gcc-4.6.4-Fix-texi-docs-syntax-errors.patch
 
   # Misc Patches
-  patch -p1 -i ${srcdir}/461-gcc-4.0-cfns-fix-mismatch-in-gnu_inline-attributes.patch
+  apply_patch_with_msg 461-gcc-4.0-cfns-fix-mismatch-in-gnu_inline-attributes.patch
 }
 
 build() {
