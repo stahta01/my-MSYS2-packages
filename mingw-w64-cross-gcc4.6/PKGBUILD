@@ -1,0 +1,159 @@
+# Maintainer: Tim Stahlhut <stahta01@gmail.com>
+# Contributor: Alexey Pavlov <alexpux@gmail.com>
+
+_mingw_suff=mingw-w64-cross
+_realname=gcc
+
+# Package build options
+_make_gcc_only=yes
+_threads="win32"
+_targets="i686-w64-mingw32 x86_64-w64-mingw32"
+
+pkgbase="${_mingw_suff}-${_realname}4.6"
+pkgname=("${_mingw_suff}-${_realname}")
+pkgver=4.6.4
+pkgrel=1
+pkgdesc="GCC for the MinGW-w64"
+arch=('i686' 'x86_64')
+url="http://gcc.gnu.org"
+license=('GPL' 'LGPL' 'FDL' 'custom')
+groups=("${_mingw_suff}-toolchain" "${_mingw_suff}")
+depends=("zlib"
+         "mpc"  
+         "${_mingw_suff}-binutils" 
+         "${_mingw_suff}-headers")
+if [[ "$_make_gcc_only" != "yes" ]] ; then
+  depends+=("${_mingw_suff}-crt"
+            "${_mingw_suff}-winpthreads")
+fi
+makedepends=("gcc" 'lndir')
+#checkdepends=('dejagnu')
+optdepends=()
+replaces=()
+backup=()
+options=('!strip' 'staticlibs' '!emptydirs' '!buildflags')
+noextract=("${_realname}-${pkgver}.tar.bz2")
+source=(
+    "ftp://gcc.gnu.org/pub/gcc/releases/${_realname}-${pkgver}/${_realname}-${pkgver}.tar.bz2"
+)
+sha256sums=('35af16afa0b67af9b8eb15cafb76d2bc5f568540552522f5dc2c88dd45d977e8')
+
+# =========================================== #
+# Helper macro(s) to help make tasks easier   #
+apply_patch_with_msg() {
+  for _fname in "$@"
+  do
+    msg2 "Applying ${_fname}"
+    patch -Nbp1 -i "${srcdir}"/${_fname}
+  done
+}
+# =========================================== #
+
+prepare() {
+  if [ ! -d "${startdir}/${_realname}-${pkgver}-extracted" ]; then
+    msg2 "Extracting archive"
+    mkdir -p  "${startdir}/${_realname}-${pkgver}-extracted"
+    tar --strip-components=1 -xjf ${startdir}/${_realname}-${pkgver}.tar.bz2 -C "${startdir}/${_realname}-${pkgver}-extracted"
+  fi
+
+  msg2 "Synchronizing source directory"
+  mkdir -p "${srcdir}/${_realname}-${pkgver}"
+  rsync --recursive --times --omit-dir-times --delete --whole-file \
+    "${startdir}/${_realname}-${pkgver}-extracted"/* "${srcdir}/${_realname}-${pkgver}"
+
+  cd ${srcdir}/${_realname}-${pkgver}
+
+  #do not install libiberty
+  sed -i 's/install_to_$(INSTALL_DEST) //' libiberty/Makefile.in
+  # hack! - some configure tests for header files using "$CPP $CPPFLAGS"
+  #sed -i "/ac_cpp=/s/\$CPPFLAGS/\$CPPFLAGS -O2/" {libiberty,gcc}/configure
+
+
+  # MSYS2 Patches
+  # apply_patch_with_msg 
+
+  # GCC Backport patches
+  # apply_patch_with_msg
+
+  # Misc Patches
+  # apply_patch_with_msg
+}
+
+build() {
+  for _target in ${_targets}; do
+  mkdir -p ${srcdir}/gcc-build-${_target} && cd ${srcdir}/gcc-build-${_target}
+    
+  case "${_target}" in
+    i686*)
+      local _conf="--disable-sjlj-exceptions --with-dwarf2"
+      local _arch=i686
+    ;;
+    
+    x86_64*)
+      local _arch=x86-64
+      local _conf=""
+    ;;
+  esac
+
+  ../${_realname}-${pkgver}/configure \
+    --prefix=/opt \
+    --build=${CHOST} \
+    --host=${CHOST} \
+    --target=${_target} \
+    --libexecdir=/opt/lib \
+    --disable-bootstrap \
+    --with-arch=${_arch} \
+    --with-tune=generic \
+    --enable-languages=c,lto,c++,fortran \
+    --enable-shared --enable-static \
+    --enable-threads=${_threads} \
+    --enable-graphite \
+    --enable-fully-dynamic-string \
+    --enable-libstdcxx-time=yes \
+    --disable-libstdcxx-pch \
+    --disable-libstdcxx-debug \
+    --enable-version-specific-runtime-libs \
+    --enable-lto \
+    --enable-libgomp \
+    --disable-multilib \
+    --enable-checking=release \
+    --disable-rpath \
+    --disable-win32-registry \
+    --disable-werror \
+    --disable-symvers \
+    --with-libiconv \
+    --with-system-zlib \
+    --without-isl \
+    --with-{gmp,mpfr,mpc}=/usr \
+    --with-gnu-as --with-gnu-ld \
+    ${_conf} \
+    CFLAGS="-O2 -pipe" \
+    CXXFALGS="-O2 -pipe"
+
+  if [[ "$_make_gcc_only" == "yes" ]] ; then
+    make all gcc
+  else
+    make all
+  fi
+  done
+}
+
+package() {
+  for _target in ${_targets}; do
+    cd ${srcdir}/gcc-build-${_target}
+    if [[ "$_make_gcc_only" == "yes" ]] ; then
+      make -j1 DESTDIR=${pkgdir} install gcc
+    else
+      make -j1 DESTDIR=${pkgdir} install
+    fi
+    mv ${pkgdir}/opt/lib/gcc/${_target}/lib/libgcc_s.a ${pkgdir}/opt/lib/gcc/${_target}/${pkgver}/
+    mv ${pkgdir}/opt/lib/gcc/${_target}/libgcc*.dll ${pkgdir}/opt/lib/gcc/${_target}/${pkgver}/
+    for _f in ${pkgdir}/opt/bin/*.exe; do
+      strip -s ${_f}
+    done
+    for _f in ${pkgdir}/opt/lib/gcc/${_target}/${pkgver}/*.exe; do
+      strip -s ${_f}
+    done    
+    rm -rf ${pkgdir}/opt/share
+  done
+}
