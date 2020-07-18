@@ -41,7 +41,7 @@ source=("ftp://gcc.gnu.org/pub/gcc/releases/${_realname}-${pkgver}/${_realname}-
     'gcc-4.7-libstdc-cygwin.patch'
     'gcc-4.8-libatomic-cygwin.patch'
     'gcc-4.8-libffi-cygwin64.patch'
-    'gcc-4.8-picflag-cygwin64.patch'
+    'gcc-4.8-configure-cygwin64.patch'
     'gcc-4.8-specs-cygwin.patch'
     '001-4.7-execstack.patch'
     '007-4.7-libffi-noinst.patch'
@@ -58,32 +58,32 @@ source=("ftp://gcc.gnu.org/pub/gcc/releases/${_realname}-${pkgver}/${_realname}-
     945-gcc-4.8-libdecnumber-cygwin64.patch
     '950-gcc-4.8.0-configure-msys2.patch'
     951-gcc-4.8.0-msys2-spec.patch)
-md5sums=('a3d7d63b9cb6b6ea049469a0c4a43c9d'
-         '40cb437805e2f7a006aa0d0c3098ab0f'
-         '6eb6e080dbf7bc6825f53a0aaa6c4ef9'
-         'd28f5653282c67bcfd1a8f81aebef72d'
-         '928e151b33981e68d0e67a9bd387b37e'
-         '71cdb550528efcf2a5c9112464bfbabc'
-         'e553ecf0eeb3e83a149cc1241971fd10'
-         'f01b3978cbd1f8aa14833a26a7891a32'
-         '40b0a196ff005adb442ac5b9a2f42fd8'
-         'acda6f3393d9e935953fa48f68e9d4f5'
-         '3cbcce9b943b85562bb6afd7d83c5eac'
-         'f7cb43c6a6a54e55027e70a9b03774b2'
-         '15da8d111f8eab15597db353537aefd3'
-         'fc7adee9dc8206aaf5e033798c358157'
-         '094b047b34a044d4ba76074d98bfd8a0'
-         'b62de968afc68fd777c495901d2f17fa'
-         'f6b5fb08ff06a7d60ee3280e14240bb2'
-         '8881847342f7fce0a105550259a3e057'
-         '7c9f803191f2f7e227e09f94c7ee8e7f'
-         '681ebf6a02a739460077beabacf30bc8'
-         'd1b687d198d51ae894366481197b9010'
-         'a84b04a2cd21119d6016048d285ff7d0'
-         'ebf9e4fc59ef55a30bc54aec3763f3f5'
-         'fc5606533ab3626391da29c175c4a4cb'
-         'e0c65906da3c1cc14cd2158a9389be74'
-         'c9fb65c97643807fcee2f21e897b5ed7')
+sha256sums=('09dc2276c73424bbbfda1dbddc62bbbf900c9f185acf7f3e1d773ce2d7e3cdc8'
+            '9278e745190bac0b3f6ef74972aecd4e2891d4930f7b6fa8840c3d4f7fbf4f98'
+            '301cfbe339043ca14205140acbec1d0f55178f01365ff309e4ddb90a3c934031'
+            '9e0401c3e69317a45269fb689e4e89ee8f46997c2c52b11812a11c9faf142ede'
+            '52ddd5b2d5f337efa7475de211eccebd70e343c902107343b22d66951fb799d3'
+            '5e0fc1437ce0b357e78d440692e3a30a7905a5f360a67928a95b14ec8d45365b'
+            '1be5f8d96073061628ffe761e953c9578355545d32ac7829165492ba5287d734'
+            '6812f82299b33c5e354e8a54fcc96149957e9ffa35d576537923621d97c6817c'
+            '7f3410ccc61f4b60ae9fc4201cc321f681771196e44fc61639bdf924a9132eec'
+            '575d82b62cf6c39611d655771bb36e616f44dc40a69690bc016e376e625fac57'
+            'b9a4983feba55c0f70fadbf011fe1f7c6bc8390b1d12dc39c58986c6127bb482'
+            '4942e94ccdf11ce260e029400bd1cee8b63e78d071ac2bae812ba261edb7b67b'
+            'af90eb0eb49e06b4735f428fee514c6b87f349c1d3669c8bc7bb6250d4126c4e'
+            '6e4322814f7b0f1d3ea3dbea0c8fa233d6ec9493354d7bd54e755ee971914d74'
+            '1015575631397b588050e53aba5795cc8357e55a2754f8bc6214b564f38f5a06'
+            '8a72e1b2cef99c78a9f7d8126d8509b580617fce68a289b8bcb05c98e4ffc548'
+            '21191b4fd57ce5f230fcc97b4d9ae31bdc387d7c7c8e39436aa7e4268d278d3d'
+            '714e18e8e1a89c149dfabde6eb6dd0a7518590b7a911643de761b6d31c7acd2d'
+            'f9b3270704b1a7769053b72dbc4471829b0bc3395743c3a1927729ebfc13dbb1'
+            '2fd097dcd783c187a480659939ab8cf133f697acde82e4e7b30609a9e6d0e8fe'
+            '3599b8e6203fc9f38cec4f43ca71082fd285036ac8e3dd81e27ea52d14e513f8'
+            '7020b523797b5fdad1b7c0e10585a8af7c914baf977d99ca7fdfe15055efe6bd'
+            '71b918318df9333a883c5439aadb26baf97594dccd0a38f798c956d04eeefa77'
+            '865ed62eb9af20142fb2cae6708c52aabdc538284e8a88648bfec97abb7ccf70'
+            'c620dafb8be2dc0cfc9a4242776f55b5c98b28397638ccbb16eb10512e76010f'
+            '2106c9679c19a133ffffe64b9c950094695cf0d4e2609a90702f0d9e8bb9cfbc')
 
 # =========================================== #
 # Helper macro(s) to help make tasks easier   #
@@ -120,7 +120,7 @@ prepare() {
   patch -p2 -i ${srcdir}/024-4.7-libitm-cygwin.patch
   patch -p2 -i ${srcdir}/gcc-4.7-libstdc-cygwin.patch
   patch -p2 -i ${srcdir}/010-4.8-lto-plugin-soname.patch
-  patch -p2 -i ${srcdir}/gcc-4.8-picflag-cygwin64.patch
+  patch -p2 -i ${srcdir}/gcc-4.8-configure-cygwin64.patch
   patch -p0 -i ${srcdir}/gcc-4.8-specs-cygwin.patch
 
   # Cygwin Backport patches
