@@ -9,8 +9,9 @@ _make_gcc_only=yes
 _threads="win32"
 _targets="i686-w64-mingw32 x86_64-w64-mingw32"
 
-pkgbase="${_mingw_suff}-${_realname}4.8"
-pkgname=("${_mingw_suff}-${_realname}")
+_basegccver=4.8
+pkgbase="${_mingw_suff}-${_realname}${_basegccver}"
+pkgname=("${_mingw_suff}-${_realname}${_basegccver}")
 pkgver=4.8.2
 pkgrel=1
 pkgdesc="GCC for the MinGW-w64"
