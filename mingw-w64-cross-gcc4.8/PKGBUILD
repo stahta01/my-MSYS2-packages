@@ -124,7 +124,10 @@ prepare() {
   #sed -i "/ac_cpp=/s/\$CPPFLAGS/\$CPPFLAGS -O2/" {libiberty,gcc}/configure
 
   del_file_exists \
-    gcc/testsuite/g++.dg/cpp0x/lambda/lambda-names1.C
+    gcc/testsuite/g++.dg/cpp0x/lambda/lambda-names1.C \
+    gcc/config/i386/cygwin.opt \
+    gcc/config/i386/cygwin-w64.h \
+    gcc/config/i386/t-cygwin-w64
 
   patch -p0 -i ${srcdir}/gcc-4.8-filename-output.patch
   patch -p1 -i ${srcdir}/gcc-4.8-lambda-ICE.patch
