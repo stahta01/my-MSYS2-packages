@@ -1,4 +1,4 @@
-From 2a2f729934245d51e6521834f41b7c2befbc59e2 Mon Sep 17 00:00:00 2001
+From 55a5d909efd6bcd097cf23a414490d1d2b735c39 Mon Sep 17 00:00:00 2001
 From: Tim Stahlhut <stahta01@gmail.com>
 Date: Sat, 18 Jul 2020 21:29:41 -0400
 Subject: gcc 4.6.4 configure msys2 part A
@@ -378,7 +378,7 @@ index 900a2ceb81e..239f8516af9 100644
  	    esac
  	    if test x"${ac_cv_c_tkconfig}" = x ; then
 diff --git a/configure b/configure
-index 6be5e9d2b60..be3ba569c3b 100755
+index 6be5e9d2b60..84762f593f6 100755
 --- a/configure
 +++ b/configure
 @@ -2956,7 +2956,7 @@ esac
@@ -395,7 +395,7 @@ index 6be5e9d2b60..be3ba569c3b 100755
      noconfigdirs="$noconfigdirs expect target-libgloss target-newlib ${libgcj}"
      ;;
 -  *-*-cygwin*)
-+  *-*-cygwin*) | *-*-msys*)
++  *-*-cygwin* | *-*-msys*)
      target_configdirs="$target_configdirs target-libtermcap target-winsup"
      noconfigdirs="$noconfigdirs target-gperf target-libgloss"
      # always build newlib if winsup directory is present.
