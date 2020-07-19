@@ -7,8 +7,11 @@ _variant=gcc
 
 _realname=crt
 _mingw_suff=mingw-w64-cross
+_basegccver=4.6
 pkgbase="${_mingw_suff}-${_realname}"
-pkgname="${_mingw_suff}-${_realname}"
+pkgname="${_mingw_suff}-${_realname}-gcc${_basegccver}"
+provides=("${_mingw_suff}-${_realname}")
+conflicts=("${_mingw_suff}-${_realname}")
 pkgver=7.0.0
 pkgrel=1
 pkgdesc='MinGW-w64 CRT for cross-compiler'
