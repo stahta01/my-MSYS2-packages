@@ -1,4 +1,4 @@
-From 55a5d909efd6bcd097cf23a414490d1d2b735c39 Mon Sep 17 00:00:00 2001
+From 80b09b10d3ccfc141c879e40a959311f1c0b14c1 Mon Sep 17 00:00:00 2001
 From: Tim Stahlhut <stahta01@gmail.com>
 Date: Sat, 18 Jul 2020 21:29:41 -0400
 Subject: gcc 4.6.4 configure msys2 part A
@@ -19,9 +19,11 @@ Subject: gcc 4.6.4 configure msys2 part A
  fixincludes/mkfixinc.sh     |    3 +
  gcc/configure               |   64 +-
  gcc/configure.ac            |    8 +-
+ libdecnumber/configure      |    3 +-
  libffi/acinclude.m4         |    4 +-
- libffi/configure            |   34 +-
- libffi/configure.ac         |    2 +-
+ libffi/configure            |   36 +-
+ libffi/configure.ac         |    4 +-
+ libgcc/configure            |    3 +-
  libgfortran/configure       |   49 +-
  libgo/config/libtool.m4     |   36 +-
  libgo/config/ltmain.sh      |   52 +-
@@ -36,14 +38,15 @@ Subject: gcc 4.6.4 configure msys2 part A
  libquadmath/configure       |   30 +-
  libssp/configure            |   30 +-
  libstdc++-v3/acinclude.m4   |    2 +-
- libstdc++-v3/configure      | 6650 +++++++++++++++++++++++++++++++++--
+ libstdc++-v3/configure      | 6658 +++++++++++++++++++++++++++++++++--
  libstdc++-v3/configure.host |    2 +-
+ libstdc++-v3/crossconfig.m4 |    2 +-
  libtool.m4                  |   36 +-
  ltmain.sh                   |   52 +-
  lto-plugin/configure        |   30 +-
  ltoptions.m4                |    2 +-
  zlib/configure              |   28 +-
- 39 files changed, 6688 insertions(+), 695 deletions(-)
+ 42 files changed, 6702 insertions(+), 701 deletions(-)
 
 diff --git a/boehm-gc/configure b/boehm-gc/configure
 index 019054da22a..1a187c7f184 100755
@@ -855,6 +858,20 @@ index 48605c851b2..8d0549d169a 100644
  	# Recent binutils allows the three-operand form of ".comm" on PE.  This
  	# definition is used unconditionally to initialise the default state of
  	# the target option variable that governs usage of the feature.
+diff --git a/libdecnumber/configure b/libdecnumber/configure
+index f69dd4402b0..c1535193f18 100755
+--- a/libdecnumber/configure
++++ b/libdecnumber/configure
+@@ -4604,7 +4604,8 @@ else
+   case $target in
+     powerpc*-*-linux* | i?86*-*-linux* | x86_64*-*-linux* | s390*-*-linux* | \
+     i?86*-*-mingw* | x86_64*-*-mingw* | \
+-    i?86*-*-cygwin*)
++    i?86*-*-cygwin* | x86_64*-*-cygwin* | \
++    i?86*-*-msys* | x86_64*-*-msys*)
+       enable_decimal_float=yes
+       ;;
+     *)
 diff --git a/libffi/acinclude.m4 b/libffi/acinclude.m4
 index 3e8f8ba570d..dd57e6d3c77 100644
 --- a/libffi/acinclude.m4
@@ -878,7 +895,7 @@ index 3e8f8ba570d..dd57e6d3c77 100644
       *)
  	ac_cv_func_mmap_anon=yes;;
 diff --git a/libffi/configure b/libffi/configure
-index 6b38089d8c8..c5374a42313 100755
+index 6b38089d8c8..56e6ae5d413 100755
 --- a/libffi/configure
 +++ b/libffi/configure
 @@ -5049,7 +5049,7 @@ else
@@ -1010,6 +1027,15 @@ index 6b38089d8c8..c5374a42313 100755
  	ac_cv_func_mmap_anon=no ;;
       *)
  	ac_cv_func_mmap_anon=yes;;
+@@ -11349,7 +11355,7 @@ case "$host" in
+   i?86-*-freebsd* | i?86-*-openbsd*)
+ 	TARGET=X86_FREEBSD; TARGETDIR=x86
+ 	;;
+-  i?86-win32* | i?86-*-cygwin* | i?86-*-mingw* | i?86-*-os2*)
++  i?86-win32* | i?86-*-cygwin* | i?86-*-msys* | i?86-*-mingw* | i?86-*-os2*)
+ 	TARGET=X86_WIN32; TARGETDIR=x86
+ 	# All mingw/cygwin/win32 builds require -no-undefined for sharedlib.
+ 	# We must also check with_cross_host to decide if this is a native
 @@ -11433,7 +11439,7 @@ case "$host" in
  	TARGET=X86_DARWIN; TARGETDIR=x86
  	;;
@@ -1020,9 +1046,18 @@ index 6b38089d8c8..c5374a42313 100755
  	# All mingw/cygwin/win32 builds require -no-undefined for sharedlib.
  	# We must also check with_cross_host to decide if this is a native
 diff --git a/libffi/configure.ac b/libffi/configure.ac
-index 3e22c4db9e3..62cfb013eec 100644
+index 3e22c4db9e3..a4e135ebd18 100644
 --- a/libffi/configure.ac
 +++ b/libffi/configure.ac
+@@ -80,7 +80,7 @@ case "$host" in
+   i?86-*-freebsd* | i?86-*-openbsd*)
+ 	TARGET=X86_FREEBSD; TARGETDIR=x86
+ 	;;
+-  i?86-win32* | i?86-*-cygwin* | i?86-*-mingw* | i?86-*-os2*)
++  i?86-win32* | i?86-*-cygwin* | i?86-*-msys* | i?86-*-mingw* | i?86-*-os2*)
+ 	TARGET=X86_WIN32; TARGETDIR=x86
+ 	# All mingw/cygwin/win32 builds require -no-undefined for sharedlib.
+ 	# We must also check with_cross_host to decide if this is a native
 @@ -164,7 +164,7 @@ case "$host" in
  	TARGET=X86_DARWIN; TARGETDIR=x86
  	;;
@@ -1032,6 +1067,20 @@ index 3e22c4db9e3..62cfb013eec 100644
  	TARGET=X86_WIN64; TARGETDIR=x86
  	# All mingw/cygwin/win32 builds require -no-undefined for sharedlib.
  	# We must also check with_cross_host to decide if this is a native
+diff --git a/libgcc/configure b/libgcc/configure
+index 8a27aab1886..68d8724f634 100644
+--- a/libgcc/configure
++++ b/libgcc/configure
+@@ -3684,7 +3684,8 @@ else
+   case $host in
+     powerpc*-*-linux* | i?86*-*-linux* | x86_64*-*-linux* | s390*-*-linux* | \
+     i?86*-*-mingw* | x86_64*-*-mingw* | \
+-    i?86*-*-cygwin*)
++    i?86*-*-cygwin* | x86_64*-*-cygwin* | \
++    i?86*-*-msys* | x86_64*-*-msys*)
+       enable_decimal_float=yes
+       ;;
+     *)
 diff --git a/libgfortran/configure b/libgfortran/configure
 index 1e61aeb4910..b53b09b2b28 100755
 --- a/libgfortran/configure
@@ -2547,7 +2596,7 @@ index 788966c6649..3df1d0855b0 100644
        *)
  	enable_abi_check=yes ;;
 diff --git a/libstdc++-v3/configure b/libstdc++-v3/configure
-index dd4c2714c46..a9e556c9d5d 100755
+index dd4c2714c46..38993d494d0 100755
 --- a/libstdc++-v3/configure
 +++ b/libstdc++-v3/configure
 @@ -5874,7 +5874,7 @@ else
@@ -2639,7 +2688,7 @@ index dd4c2714c46..a9e556c9d5d 100755
      library_names_spec='$libname.dll.a'
      # DLL is installed to $(libdir)/../bin by postinstall_cmds
      postinstall_cmds='base_file=`basename \${file}`~
-@@ -10561,6 +10561,12 @@ cygwin* | mingw* | pw32* | cegcc*)
+@@ -10561,6 +10561,18 @@ cygwin* | mingw* | pw32* | cegcc*)
        # Cygwin DLLs use 'cyg' prefix rather than 'lib'
        soname_spec='`echo ${libname} | sed -e 's/^lib/cyg/'``echo ${release} | $SED -e 's/[.]/-/g'`${versuffix}${shared_ext}'
  
@@ -2649,10 +2698,16 @@ index dd4c2714c46..a9e556c9d5d 100755
 +      # Msys DLLs use 'msys-' prefix rather than 'lib'
 +      soname_spec='`echo ${libname} | sed -e 's/^lib/msys-/'``echo ${release} | $SED -e 's/[.]/-/g'`${versuffix}${shared_ext}'
 +
++      sys_lib_search_path_spec="$sys_lib_search_path_spec /usr/lib/w32api"
++      ;;
++    msys*)
++      # Msys DLLs use 'msys-' prefix rather than 'lib'
++      soname_spec='`echo ${libname} | sed -e 's/^lib/msys-/'``echo ${release} | $SED -e 's/[.]/-/g'`${versuffix}${shared_ext}'
++
        sys_lib_search_path_spec="$sys_lib_search_path_spec /usr/lib/w32api"
        ;;
      mingw* | cegcc*)
-@@ -11202,7 +11208,7 @@ else
+@@ -11202,7 +11214,7 @@ else
      lt_cv_dlopen_libs=
      ;;
  
@@ -2661,7 +2716,7 @@ index dd4c2714c46..a9e556c9d5d 100755
      lt_cv_dlopen="dlopen"
      lt_cv_dlopen_libs=
      ;;
-@@ -12445,7 +12451,7 @@ if test -z "$aix_libpath"; then aix_libpath="/usr/lib:/lib"; fi
+@@ -12445,7 +12457,7 @@ if test -z "$aix_libpath"; then aix_libpath="/usr/lib:/lib"; fi
          esac
          ;;
  
@@ -2670,7 +2725,7 @@ index dd4c2714c46..a9e556c9d5d 100755
          # _LT_TAGVAR(hardcode_libdir_flag_spec, CXX) is actually meaningless,
          # as there is no search path for DLLs.
          hardcode_libdir_flag_spec_CXX='-L$libdir'
-@@ -13413,7 +13419,7 @@ $as_echo_n "checking for $compiler option to produce PIC... " >&6; }
+@@ -13413,7 +13425,7 @@ $as_echo_n "checking for $compiler option to produce PIC... " >&6; }
      beos* | irix5* | irix6* | nonstopux* | osf3* | osf4* | osf5*)
        # PIC is the default for these OSes.
        ;;
@@ -2679,7 +2734,7 @@ index dd4c2714c46..a9e556c9d5d 100755
        # This hack is so that the source file can tell whether it is being
        # built for inclusion in a dll (and should export symbols for example).
        # Although the cygwin gcc ignores -fPIC, still need this for old-style
-@@ -13953,7 +13959,7 @@ $as_echo_n "checking whether the $compiler linker ($LD) supports shared librarie
+@@ -13953,7 +13965,7 @@ $as_echo_n "checking whether the $compiler linker ($LD) supports shared librarie
    pw32*)
      export_symbols_cmds_CXX="$ltdll_cmds"
    ;;
@@ -2688,7 +2743,7 @@ index dd4c2714c46..a9e556c9d5d 100755
      export_symbols_cmds_CXX='$NM $libobjs $convenience | $global_symbol_pipe | $SED -e '\''/^[BCDGRS][ ]/s/.*[ ]\([^ ]*\)/\1 DATA/;/^.*[ ]__nm__/s/^.*[ ]__nm__\([^ ]*\)[ ][^ ]*/\1 DATA/;/^I[ ]/d;/^[AITW][ ]/s/.* //'\'' | sort | uniq > $export_symbols'
    ;;
    *)
-@@ -14217,14 +14223,14 @@ bsdi[45]*)
+@@ -14217,14 +14229,14 @@ bsdi[45]*)
    # libtool to hard-code these into programs
    ;;
  
@@ -2705,7 +2760,7 @@ index dd4c2714c46..a9e556c9d5d 100755
      library_names_spec='$libname.dll.a'
      # DLL is installed to $(libdir)/../bin by postinstall_cmds
      postinstall_cmds='base_file=`basename \${file}`~
-@@ -14246,6 +14252,11 @@ cygwin* | mingw* | pw32* | cegcc*)
+@@ -14246,6 +14258,11 @@ cygwin* | mingw* | pw32* | cegcc*)
        # Cygwin DLLs use 'cyg' prefix rather than 'lib'
        soname_spec='`echo ${libname} | sed -e 's/^lib/cyg/'``echo ${release} | $SED -e 's/[.]/-/g'`${versuffix}${shared_ext}'
  
@@ -2717,7 +2772,7 @@ index dd4c2714c46..a9e556c9d5d 100755
        ;;
      mingw* | cegcc*)
        # MinGW DLLs use traditional 'lib' prefix
-@@ -14855,7 +14866,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
+@@ -14855,7 +14872,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
  
  
  case $host in
@@ -2726,754 +2781,12 @@ index dd4c2714c46..a9e556c9d5d 100755
      # 'host' will be top-level target in the case of a target lib,
      # we must compare to with_cross_host to decide if this is a native
      # or cross-compiler and select where to install dlls appropriately.
-@@ -50578,377 +50589,6238 @@ done
- 
-   CXXFLAGS="$ac_save_CXXFLAGS"
- 
--    $as_echo "#define _GLIBCXX_USE_RANDOM_TR1 1" >>confdefs.h
--
--
--
--   # Check whether --enable-tls was given.
--if test "${enable_tls+set}" = set; then :
--  enableval=$enable_tls;
--      case "$enableval" in
--       yes|no) ;;
--       *) as_fn_error "Argument to enable/disable tls must be yes or no" "$LINENO" 5 ;;
--      esac
--
--else
--  enable_tls=yes
--fi
--
--
--  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether the target supports thread-local storage" >&5
--$as_echo_n "checking whether the target supports thread-local storage... " >&6; }
--if test "${gcc_cv_have_tls+set}" = set; then :
--  $as_echo_n "(cached) " >&6
--else
--
--    if test "$cross_compiling" = yes; then :
--                if test x$gcc_no_link = xyes; then
--  as_fn_error "Link tests are not allowed after GCC_NO_EXECUTABLES." "$LINENO" 5
--fi
--cat confdefs.h - <<_ACEOF >conftest.$ac_ext
--/* end confdefs.h.  */
--__thread int a; int b; int main() { return a = b; }
--_ACEOF
--if ac_fn_c_try_link "$LINENO"; then :
--  chktls_save_LDFLAGS="$LDFLAGS"
--	  	  	  case $host in
--	    *-*-linux*)
--	      LDFLAGS="-shared -Wl,--no-undefined $LDFLAGS"
--	      ;;
--	  esac
--	  chktls_save_CFLAGS="$CFLAGS"
--	  CFLAGS="-fPIC $CFLAGS"
--	  	  if test x$gcc_no_link = xyes; then
--  as_fn_error "Link tests are not allowed after GCC_NO_EXECUTABLES." "$LINENO" 5
--fi
--cat confdefs.h - <<_ACEOF >conftest.$ac_ext
--/* end confdefs.h.  */
--int f() { return 0; }
--_ACEOF
--if ac_fn_c_try_link "$LINENO"; then :
--  if test x$gcc_no_link = xyes; then
--  as_fn_error "Link tests are not allowed after GCC_NO_EXECUTABLES." "$LINENO" 5
--fi
--cat confdefs.h - <<_ACEOF >conftest.$ac_ext
--/* end confdefs.h.  */
--__thread int a; int b; int f() { return a = b; }
--_ACEOF
--if ac_fn_c_try_link "$LINENO"; then :
--  gcc_cv_have_tls=yes
--else
--  gcc_cv_have_tls=no
--fi
--rm -f core conftest.err conftest.$ac_objext \
--    conftest$ac_exeext conftest.$ac_ext
--else
--  gcc_cv_have_tls=yes
--fi
--rm -f core conftest.err conftest.$ac_objext \
--    conftest$ac_exeext conftest.$ac_ext
--	  CFLAGS="$chktls_save_CFLAGS"
--	  LDFLAGS="$chktls_save_LDFLAGS"
--else
--  gcc_cv_have_tls=no
--fi
--rm -f core conftest.err conftest.$ac_objext \
--    conftest$ac_exeext conftest.$ac_ext
--
--
--else
--  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
--/* end confdefs.h.  */
--__thread int a; int b; int main() { return a = b; }
--_ACEOF
--if ac_fn_c_try_run "$LINENO"; then :
--                      chktls_save_LDFLAGS="$LDFLAGS"
--      LDFLAGS="-static $LDFLAGS"
--      if test x$gcc_no_link = xyes; then
--  as_fn_error "Link tests are not allowed after GCC_NO_EXECUTABLES." "$LINENO" 5
--fi
--cat confdefs.h - <<_ACEOF >conftest.$ac_ext
--/* end confdefs.h.  */
--int main() { return 0; }
--_ACEOF
--if ac_fn_c_try_link "$LINENO"; then :
--  if test "$cross_compiling" = yes; then :
--  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
--$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
--as_fn_error "cannot run test program while cross compiling
--See \`config.log' for more details." "$LINENO" 5; }
--else
--  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
--/* end confdefs.h.  */
--__thread int a; int b; int main() { return a = b; }
--_ACEOF
--if ac_fn_c_try_run "$LINENO"; then :
--  gcc_cv_have_tls=yes
--else
--  gcc_cv_have_tls=no
--fi
--rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
--  conftest.$ac_objext conftest.beam conftest.$ac_ext
--fi
--
--else
--  gcc_cv_have_tls=yes
--fi
--rm -f core conftest.err conftest.$ac_objext \
--    conftest$ac_exeext conftest.$ac_ext
--      LDFLAGS="$chktls_save_LDFLAGS"
--      if test $gcc_cv_have_tls = yes; then
--						chktls_save_CFLAGS="$CFLAGS"
--	thread_CFLAGS=failed
--	for flag in '' '-pthread' '-lpthread'; do
--	  CFLAGS="$flag $chktls_save_CFLAGS"
--	  if test x$gcc_no_link = xyes; then
--  as_fn_error "Link tests are not allowed after GCC_NO_EXECUTABLES." "$LINENO" 5
--fi
--cat confdefs.h - <<_ACEOF >conftest.$ac_ext
--/* end confdefs.h.  */
--#include <pthread.h>
--		void *g(void *d) { return NULL; }
--int
--main ()
--{
--pthread_t t; pthread_create(&t,NULL,g,NULL);
--  ;
--  return 0;
--}
--_ACEOF
--if ac_fn_c_try_link "$LINENO"; then :
--  thread_CFLAGS="$flag"
--fi
--rm -f core conftest.err conftest.$ac_objext \
--    conftest$ac_exeext conftest.$ac_ext
--	  if test "X$thread_CFLAGS" != Xfailed; then
--	    break
--	  fi
--	done
--	CFLAGS="$chktls_save_CFLAGS"
--	if test "X$thread_CFLAGS" != Xfailed; then
--	  CFLAGS="$thread_CFLAGS $chktls_save_CFLAGS"
-- 	  	  	  	  	  	  if test "$cross_compiling" = yes; then :
--  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
--$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
--as_fn_error "cannot run test program while cross compiling
--See \`config.log' for more details." "$LINENO" 5; }
--else
--  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
--/* end confdefs.h.  */
--#include <pthread.h>
--		__thread int a;
--		static int *volatile a_in_other_thread;
--		static void *
--		thread_func (void *arg)
--		{
--		  a_in_other_thread = &a;
--		  return (void *)0;
--		}
--int
--main ()
--{
--pthread_t thread;
--		void *thread_retval;
--		int *volatile a_in_main_thread;
--		a_in_main_thread = &a;
--		if (pthread_create (&thread, (pthread_attr_t *)0,
--				    thread_func, (void *)0))
--		  return 0;
--		if (pthread_join (thread, &thread_retval))
--		  return 0;
--		return (a_in_other_thread == a_in_main_thread);
--  ;
--  return 0;
--}
--_ACEOF
--if ac_fn_c_try_run "$LINENO"; then :
--  gcc_cv_have_tls=yes
--else
--  gcc_cv_have_tls=no
--fi
--rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
--  conftest.$ac_objext conftest.beam conftest.$ac_ext
--fi
--
--	  CFLAGS="$chktls_save_CFLAGS"
--	fi
--      fi
--else
--  gcc_cv_have_tls=no
--fi
--rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
--  conftest.$ac_objext conftest.beam conftest.$ac_ext
--fi
--
--fi
--{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gcc_cv_have_tls" >&5
--$as_echo "$gcc_cv_have_tls" >&6; }
--  if test "$enable_tls $gcc_cv_have_tls" = "yes yes"; then
--
--$as_echo "#define HAVE_TLS 1" >>confdefs.h
--
--  fi
--
--
--
--
--
--          am_save_CPPFLAGS="$CPPFLAGS"
--
--  for element in $INCICONV; do
--    haveit=
--    for x in $CPPFLAGS; do
--
--  acl_save_prefix="$prefix"
--  prefix="$acl_final_prefix"
--  acl_save_exec_prefix="$exec_prefix"
--  exec_prefix="$acl_final_exec_prefix"
--  eval x=\"$x\"
--  exec_prefix="$acl_save_exec_prefix"
--  prefix="$acl_save_prefix"
--
--      if test "X$x" = "X$element"; then
--        haveit=yes
--        break
--      fi
--    done
--    if test -z "$haveit"; then
--      CPPFLAGS="${CPPFLAGS}${CPPFLAGS:+ }$element"
--    fi
--  done
--
--
--  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for iconv" >&5
--$as_echo_n "checking for iconv... " >&6; }
--if test "${am_cv_func_iconv+set}" = set; then :
--  $as_echo_n "(cached) " >&6
--else
--
--    am_cv_func_iconv="no, consider installing GNU libiconv"
--    am_cv_lib_iconv=no
--    if test x$gcc_no_link = xyes; then
--  as_fn_error "Link tests are not allowed after GCC_NO_EXECUTABLES." "$LINENO" 5
--fi
--cat confdefs.h - <<_ACEOF >conftest.$ac_ext
--/* end confdefs.h.  */
--#include <stdlib.h>
--#include <iconv.h>
--int
--main ()
--{
--iconv_t cd = iconv_open("","");
--       iconv(cd,NULL,NULL,NULL,NULL);
--       iconv_close(cd);
--  ;
--  return 0;
--}
--_ACEOF
--if ac_fn_c_try_link "$LINENO"; then :
--  am_cv_func_iconv=yes
--fi
--rm -f core conftest.err conftest.$ac_objext \
--    conftest$ac_exeext conftest.$ac_ext
--    if test "$am_cv_func_iconv" != yes; then
--      am_save_LIBS="$LIBS"
--      LIBS="$LIBS $LIBICONV"
--      if test x$gcc_no_link = xyes; then
--  as_fn_error "Link tests are not allowed after GCC_NO_EXECUTABLES." "$LINENO" 5
--fi
--cat confdefs.h - <<_ACEOF >conftest.$ac_ext
--/* end confdefs.h.  */
--#include <stdlib.h>
--#include <iconv.h>
--int
--main ()
--{
--iconv_t cd = iconv_open("","");
--         iconv(cd,NULL,NULL,NULL,NULL);
--         iconv_close(cd);
--  ;
--  return 0;
--}
--_ACEOF
--if ac_fn_c_try_link "$LINENO"; then :
--  am_cv_lib_iconv=yes
--        am_cv_func_iconv=yes
--fi
--rm -f core conftest.err conftest.$ac_objext \
--    conftest$ac_exeext conftest.$ac_ext
--      LIBS="$am_save_LIBS"
--    fi
--
--fi
--{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $am_cv_func_iconv" >&5
--$as_echo "$am_cv_func_iconv" >&6; }
--  if test "$am_cv_func_iconv" = yes; then
--
--$as_echo "#define HAVE_ICONV 1" >>confdefs.h
--
--  fi
--  if test "$am_cv_lib_iconv" = yes; then
--    { $as_echo "$as_me:${as_lineno-$LINENO}: checking how to link with libiconv" >&5
--$as_echo_n "checking how to link with libiconv... " >&6; }
--    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $LIBICONV" >&5
--$as_echo "$LIBICONV" >&6; }
--  else
--            CPPFLAGS="$am_save_CPPFLAGS"
--    LIBICONV=
--    LTLIBICONV=
--  fi
--
--
--
--  if test "$am_cv_func_iconv" = yes; then
--    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for iconv declaration" >&5
--$as_echo_n "checking for iconv declaration... " >&6; }
--    if test "${am_cv_proto_iconv+set}" = set; then :
--  $as_echo_n "(cached) " >&6
--else
--
--      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
--/* end confdefs.h.  */
--
--#include <stdlib.h>
--#include <iconv.h>
--extern
--#ifdef __cplusplus
--"C"
--#endif
--#if defined(__STDC__) || defined(__cplusplus)
--size_t iconv (iconv_t cd, char * *inbuf, size_t *inbytesleft, char * *outbuf, size_t *outbytesleft);
--#else
--size_t iconv();
--#endif
--
--int
--main ()
--{
--
--  ;
--  return 0;
--}
--_ACEOF
--if ac_fn_c_try_compile "$LINENO"; then :
--  am_cv_proto_iconv_arg1=""
--else
--  am_cv_proto_iconv_arg1="const"
--fi
--rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
--      am_cv_proto_iconv="extern size_t iconv (iconv_t cd, $am_cv_proto_iconv_arg1 char * *inbuf, size_t *inbytesleft, char * *outbuf, size_t *outbytesleft);"
--fi
--
--    am_cv_proto_iconv=`echo "$am_cv_proto_iconv" | tr -s ' ' | sed -e 's/( /(/'`
--    { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ac_t:-
--         }$am_cv_proto_iconv" >&5
--$as_echo "${ac_t:-
--         }$am_cv_proto_iconv" >&6; }
--
--cat >>confdefs.h <<_ACEOF
--#define ICONV_CONST $am_cv_proto_iconv_arg1
--_ACEOF
--
--  fi
--
-+    $as_echo "#define _GLIBCXX_USE_RANDOM_TR1 1" >>confdefs.h
-+
-+
-+
-+   # Check whether --enable-tls was given.
-+if test "${enable_tls+set}" = set; then :
-+  enableval=$enable_tls;
-+      case "$enableval" in
-+       yes|no) ;;
-+       *) as_fn_error "Argument to enable/disable tls must be yes or no" "$LINENO" 5 ;;
-+      esac
-+
-+else
-+  enable_tls=yes
-+fi
-+
-+
-+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether the target supports thread-local storage" >&5
-+$as_echo_n "checking whether the target supports thread-local storage... " >&6; }
-+if test "${gcc_cv_have_tls+set}" = set; then :
-+  $as_echo_n "(cached) " >&6
-+else
-+
-+    if test "$cross_compiling" = yes; then :
-+                if test x$gcc_no_link = xyes; then
-+  as_fn_error "Link tests are not allowed after GCC_NO_EXECUTABLES." "$LINENO" 5
-+fi
-+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-+/* end confdefs.h.  */
-+__thread int a; int b; int main() { return a = b; }
-+_ACEOF
-+if ac_fn_c_try_link "$LINENO"; then :
-+  chktls_save_LDFLAGS="$LDFLAGS"
-+	  	  	  case $host in
-+	    *-*-linux*)
-+	      LDFLAGS="-shared -Wl,--no-undefined $LDFLAGS"
-+	      ;;
-+	  esac
-+	  chktls_save_CFLAGS="$CFLAGS"
-+	  CFLAGS="-fPIC $CFLAGS"
-+	  	  if test x$gcc_no_link = xyes; then
-+  as_fn_error "Link tests are not allowed after GCC_NO_EXECUTABLES." "$LINENO" 5
-+fi
-+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-+/* end confdefs.h.  */
-+int f() { return 0; }
-+_ACEOF
-+if ac_fn_c_try_link "$LINENO"; then :
-+  if test x$gcc_no_link = xyes; then
-+  as_fn_error "Link tests are not allowed after GCC_NO_EXECUTABLES." "$LINENO" 5
-+fi
-+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-+/* end confdefs.h.  */
-+__thread int a; int b; int f() { return a = b; }
-+_ACEOF
-+if ac_fn_c_try_link "$LINENO"; then :
-+  gcc_cv_have_tls=yes
-+else
-+  gcc_cv_have_tls=no
-+fi
-+rm -f core conftest.err conftest.$ac_objext \
-+    conftest$ac_exeext conftest.$ac_ext
-+else
-+  gcc_cv_have_tls=yes
-+fi
-+rm -f core conftest.err conftest.$ac_objext \
-+    conftest$ac_exeext conftest.$ac_ext
-+	  CFLAGS="$chktls_save_CFLAGS"
-+	  LDFLAGS="$chktls_save_LDFLAGS"
-+else
-+  gcc_cv_have_tls=no
-+fi
-+rm -f core conftest.err conftest.$ac_objext \
-+    conftest$ac_exeext conftest.$ac_ext
-+
-+
-+else
-+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-+/* end confdefs.h.  */
-+__thread int a; int b; int main() { return a = b; }
-+_ACEOF
-+if ac_fn_c_try_run "$LINENO"; then :
-+                      chktls_save_LDFLAGS="$LDFLAGS"
-+      LDFLAGS="-static $LDFLAGS"
-+      if test x$gcc_no_link = xyes; then
-+  as_fn_error "Link tests are not allowed after GCC_NO_EXECUTABLES." "$LINENO" 5
-+fi
-+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-+/* end confdefs.h.  */
-+int main() { return 0; }
-+_ACEOF
-+if ac_fn_c_try_link "$LINENO"; then :
-+  if test "$cross_compiling" = yes; then :
-+  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-+as_fn_error "cannot run test program while cross compiling
-+See \`config.log' for more details." "$LINENO" 5; }
-+else
-+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-+/* end confdefs.h.  */
-+__thread int a; int b; int main() { return a = b; }
-+_ACEOF
-+if ac_fn_c_try_run "$LINENO"; then :
-+  gcc_cv_have_tls=yes
-+else
-+  gcc_cv_have_tls=no
-+fi
-+rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
-+  conftest.$ac_objext conftest.beam conftest.$ac_ext
-+fi
-+
-+else
-+  gcc_cv_have_tls=yes
-+fi
-+rm -f core conftest.err conftest.$ac_objext \
-+    conftest$ac_exeext conftest.$ac_ext
-+      LDFLAGS="$chktls_save_LDFLAGS"
-+      if test $gcc_cv_have_tls = yes; then
-+						chktls_save_CFLAGS="$CFLAGS"
-+	thread_CFLAGS=failed
-+	for flag in '' '-pthread' '-lpthread'; do
-+	  CFLAGS="$flag $chktls_save_CFLAGS"
-+	  if test x$gcc_no_link = xyes; then
-+  as_fn_error "Link tests are not allowed after GCC_NO_EXECUTABLES." "$LINENO" 5
-+fi
-+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-+/* end confdefs.h.  */
-+#include <pthread.h>
-+		void *g(void *d) { return NULL; }
-+int
-+main ()
-+{
-+pthread_t t; pthread_create(&t,NULL,g,NULL);
-+  ;
-+  return 0;
-+}
-+_ACEOF
-+if ac_fn_c_try_link "$LINENO"; then :
-+  thread_CFLAGS="$flag"
-+fi
-+rm -f core conftest.err conftest.$ac_objext \
-+    conftest$ac_exeext conftest.$ac_ext
-+	  if test "X$thread_CFLAGS" != Xfailed; then
-+	    break
-+	  fi
-+	done
-+	CFLAGS="$chktls_save_CFLAGS"
-+	if test "X$thread_CFLAGS" != Xfailed; then
-+	  CFLAGS="$thread_CFLAGS $chktls_save_CFLAGS"
-+ 	  	  	  	  	  	  if test "$cross_compiling" = yes; then :
-+  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
-+$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
-+as_fn_error "cannot run test program while cross compiling
-+See \`config.log' for more details." "$LINENO" 5; }
-+else
-+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-+/* end confdefs.h.  */
-+#include <pthread.h>
-+		__thread int a;
-+		static int *volatile a_in_other_thread;
-+		static void *
-+		thread_func (void *arg)
-+		{
-+		  a_in_other_thread = &a;
-+		  return (void *)0;
-+		}
-+int
-+main ()
-+{
-+pthread_t thread;
-+		void *thread_retval;
-+		int *volatile a_in_main_thread;
-+		a_in_main_thread = &a;
-+		if (pthread_create (&thread, (pthread_attr_t *)0,
-+				    thread_func, (void *)0))
-+		  return 0;
-+		if (pthread_join (thread, &thread_retval))
-+		  return 0;
-+		return (a_in_other_thread == a_in_main_thread);
-+  ;
-+  return 0;
-+}
-+_ACEOF
-+if ac_fn_c_try_run "$LINENO"; then :
-+  gcc_cv_have_tls=yes
-+else
-+  gcc_cv_have_tls=no
-+fi
-+rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
-+  conftest.$ac_objext conftest.beam conftest.$ac_ext
-+fi
-+
-+	  CFLAGS="$chktls_save_CFLAGS"
-+	fi
-+      fi
-+else
-+  gcc_cv_have_tls=no
-+fi
-+rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
-+  conftest.$ac_objext conftest.beam conftest.$ac_ext
-+fi
-+
-+fi
-+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gcc_cv_have_tls" >&5
-+$as_echo "$gcc_cv_have_tls" >&6; }
-+  if test "$enable_tls $gcc_cv_have_tls" = "yes yes"; then
-+
-+$as_echo "#define HAVE_TLS 1" >>confdefs.h
-+
-+  fi
-+
-+
-+
-+
-+
-+          am_save_CPPFLAGS="$CPPFLAGS"
-+
-+  for element in $INCICONV; do
-+    haveit=
-+    for x in $CPPFLAGS; do
-+
-+  acl_save_prefix="$prefix"
-+  prefix="$acl_final_prefix"
-+  acl_save_exec_prefix="$exec_prefix"
-+  exec_prefix="$acl_final_exec_prefix"
-+  eval x=\"$x\"
-+  exec_prefix="$acl_save_exec_prefix"
-+  prefix="$acl_save_prefix"
-+
-+      if test "X$x" = "X$element"; then
-+        haveit=yes
-+        break
-+      fi
-+    done
-+    if test -z "$haveit"; then
-+      CPPFLAGS="${CPPFLAGS}${CPPFLAGS:+ }$element"
-+    fi
-+  done
-+
-+
-+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for iconv" >&5
-+$as_echo_n "checking for iconv... " >&6; }
-+if test "${am_cv_func_iconv+set}" = set; then :
-+  $as_echo_n "(cached) " >&6
-+else
-+
-+    am_cv_func_iconv="no, consider installing GNU libiconv"
-+    am_cv_lib_iconv=no
-+    if test x$gcc_no_link = xyes; then
-+  as_fn_error "Link tests are not allowed after GCC_NO_EXECUTABLES." "$LINENO" 5
-+fi
-+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-+/* end confdefs.h.  */
-+#include <stdlib.h>
-+#include <iconv.h>
-+int
-+main ()
-+{
-+iconv_t cd = iconv_open("","");
-+       iconv(cd,NULL,NULL,NULL,NULL);
-+       iconv_close(cd);
-+  ;
-+  return 0;
-+}
-+_ACEOF
-+if ac_fn_c_try_link "$LINENO"; then :
-+  am_cv_func_iconv=yes
-+fi
-+rm -f core conftest.err conftest.$ac_objext \
-+    conftest$ac_exeext conftest.$ac_ext
-+    if test "$am_cv_func_iconv" != yes; then
-+      am_save_LIBS="$LIBS"
-+      LIBS="$LIBS $LIBICONV"
-+      if test x$gcc_no_link = xyes; then
-+  as_fn_error "Link tests are not allowed after GCC_NO_EXECUTABLES." "$LINENO" 5
-+fi
-+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-+/* end confdefs.h.  */
-+#include <stdlib.h>
-+#include <iconv.h>
-+int
-+main ()
-+{
-+iconv_t cd = iconv_open("","");
-+         iconv(cd,NULL,NULL,NULL,NULL);
-+         iconv_close(cd);
-+  ;
-+  return 0;
-+}
-+_ACEOF
-+if ac_fn_c_try_link "$LINENO"; then :
-+  am_cv_lib_iconv=yes
-+        am_cv_func_iconv=yes
-+fi
-+rm -f core conftest.err conftest.$ac_objext \
-+    conftest$ac_exeext conftest.$ac_ext
-+      LIBS="$am_save_LIBS"
-+    fi
-+
-+fi
-+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $am_cv_func_iconv" >&5
-+$as_echo "$am_cv_func_iconv" >&6; }
-+  if test "$am_cv_func_iconv" = yes; then
-+
-+$as_echo "#define HAVE_ICONV 1" >>confdefs.h
-+
-+  fi
-+  if test "$am_cv_lib_iconv" = yes; then
-+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking how to link with libiconv" >&5
-+$as_echo_n "checking how to link with libiconv... " >&6; }
-+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $LIBICONV" >&5
-+$as_echo "$LIBICONV" >&6; }
-+  else
-+            CPPFLAGS="$am_save_CPPFLAGS"
-+    LIBICONV=
-+    LTLIBICONV=
-+  fi
-+
-+
-+
-+  if test "$am_cv_func_iconv" = yes; then
-+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for iconv declaration" >&5
-+$as_echo_n "checking for iconv declaration... " >&6; }
-+    if test "${am_cv_proto_iconv+set}" = set; then :
-+  $as_echo_n "(cached) " >&6
-+else
-+
-+      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-+/* end confdefs.h.  */
-+
-+#include <stdlib.h>
-+#include <iconv.h>
-+extern
-+#ifdef __cplusplus
-+"C"
-+#endif
-+#if defined(__STDC__) || defined(__cplusplus)
-+size_t iconv (iconv_t cd, char * *inbuf, size_t *inbytesleft, char * *outbuf, size_t *outbytesleft);
-+#else
-+size_t iconv();
-+#endif
-+
-+int
-+main ()
-+{
-+
-+  ;
-+  return 0;
-+}
-+_ACEOF
-+if ac_fn_c_try_compile "$LINENO"; then :
-+  am_cv_proto_iconv_arg1=""
-+else
-+  am_cv_proto_iconv_arg1="const"
-+fi
-+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-+      am_cv_proto_iconv="extern size_t iconv (iconv_t cd, $am_cv_proto_iconv_arg1 char * *inbuf, size_t *inbytesleft, char * *outbuf, size_t *outbytesleft);"
-+fi
-+
-+    am_cv_proto_iconv=`echo "$am_cv_proto_iconv" | tr -s ' ' | sed -e 's/( /(/'`
-+    { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ac_t:-
-+         }$am_cv_proto_iconv" >&5
-+$as_echo "${ac_t:-
-+         }$am_cv_proto_iconv" >&6; }
-+
-+cat >>confdefs.h <<_ACEOF
-+#define ICONV_CONST $am_cv_proto_iconv_arg1
-+_ACEOF
-+
-+  fi
-+
-+    ;;
-+  *-cygwin* | *-msys*)
+@@ -44718,7 +44735,6239 @@ $as_echo "#define HAVE_TLS 1" >>confdefs.h
+ 	;;
+     esac
+     ;;
+-  *-linux* | *-uclinux* | *-gnu* | *-kfreebsd*-gnu | *-knetbsd*-gnu | *-cygwin*)
++  *-linux* | *-uclinux* | *-gnu* | *-kfreebsd*-gnu | *-knetbsd*-gnu | *-cygwin* | *-msys*)
 +
 +  # All these tests are for C++; save the language and the compiler flags.
 +  # The CXXFLAGS thing is suspicious, but based on similar bits previously
@@ -9333,10 +8646,761 @@ index dd4c2714c46..a9e556c9d5d 100755
 +
 +  CXXFLAGS="$ac_save_CXXFLAGS"
 +
++    $as_echo "#define _GLIBCXX_USE_RANDOM_TR1 1" >>confdefs.h
++
++
++
++   # Check whether --enable-tls was given.
++if test "${enable_tls+set}" = set; then :
++  enableval=$enable_tls;
++      case "$enableval" in
++       yes|no) ;;
++       *) as_fn_error "Argument to enable/disable tls must be yes or no" "$LINENO" 5 ;;
++      esac
++
++else
++  enable_tls=yes
++fi
++
++
++  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether the target supports thread-local storage" >&5
++$as_echo_n "checking whether the target supports thread-local storage... " >&6; }
++if test "${gcc_cv_have_tls+set}" = set; then :
++  $as_echo_n "(cached) " >&6
++else
++
++    if test "$cross_compiling" = yes; then :
++                if test x$gcc_no_link = xyes; then
++  as_fn_error "Link tests are not allowed after GCC_NO_EXECUTABLES." "$LINENO" 5
++fi
++cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++__thread int a; int b; int main() { return a = b; }
++_ACEOF
++if ac_fn_c_try_link "$LINENO"; then :
++  chktls_save_LDFLAGS="$LDFLAGS"
++	  	  	  case $host in
++	    *-*-linux*)
++	      LDFLAGS="-shared -Wl,--no-undefined $LDFLAGS"
++	      ;;
++	  esac
++	  chktls_save_CFLAGS="$CFLAGS"
++	  CFLAGS="-fPIC $CFLAGS"
++	  	  if test x$gcc_no_link = xyes; then
++  as_fn_error "Link tests are not allowed after GCC_NO_EXECUTABLES." "$LINENO" 5
++fi
++cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++int f() { return 0; }
++_ACEOF
++if ac_fn_c_try_link "$LINENO"; then :
++  if test x$gcc_no_link = xyes; then
++  as_fn_error "Link tests are not allowed after GCC_NO_EXECUTABLES." "$LINENO" 5
++fi
++cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++__thread int a; int b; int f() { return a = b; }
++_ACEOF
++if ac_fn_c_try_link "$LINENO"; then :
++  gcc_cv_have_tls=yes
++else
++  gcc_cv_have_tls=no
++fi
++rm -f core conftest.err conftest.$ac_objext \
++    conftest$ac_exeext conftest.$ac_ext
++else
++  gcc_cv_have_tls=yes
++fi
++rm -f core conftest.err conftest.$ac_objext \
++    conftest$ac_exeext conftest.$ac_ext
++	  CFLAGS="$chktls_save_CFLAGS"
++	  LDFLAGS="$chktls_save_LDFLAGS"
++else
++  gcc_cv_have_tls=no
++fi
++rm -f core conftest.err conftest.$ac_objext \
++    conftest$ac_exeext conftest.$ac_ext
++
++
++else
++  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++__thread int a; int b; int main() { return a = b; }
++_ACEOF
++if ac_fn_c_try_run "$LINENO"; then :
++                      chktls_save_LDFLAGS="$LDFLAGS"
++      LDFLAGS="-static $LDFLAGS"
++      if test x$gcc_no_link = xyes; then
++  as_fn_error "Link tests are not allowed after GCC_NO_EXECUTABLES." "$LINENO" 5
++fi
++cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++int main() { return 0; }
++_ACEOF
++if ac_fn_c_try_link "$LINENO"; then :
++  if test "$cross_compiling" = yes; then :
++  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
++$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
++as_fn_error "cannot run test program while cross compiling
++See \`config.log' for more details." "$LINENO" 5; }
++else
++  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++__thread int a; int b; int main() { return a = b; }
++_ACEOF
++if ac_fn_c_try_run "$LINENO"; then :
++  gcc_cv_have_tls=yes
++else
++  gcc_cv_have_tls=no
++fi
++rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
++  conftest.$ac_objext conftest.beam conftest.$ac_ext
++fi
++
++else
++  gcc_cv_have_tls=yes
++fi
++rm -f core conftest.err conftest.$ac_objext \
++    conftest$ac_exeext conftest.$ac_ext
++      LDFLAGS="$chktls_save_LDFLAGS"
++      if test $gcc_cv_have_tls = yes; then
++						chktls_save_CFLAGS="$CFLAGS"
++	thread_CFLAGS=failed
++	for flag in '' '-pthread' '-lpthread'; do
++	  CFLAGS="$flag $chktls_save_CFLAGS"
++	  if test x$gcc_no_link = xyes; then
++  as_fn_error "Link tests are not allowed after GCC_NO_EXECUTABLES." "$LINENO" 5
++fi
++cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++#include <pthread.h>
++		void *g(void *d) { return NULL; }
++int
++main ()
++{
++pthread_t t; pthread_create(&t,NULL,g,NULL);
++  ;
++  return 0;
++}
++_ACEOF
++if ac_fn_c_try_link "$LINENO"; then :
++  thread_CFLAGS="$flag"
++fi
++rm -f core conftest.err conftest.$ac_objext \
++    conftest$ac_exeext conftest.$ac_ext
++	  if test "X$thread_CFLAGS" != Xfailed; then
++	    break
++	  fi
++	done
++	CFLAGS="$chktls_save_CFLAGS"
++	if test "X$thread_CFLAGS" != Xfailed; then
++	  CFLAGS="$thread_CFLAGS $chktls_save_CFLAGS"
++ 	  	  	  	  	  	  if test "$cross_compiling" = yes; then :
++  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
++$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
++as_fn_error "cannot run test program while cross compiling
++See \`config.log' for more details." "$LINENO" 5; }
++else
++  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++#include <pthread.h>
++		__thread int a;
++		static int *volatile a_in_other_thread;
++		static void *
++		thread_func (void *arg)
++		{
++		  a_in_other_thread = &a;
++		  return (void *)0;
++		}
++int
++main ()
++{
++pthread_t thread;
++		void *thread_retval;
++		int *volatile a_in_main_thread;
++		a_in_main_thread = &a;
++		if (pthread_create (&thread, (pthread_attr_t *)0,
++				    thread_func, (void *)0))
++		  return 0;
++		if (pthread_join (thread, &thread_retval))
++		  return 0;
++		return (a_in_other_thread == a_in_main_thread);
++  ;
++  return 0;
++}
++_ACEOF
++if ac_fn_c_try_run "$LINENO"; then :
++  gcc_cv_have_tls=yes
++else
++  gcc_cv_have_tls=no
++fi
++rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
++  conftest.$ac_objext conftest.beam conftest.$ac_ext
++fi
++
++	  CFLAGS="$chktls_save_CFLAGS"
++	fi
++      fi
++else
++  gcc_cv_have_tls=no
++fi
++rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
++  conftest.$ac_objext conftest.beam conftest.$ac_ext
++fi
++
++fi
++{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gcc_cv_have_tls" >&5
++$as_echo "$gcc_cv_have_tls" >&6; }
++  if test "$enable_tls $gcc_cv_have_tls" = "yes yes"; then
++
++$as_echo "#define HAVE_TLS 1" >>confdefs.h
++
++  fi
++
++
++
++
++
++          am_save_CPPFLAGS="$CPPFLAGS"
++
++  for element in $INCICONV; do
++    haveit=
++    for x in $CPPFLAGS; do
++
++  acl_save_prefix="$prefix"
++  prefix="$acl_final_prefix"
++  acl_save_exec_prefix="$exec_prefix"
++  exec_prefix="$acl_final_exec_prefix"
++  eval x=\"$x\"
++  exec_prefix="$acl_save_exec_prefix"
++  prefix="$acl_save_prefix"
++
++      if test "X$x" = "X$element"; then
++        haveit=yes
++        break
++      fi
++    done
++    if test -z "$haveit"; then
++      CPPFLAGS="${CPPFLAGS}${CPPFLAGS:+ }$element"
++    fi
++  done
++
++
++  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for iconv" >&5
++$as_echo_n "checking for iconv... " >&6; }
++if test "${am_cv_func_iconv+set}" = set; then :
++  $as_echo_n "(cached) " >&6
++else
++
++    am_cv_func_iconv="no, consider installing GNU libiconv"
++    am_cv_lib_iconv=no
++    if test x$gcc_no_link = xyes; then
++  as_fn_error "Link tests are not allowed after GCC_NO_EXECUTABLES." "$LINENO" 5
++fi
++cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++#include <stdlib.h>
++#include <iconv.h>
++int
++main ()
++{
++iconv_t cd = iconv_open("","");
++       iconv(cd,NULL,NULL,NULL,NULL);
++       iconv_close(cd);
++  ;
++  return 0;
++}
++_ACEOF
++if ac_fn_c_try_link "$LINENO"; then :
++  am_cv_func_iconv=yes
++fi
++rm -f core conftest.err conftest.$ac_objext \
++    conftest$ac_exeext conftest.$ac_ext
++    if test "$am_cv_func_iconv" != yes; then
++      am_save_LIBS="$LIBS"
++      LIBS="$LIBS $LIBICONV"
++      if test x$gcc_no_link = xyes; then
++  as_fn_error "Link tests are not allowed after GCC_NO_EXECUTABLES." "$LINENO" 5
++fi
++cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++#include <stdlib.h>
++#include <iconv.h>
++int
++main ()
++{
++iconv_t cd = iconv_open("","");
++         iconv(cd,NULL,NULL,NULL,NULL);
++         iconv_close(cd);
++  ;
++  return 0;
++}
++_ACEOF
++if ac_fn_c_try_link "$LINENO"; then :
++  am_cv_lib_iconv=yes
++        am_cv_func_iconv=yes
++fi
++rm -f core conftest.err conftest.$ac_objext \
++    conftest$ac_exeext conftest.$ac_ext
++      LIBS="$am_save_LIBS"
++    fi
++
++fi
++{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $am_cv_func_iconv" >&5
++$as_echo "$am_cv_func_iconv" >&6; }
++  if test "$am_cv_func_iconv" = yes; then
++
++$as_echo "#define HAVE_ICONV 1" >>confdefs.h
++
++  fi
++  if test "$am_cv_lib_iconv" = yes; then
++    { $as_echo "$as_me:${as_lineno-$LINENO}: checking how to link with libiconv" >&5
++$as_echo_n "checking how to link with libiconv... " >&6; }
++    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $LIBICONV" >&5
++$as_echo "$LIBICONV" >&6; }
++  else
++            CPPFLAGS="$am_save_CPPFLAGS"
++    LIBICONV=
++    LTLIBICONV=
++  fi
++
++
++
++  if test "$am_cv_func_iconv" = yes; then
++    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for iconv declaration" >&5
++$as_echo_n "checking for iconv declaration... " >&6; }
++    if test "${am_cv_proto_iconv+set}" = set; then :
++  $as_echo_n "(cached) " >&6
++else
++
++      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
++/* end confdefs.h.  */
++
++#include <stdlib.h>
++#include <iconv.h>
++extern
++#ifdef __cplusplus
++"C"
++#endif
++#if defined(__STDC__) || defined(__cplusplus)
++size_t iconv (iconv_t cd, char * *inbuf, size_t *inbytesleft, char * *outbuf, size_t *outbytesleft);
++#else
++size_t iconv();
++#endif
++
++int
++main ()
++{
++
++  ;
++  return 0;
++}
++_ACEOF
++if ac_fn_c_try_compile "$LINENO"; then :
++  am_cv_proto_iconv_arg1=""
++else
++  am_cv_proto_iconv_arg1="const"
++fi
++rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
++      am_cv_proto_iconv="extern size_t iconv (iconv_t cd, $am_cv_proto_iconv_arg1 char * *inbuf, size_t *inbytesleft, char * *outbuf, size_t *outbytesleft);"
++fi
++
++    am_cv_proto_iconv=`echo "$am_cv_proto_iconv" | tr -s ' ' | sed -e 's/( /(/'`
++    { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ac_t:-
++         }$am_cv_proto_iconv" >&5
++$as_echo "${ac_t:-
++         }$am_cv_proto_iconv" >&6; }
++
++cat >>confdefs.h <<_ACEOF
++#define ICONV_CONST $am_cv_proto_iconv_arg1
++_ACEOF
++
++  fi
++
++    ;;
++  *-cygwin* | *-msys*)
+ 
+   # All these tests are for C++; save the language and the compiler flags.
+   # The CXXFLAGS thing is suspicious, but based on similar bits previously
+@@ -50578,377 +56827,6 @@ done
+ 
+   CXXFLAGS="$ac_save_CXXFLAGS"
+ 
+-    $as_echo "#define _GLIBCXX_USE_RANDOM_TR1 1" >>confdefs.h
+-
+-
+-
+-   # Check whether --enable-tls was given.
+-if test "${enable_tls+set}" = set; then :
+-  enableval=$enable_tls;
+-      case "$enableval" in
+-       yes|no) ;;
+-       *) as_fn_error "Argument to enable/disable tls must be yes or no" "$LINENO" 5 ;;
+-      esac
+-
+-else
+-  enable_tls=yes
+-fi
+-
+-
+-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether the target supports thread-local storage" >&5
+-$as_echo_n "checking whether the target supports thread-local storage... " >&6; }
+-if test "${gcc_cv_have_tls+set}" = set; then :
+-  $as_echo_n "(cached) " >&6
+-else
+-
+-    if test "$cross_compiling" = yes; then :
+-                if test x$gcc_no_link = xyes; then
+-  as_fn_error "Link tests are not allowed after GCC_NO_EXECUTABLES." "$LINENO" 5
+-fi
+-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+-/* end confdefs.h.  */
+-__thread int a; int b; int main() { return a = b; }
+-_ACEOF
+-if ac_fn_c_try_link "$LINENO"; then :
+-  chktls_save_LDFLAGS="$LDFLAGS"
+-	  	  	  case $host in
+-	    *-*-linux*)
+-	      LDFLAGS="-shared -Wl,--no-undefined $LDFLAGS"
+-	      ;;
+-	  esac
+-	  chktls_save_CFLAGS="$CFLAGS"
+-	  CFLAGS="-fPIC $CFLAGS"
+-	  	  if test x$gcc_no_link = xyes; then
+-  as_fn_error "Link tests are not allowed after GCC_NO_EXECUTABLES." "$LINENO" 5
+-fi
+-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+-/* end confdefs.h.  */
+-int f() { return 0; }
+-_ACEOF
+-if ac_fn_c_try_link "$LINENO"; then :
+-  if test x$gcc_no_link = xyes; then
+-  as_fn_error "Link tests are not allowed after GCC_NO_EXECUTABLES." "$LINENO" 5
+-fi
+-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+-/* end confdefs.h.  */
+-__thread int a; int b; int f() { return a = b; }
+-_ACEOF
+-if ac_fn_c_try_link "$LINENO"; then :
+-  gcc_cv_have_tls=yes
+-else
+-  gcc_cv_have_tls=no
+-fi
+-rm -f core conftest.err conftest.$ac_objext \
+-    conftest$ac_exeext conftest.$ac_ext
+-else
+-  gcc_cv_have_tls=yes
+-fi
+-rm -f core conftest.err conftest.$ac_objext \
+-    conftest$ac_exeext conftest.$ac_ext
+-	  CFLAGS="$chktls_save_CFLAGS"
+-	  LDFLAGS="$chktls_save_LDFLAGS"
+-else
+-  gcc_cv_have_tls=no
+-fi
+-rm -f core conftest.err conftest.$ac_objext \
+-    conftest$ac_exeext conftest.$ac_ext
+-
+-
+-else
+-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+-/* end confdefs.h.  */
+-__thread int a; int b; int main() { return a = b; }
+-_ACEOF
+-if ac_fn_c_try_run "$LINENO"; then :
+-                      chktls_save_LDFLAGS="$LDFLAGS"
+-      LDFLAGS="-static $LDFLAGS"
+-      if test x$gcc_no_link = xyes; then
+-  as_fn_error "Link tests are not allowed after GCC_NO_EXECUTABLES." "$LINENO" 5
+-fi
+-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+-/* end confdefs.h.  */
+-int main() { return 0; }
+-_ACEOF
+-if ac_fn_c_try_link "$LINENO"; then :
+-  if test "$cross_compiling" = yes; then :
+-  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+-as_fn_error "cannot run test program while cross compiling
+-See \`config.log' for more details." "$LINENO" 5; }
+-else
+-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+-/* end confdefs.h.  */
+-__thread int a; int b; int main() { return a = b; }
+-_ACEOF
+-if ac_fn_c_try_run "$LINENO"; then :
+-  gcc_cv_have_tls=yes
+-else
+-  gcc_cv_have_tls=no
+-fi
+-rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
+-  conftest.$ac_objext conftest.beam conftest.$ac_ext
+-fi
+-
+-else
+-  gcc_cv_have_tls=yes
+-fi
+-rm -f core conftest.err conftest.$ac_objext \
+-    conftest$ac_exeext conftest.$ac_ext
+-      LDFLAGS="$chktls_save_LDFLAGS"
+-      if test $gcc_cv_have_tls = yes; then
+-						chktls_save_CFLAGS="$CFLAGS"
+-	thread_CFLAGS=failed
+-	for flag in '' '-pthread' '-lpthread'; do
+-	  CFLAGS="$flag $chktls_save_CFLAGS"
+-	  if test x$gcc_no_link = xyes; then
+-  as_fn_error "Link tests are not allowed after GCC_NO_EXECUTABLES." "$LINENO" 5
+-fi
+-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+-/* end confdefs.h.  */
+-#include <pthread.h>
+-		void *g(void *d) { return NULL; }
+-int
+-main ()
+-{
+-pthread_t t; pthread_create(&t,NULL,g,NULL);
+-  ;
+-  return 0;
+-}
+-_ACEOF
+-if ac_fn_c_try_link "$LINENO"; then :
+-  thread_CFLAGS="$flag"
+-fi
+-rm -f core conftest.err conftest.$ac_objext \
+-    conftest$ac_exeext conftest.$ac_ext
+-	  if test "X$thread_CFLAGS" != Xfailed; then
+-	    break
+-	  fi
+-	done
+-	CFLAGS="$chktls_save_CFLAGS"
+-	if test "X$thread_CFLAGS" != Xfailed; then
+-	  CFLAGS="$thread_CFLAGS $chktls_save_CFLAGS"
+- 	  	  	  	  	  	  if test "$cross_compiling" = yes; then :
+-  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+-as_fn_error "cannot run test program while cross compiling
+-See \`config.log' for more details." "$LINENO" 5; }
+-else
+-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+-/* end confdefs.h.  */
+-#include <pthread.h>
+-		__thread int a;
+-		static int *volatile a_in_other_thread;
+-		static void *
+-		thread_func (void *arg)
+-		{
+-		  a_in_other_thread = &a;
+-		  return (void *)0;
+-		}
+-int
+-main ()
+-{
+-pthread_t thread;
+-		void *thread_retval;
+-		int *volatile a_in_main_thread;
+-		a_in_main_thread = &a;
+-		if (pthread_create (&thread, (pthread_attr_t *)0,
+-				    thread_func, (void *)0))
+-		  return 0;
+-		if (pthread_join (thread, &thread_retval))
+-		  return 0;
+-		return (a_in_other_thread == a_in_main_thread);
+-  ;
+-  return 0;
+-}
+-_ACEOF
+-if ac_fn_c_try_run "$LINENO"; then :
+-  gcc_cv_have_tls=yes
+-else
+-  gcc_cv_have_tls=no
+-fi
+-rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
+-  conftest.$ac_objext conftest.beam conftest.$ac_ext
+-fi
+-
+-	  CFLAGS="$chktls_save_CFLAGS"
+-	fi
+-      fi
+-else
+-  gcc_cv_have_tls=no
+-fi
+-rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext \
+-  conftest.$ac_objext conftest.beam conftest.$ac_ext
+-fi
+-
+-fi
+-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $gcc_cv_have_tls" >&5
+-$as_echo "$gcc_cv_have_tls" >&6; }
+-  if test "$enable_tls $gcc_cv_have_tls" = "yes yes"; then
+-
+-$as_echo "#define HAVE_TLS 1" >>confdefs.h
+-
+-  fi
+-
+-
+-
+-
+-
+-          am_save_CPPFLAGS="$CPPFLAGS"
+-
+-  for element in $INCICONV; do
+-    haveit=
+-    for x in $CPPFLAGS; do
+-
+-  acl_save_prefix="$prefix"
+-  prefix="$acl_final_prefix"
+-  acl_save_exec_prefix="$exec_prefix"
+-  exec_prefix="$acl_final_exec_prefix"
+-  eval x=\"$x\"
+-  exec_prefix="$acl_save_exec_prefix"
+-  prefix="$acl_save_prefix"
+-
+-      if test "X$x" = "X$element"; then
+-        haveit=yes
+-        break
+-      fi
+-    done
+-    if test -z "$haveit"; then
+-      CPPFLAGS="${CPPFLAGS}${CPPFLAGS:+ }$element"
+-    fi
+-  done
+-
+-
+-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for iconv" >&5
+-$as_echo_n "checking for iconv... " >&6; }
+-if test "${am_cv_func_iconv+set}" = set; then :
+-  $as_echo_n "(cached) " >&6
+-else
+-
+-    am_cv_func_iconv="no, consider installing GNU libiconv"
+-    am_cv_lib_iconv=no
+-    if test x$gcc_no_link = xyes; then
+-  as_fn_error "Link tests are not allowed after GCC_NO_EXECUTABLES." "$LINENO" 5
+-fi
+-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+-/* end confdefs.h.  */
+-#include <stdlib.h>
+-#include <iconv.h>
+-int
+-main ()
+-{
+-iconv_t cd = iconv_open("","");
+-       iconv(cd,NULL,NULL,NULL,NULL);
+-       iconv_close(cd);
+-  ;
+-  return 0;
+-}
+-_ACEOF
+-if ac_fn_c_try_link "$LINENO"; then :
+-  am_cv_func_iconv=yes
+-fi
+-rm -f core conftest.err conftest.$ac_objext \
+-    conftest$ac_exeext conftest.$ac_ext
+-    if test "$am_cv_func_iconv" != yes; then
+-      am_save_LIBS="$LIBS"
+-      LIBS="$LIBS $LIBICONV"
+-      if test x$gcc_no_link = xyes; then
+-  as_fn_error "Link tests are not allowed after GCC_NO_EXECUTABLES." "$LINENO" 5
+-fi
+-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+-/* end confdefs.h.  */
+-#include <stdlib.h>
+-#include <iconv.h>
+-int
+-main ()
+-{
+-iconv_t cd = iconv_open("","");
+-         iconv(cd,NULL,NULL,NULL,NULL);
+-         iconv_close(cd);
+-  ;
+-  return 0;
+-}
+-_ACEOF
+-if ac_fn_c_try_link "$LINENO"; then :
+-  am_cv_lib_iconv=yes
+-        am_cv_func_iconv=yes
+-fi
+-rm -f core conftest.err conftest.$ac_objext \
+-    conftest$ac_exeext conftest.$ac_ext
+-      LIBS="$am_save_LIBS"
+-    fi
+-
+-fi
+-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $am_cv_func_iconv" >&5
+-$as_echo "$am_cv_func_iconv" >&6; }
+-  if test "$am_cv_func_iconv" = yes; then
+-
+-$as_echo "#define HAVE_ICONV 1" >>confdefs.h
+-
+-  fi
+-  if test "$am_cv_lib_iconv" = yes; then
+-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking how to link with libiconv" >&5
+-$as_echo_n "checking how to link with libiconv... " >&6; }
+-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $LIBICONV" >&5
+-$as_echo "$LIBICONV" >&6; }
+-  else
+-            CPPFLAGS="$am_save_CPPFLAGS"
+-    LIBICONV=
+-    LTLIBICONV=
+-  fi
+-
+-
+-
+-  if test "$am_cv_func_iconv" = yes; then
+-    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for iconv declaration" >&5
+-$as_echo_n "checking for iconv declaration... " >&6; }
+-    if test "${am_cv_proto_iconv+set}" = set; then :
+-  $as_echo_n "(cached) " >&6
+-else
+-
+-      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+-/* end confdefs.h.  */
+-
+-#include <stdlib.h>
+-#include <iconv.h>
+-extern
+-#ifdef __cplusplus
+-"C"
+-#endif
+-#if defined(__STDC__) || defined(__cplusplus)
+-size_t iconv (iconv_t cd, char * *inbuf, size_t *inbytesleft, char * *outbuf, size_t *outbytesleft);
+-#else
+-size_t iconv();
+-#endif
+-
+-int
+-main ()
+-{
+-
+-  ;
+-  return 0;
+-}
+-_ACEOF
+-if ac_fn_c_try_compile "$LINENO"; then :
+-  am_cv_proto_iconv_arg1=""
+-else
+-  am_cv_proto_iconv_arg1="const"
+-fi
+-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+-      am_cv_proto_iconv="extern size_t iconv (iconv_t cd, $am_cv_proto_iconv_arg1 char * *inbuf, size_t *inbytesleft, char * *outbuf, size_t *outbytesleft);"
+-fi
+-
+-    am_cv_proto_iconv=`echo "$am_cv_proto_iconv" | tr -s ' ' | sed -e 's/( /(/'`
+-    { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ac_t:-
+-         }$am_cv_proto_iconv" >&5
+-$as_echo "${ac_t:-
+-         }$am_cv_proto_iconv" >&6; }
+-
+-cat >>confdefs.h <<_ACEOF
+-#define ICONV_CONST $am_cv_proto_iconv_arg1
+-_ACEOF
+-
+-  fi
+-
      ;;
    *-mingw32*)
  
-@@ -64896,7 +70768,7 @@ done
+@@ -64896,7 +70774,7 @@ done
    if $GLIBCXX_IS_NATIVE && test $is_hosted = yes &&
       test $enable_symvers != no; then
      case "$host" in
@@ -9358,6 +9422,19 @@ index e29404c026f..e8d3f2206b0 100644
      os_include_dir="os/newlib"
      OPT_LDFLAGS="${OPT_LDFLAGS} \$(lt_host_flags)"
      ;;
+diff --git a/libstdc++-v3/crossconfig.m4 b/libstdc++-v3/crossconfig.m4
+index b157499b5cd..7de4fb1e77f 100644
+--- a/libstdc++-v3/crossconfig.m4
++++ b/libstdc++-v3/crossconfig.m4
+@@ -141,7 +141,7 @@ case "${host}" in
+ 	;;
+     esac
+     ;;
+-  *-linux* | *-uclinux* | *-gnu* | *-kfreebsd*-gnu | *-knetbsd*-gnu | *-cygwin*)
++  *-linux* | *-uclinux* | *-gnu* | *-kfreebsd*-gnu | *-knetbsd*-gnu | *-cygwin* | *-msys*)
+     GLIBCXX_CHECK_COMPILER_FEATURES
+     GLIBCXX_CHECK_LINKER_FEATURES
+     GLIBCXX_CHECK_MATH_SUPPORT
 diff --git a/libtool.m4 b/libtool.m4
 index 67321a7d070..a0e872ab253 100644
 --- a/libtool.m4
