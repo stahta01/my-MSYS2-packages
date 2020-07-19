@@ -50,6 +50,15 @@ apply_patch_with_msg() {
     patch -Nbp1 -i "${srcdir}"/${_fname}
   done
 }
+
+del_file_exists() {
+  for _fname in "$@"
+  do
+    if [ -f ${_fname} ]; then
+      rm -rf ${_fname}
+    fi
+  done
+}
 # =========================================== #
 
 prepare() {
@@ -61,7 +70,7 @@ prepare() {
 
   msg2 "Synchronizing source directory"
   mkdir -p "${srcdir}/${_realname}-${pkgver}"
-  rsync --stats --itemize-changes --recursive --size-only --times \
+  time rsync --stats --itemize-changes --recursive --size-only --times \
     "${startdir}/${_realname}-${pkgver}-extracted"/* "${srcdir}/${_realname}-${pkgver}"
 
   cd ${srcdir}/${_realname}-${pkgver}
