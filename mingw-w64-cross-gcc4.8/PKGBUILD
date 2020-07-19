@@ -147,6 +147,43 @@ prepare() {
       fixincludes/configure \
       fixincludes/mkfixinc.sh \
       config.sub \
+      gcc/c-family/c-opts.c \
+      gcc/cp/semantics.c \
+      libgcc/config/i386/cygming-crtbegin.c \
+      libstdc++-v3/config/abi/pre/gnu.ver \
+      libgcc/gthr-posix.h \
+      gcc/config/i386//cygming.opt \
+      gcc/config/i386//cygwin.h \
+      gcc/config/i386//mingw.opt \
+      Makefile.in \
+      libffi/src/x86/ffi.c \
+      libffi/src/x86/win64.S \
+      gcc/builtin-attrs.def \
+      gcc/gtm-builtins.def \
+      libitm/Makefile.am \
+      libitm/Makefile.in \
+      libitm/aclocal.m4 \
+      libitm/configure \
+      libitm/configure.ac \
+      libitm/configure.tgt \
+      libitm/libitm.h \
+      libitm/libitm_i.h \
+      libstdc++-v3/testsuite/lib/libstdc++.exp \
+      lto-plugin/Makefile.am \
+      lto-plugin/Makefile.in \
+      gcc/config/i386/cygwin-stdint.h \
+      libsanitizer/configure \
+      config/mmap.m4 \
+      libbacktrace/configure \
+      libgfortran/acinclude.m4 \
+      libatomic/Makefile.am \
+      libatomic/Makefile.in \
+      libatomic/aclocal.m4 \
+      libatomic/configure \
+      libatomic/configure.ac \
+      libatomic/configure.tgt \
+      gcc/cp/cfns.gperf \
+      gcc/cp/cfns.h \
       boehm-gc/configure          \
       boehm-gc/configure.ac       \
       config.guess                \
@@ -203,6 +240,10 @@ prepare() {
 
   del_file_exists \
     gcc/testsuite/g++.dg/cpp0x/lambda/lambda-names1.C \
+    gcc/config/i386/msys.h \
+    gcc/config/i386/msys-w64.h \
+    gcc/config/i386/t-msys-w64 \
+    libgcc/config/i386/t-msys \
     gcc/config/i386/cygwin.opt \
     gcc/config/i386/cygwin-w64.h \
     gcc/config/i386/t-cygwin-w64
