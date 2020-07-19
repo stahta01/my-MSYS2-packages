@@ -49,7 +49,7 @@ source=(
 sha256sums=('35af16afa0b67af9b8eb15cafb76d2bc5f568540552522f5dc2c88dd45d977e8'
             '8a72e1b2cef99c78a9f7d8126d8509b580617fce68a289b8bcb05c98e4ffc548'
             'fba7508237bf8e6ae261ed6fcdbc02442241444048acef5c8e0a88d18d76c24b'
-            '0f183acf918fcf391baa71978266e1bfee221e7e4ff2fd4091670473fd90229a')
+            '560d99c967229306d9e1ec477f7476ac2353369075cdfb40e9e734bdbab9a832')
 
 # =========================================== #
 # Helper macro(s) to help make tasks easier   #
