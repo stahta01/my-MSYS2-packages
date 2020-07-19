@@ -39,10 +39,12 @@ noextract=("${_realname}-${pkgver}.tar.bz2")
 source=(
     "ftp://gcc.gnu.org/pub/gcc/releases/${_realname}-${pkgver}/${_realname}-${pkgver}.tar.bz2"
     104-gcc-4.6.4-Fix-texi-docs-syntax-errors.patch
+    942-crossconfig.m4-Add-support-for-cygwin-x64-target.patch
     950-gcc-4.6.4-configure-msys2.patch
 )
 sha256sums=('35af16afa0b67af9b8eb15cafb76d2bc5f568540552522f5dc2c88dd45d977e8'
             '8a72e1b2cef99c78a9f7d8126d8509b580617fce68a289b8bcb05c98e4ffc548'
+            'fba7508237bf8e6ae261ed6fcdbc02442241444048acef5c8e0a88d18d76c24b'
             'a5b313214ca57b0a5480acbd25dca1ec8102e4d5777f0f06093818e77df583cf')
 
 # =========================================== #
@@ -58,8 +60,11 @@ apply_patch_with_msg() {
 replace_file_exists() {
   for _fname in "$@"
   do
-    if [[ -f ${_fname} && -f "${startdir}/${_realname}-${pkgver}-extracted/${_fname}" ]]; then
-      cp  "${startdir}/${_realname}-${pkgver}-extracted/${_fname}" ${_fname}
+    if [[ -f "${srcdir}/${_realname}-${pkgver}/${_fname}" && -f "${startdir}/${_realname}-${pkgver}-extracted/${_fname}" ]]; then
+      msg2 "Replacing ${_fname}"
+      cp  "${startdir}/${_realname}-${pkgver}-extracted/${_fname}" "${srcdir}/${_realname}-${pkgver}/${_fname}"
+    else
+      msg2 "Skipping replacement of ${_fname}"
     fi
   done
 }
@@ -84,24 +89,33 @@ prepare() {
   if [ ! -d "${srcdir}/${_realname}-${pkgver}" ]; then
     msg2 "Creating ${_realname}-${pkgver} folder and files"
     mkdir -p ${_realname}-${pkgver}
-    cd ${startdir}/${_realname}-${pkgver}-extracted; \
+    cd ${startdir}/${_realname}-${pkgver}-extracted && \
       cp -R --target-directory="${srcdir}/${_realname}-${pkgver}" *
   else
     replace_file_exists \
-      gcc/doc/gcc.texi            \
       boehm-gc/configure          \
       boehm-gc/configure.ac       \
       config.guess                \
       config.rpath                \
+      config/dfp.m4               \
       config/lthostflags.m4       \
+      config/picflag.m4           \
       config/tcl.m4               \
       configure                   \
       configure.ac                \
+      gcc/config.build            \
+      gcc/config.gcc              \
+      gcc/config.host             \
       gcc/configure               \
       gcc/configure.ac            \
+      gcc/doc/gcc.texi            \
+      libada/configure            \
+      libdecnumber/configure      \
       libffi/acinclude.m4         \
       libffi/configure            \
       libffi/configure.ac         \
+      libgcc/config.host          \
+      libgcc/configure            \
       libgfortran/configure       \
       libgo/config/libtool.m4     \
       libgo/config/ltmain.sh      \
@@ -118,6 +132,7 @@ prepare() {
       libstdc++-v3/acinclude.m4   \
       libstdc++-v3/configure      \
       libstdc++-v3/configure.host \
+      libstdc++-v3/crossconfig.m4 \
       libtool.m4                  \
       ltmain.sh                   \
       lto-plugin/configure        \
@@ -142,12 +157,12 @@ prepare() {
   # makeinfo Patches
   apply_patch_with_msg 104-gcc-4.6.4-Fix-texi-docs-syntax-errors.patch
 
+  # GCC Backport patches
+  apply_patch_with_msg 942-crossconfig.m4-Add-support-for-cygwin-x64-target.patch
+
   # MSYS2 Patches
   apply_patch_with_msg \
     950-gcc-4.6.4-configure-msys2.patch
-
-  # GCC Backport patches
-  # apply_patch_with_msg
 
   # Misc Patches
   # apply_patch_with_msg
