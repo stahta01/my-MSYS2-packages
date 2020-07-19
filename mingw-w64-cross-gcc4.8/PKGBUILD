@@ -102,6 +102,18 @@ apply_patch_with_msg() {
   done
 }
 
+replace_file_exists() {
+  for _fname in "$@"
+  do
+    if [[ -f "${srcdir}/${_realname}-${pkgver}/${_fname}" && -f "${startdir}/${_realname}-${pkgver}-extracted/${_fname}" ]]; then
+      msg2 "Replacing ${_fname}"
+      cp  "${startdir}/${_realname}-${pkgver}-extracted/${_fname}" "${srcdir}/${_realname}-${pkgver}/${_fname}"
+    else
+      msg2 "Skipping replacement of ${_fname}"
+    fi
+  done
+}
+
 del_file_exists() {
   for _fname in "$@"
   do
@@ -113,10 +125,74 @@ del_file_exists() {
 # =========================================== #
 
 prepare() {
-  msg2 "Synchronizing source directory"
-  mkdir -p "${srcdir}/${_realname}-${pkgver}"
-  rsync --stats --itemize-changes --recursive --checksum --times \
-    "${startdir}/${_realname}-${pkgver}"/* "${srcdir}/${_realname}-${pkgver}"
+  if [ ! -d "${startdir}/${_realname}-${pkgver}-extracted" ]; then
+    msg2 "Extracting archive"
+    mkdir -p  "${startdir}/${_realname}-${pkgver}-extracted"
+    tar --strip-components=1 -xjf ${startdir}/${_realname}-${pkgver}.tar.bz2 -C "${startdir}/${_realname}-${pkgver}-extracted"
+  fi
+
+  #msg2 "Synchronizing source directory"
+  #mkdir -p "${srcdir}/${_realname}-${pkgver}"
+  #time rsync --stats --itemize-changes --recursive --checksum --times \
+    #"${startdir}/${_realname}-${pkgver}-extracted"/* "${srcdir}/${_realname}-${pkgver}"
+
+  if [ ! -d "${srcdir}/${_realname}-${pkgver}" ]; then
+    msg2 "Creating ${_realname}-${pkgver} folder and files"
+    mkdir -p ${_realname}-${pkgver}
+    cd ${startdir}/${_realname}-${pkgver}-extracted && \
+      cp -R --target-directory="${srcdir}/${_realname}-${pkgver}" *
+  else
+    replace_file_exists \
+      config/elf.m4 \
+      fixincludes/configure \
+      fixincludes/mkfixinc.sh \
+      config.sub \
+      boehm-gc/configure          \
+      boehm-gc/configure.ac       \
+      config.guess                \
+      config.rpath                \
+      config/dfp.m4               \
+      config/lthostflags.m4       \
+      config/picflag.m4           \
+      config/tcl.m4               \
+      configure                   \
+      configure.ac                \
+      gcc/config.build            \
+      gcc/config.gcc              \
+      gcc/config.host             \
+      gcc/configure               \
+      gcc/configure.ac            \
+      gcc/doc/gcc.texi            \
+      libada/configure            \
+      libdecnumber/configure      \
+      libffi/acinclude.m4         \
+      libffi/configure            \
+      libffi/configure.ac         \
+      libgcc/config.host          \
+      libgcc/configure            \
+      libgfortran/configure       \
+      libgo/config/libtool.m4     \
+      libgo/config/ltmain.sh      \
+      libgo/config/ltoptions.m4   \
+      libgo/configure             \
+      libgomp/configure           \
+      libiberty/configure         \
+      libiberty/configure.ac      \
+      libmudflap/configure        \
+      libobjc/configure           \
+      libobjc/configure.ac        \
+      libquadmath/configure       \
+      libssp/configure            \
+      libstdc++-v3/acinclude.m4   \
+      libstdc++-v3/configure      \
+      libstdc++-v3/configure.host \
+      libstdc++-v3/crossconfig.m4 \
+      libtool.m4                  \
+      ltmain.sh                   \
+      lto-plugin/configure        \
+      ltoptions.m4                \
+      zlib/configure
+  fi
 
   cd ${srcdir}/${_realname}-${pkgver}
 
