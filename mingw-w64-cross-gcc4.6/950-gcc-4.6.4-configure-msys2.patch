@@ -1,4 +1,4 @@
-From caf3aac74080c2325fdaf49215da4b12b27ef61a Mon Sep 17 00:00:00 2001
+From 698f70b4f6fc11a8a3fddfb68eea0ec9b00d29ff Mon Sep 17 00:00:00 2001
 From: Tim Stahlhut <stahta01@gmail.com>
 Date: Sat, 18 Jul 2020 21:29:41 -0400
 Subject: gcc 4.6.4 configure msys2 part A
@@ -6,12 +6,16 @@ Subject: gcc 4.6.4 configure msys2 part A
 ---
  boehm-gc/configure          |   45 +-
  boehm-gc/configure.ac       |    2 +-
- config.guess                |    3 +
+ config.guess                |    6 +
  config.rpath                |    8 +-
+ config/dfp.m4               |    3 +-
+ config/elf.m4               |    2 +-
  config/lthostflags.m4       |    2 +-
  config/tcl.m4               |    4 +-
  configure                   |   18 +-
  configure.ac                |   16 +-
+ fixincludes/configure       |    4 +-
+ fixincludes/mkfixinc.sh     |    3 +
  gcc/configure               |   49 +-
  gcc/configure.ac            |    4 +-
  libffi/acinclude.m4         |    4 +-
@@ -38,7 +42,7 @@ Subject: gcc 4.6.4 configure msys2 part A
  lto-plugin/configure        |   30 +-
  ltoptions.m4                |    2 +-
  zlib/configure              |   28 +-
- 34 files changed, 6663 insertions(+), 684 deletions(-)
+ 38 files changed, 6674 insertions(+), 688 deletions(-)
 
 diff --git a/boehm-gc/configure b/boehm-gc/configure
 index 019054da22a..1a187c7f184 100755
@@ -234,10 +238,20 @@ index 412a8f31dca..6ced232190c 100644
  	;;
       *-*-darwin*)
 diff --git a/config.guess b/config.guess
-index 6eeea023eb9..36e093c47ab 100755
+index 6eeea023eb9..6fa6b472127 100755
 --- a/config.guess
 +++ b/config.guess
-@@ -841,6 +841,9 @@ EOF
+@@ -801,6 +801,9 @@ EOF
+     i*:CYGWIN*:*)
+ 	echo ${UNAME_MACHINE}-pc-cygwin
+ 	exit ;;
++    i*:MSYS*:*)
++	echo ${UNAME_MACHINE}-pc-msys
++	exit ;;
+     *:MINGW*:*)
+ 	echo ${UNAME_MACHINE}-pc-mingw32
+ 	exit ;;
+@@ -841,6 +844,9 @@ EOF
      amd64:CYGWIN*:*:* | x86_64:CYGWIN*:*:*)
  	echo x86_64-unknown-cygwin
  	exit ;;
@@ -287,6 +301,33 @@ index 4dea75957c2..4f12c27e029 100755
      shrext=.dll
      ;;
    darwin* | rhapsody*)
+diff --git a/config/dfp.m4 b/config/dfp.m4
+index cc778b19bbb..0fb90e9e46c 100644
+--- a/config/dfp.m4
++++ b/config/dfp.m4
+@@ -22,7 +22,8 @@ Valid choices are 'yes', 'bid', 'dpd', and 'no'.]) ;;
+   case $1 in
+     powerpc*-*-linux* | i?86*-*-linux* | x86_64*-*-linux* | s390*-*-linux* | \
+     i?86*-*-mingw* | x86_64*-*-mingw* | \
+-    i?86*-*-cygwin*)
++    i?86*-*-cygwin* | x86_64*-*-cygwin* | \
++    i?86*-*-msys* | x86_64*-*-msys*)
+       enable_decimal_float=yes
+       ;;
+     *)
+diff --git a/config/elf.m4 b/config/elf.m4
+index 007006eaea2..7732ee4646f 100644
+--- a/config/elf.m4
++++ b/config/elf.m4
+@@ -13,7 +13,7 @@ AC_REQUIRE([AC_CANONICAL_TARGET])
+ 
+ target_elf=no
+ case $target in
+-  *-darwin* | *-aix* | *-cygwin* | *-mingw* | *-aout* | *-*coff* | \
++  *-darwin* | *-aix* | *-cygwin* | *-msys* | *-mingw* | *-aout* | *-*coff* | \
+   *-msdosdjgpp* | *-netware* | *-vms* | *-wince* | *-*-pe* | \
+   alpha*-dec-osf* | *-interix* | hppa[[12]]*-*-hpux*)
+     target_elf=no
 diff --git a/config/lthostflags.m4 b/config/lthostflags.m4
 index bc0f59ee79e..253e7aa6b06 100644
 --- a/config/lthostflags.m4
@@ -483,6 +524,42 @@ index ba6d84da43b..9072f329657 100644
        FLAGS_FOR_TARGET=$FLAGS_FOR_TARGET' -L$$r/$(TARGET_SUBDIR)/winsup -L$$r/$(TARGET_SUBDIR)/winsup/cygwin -L$$r/$(TARGET_SUBDIR)/winsup/w32api/lib -isystem $$s/winsup/include -isystem $$s/winsup/cygwin/include -isystem $$s/winsup/w32api/include'
        ;;
     esac
+diff --git a/fixincludes/configure b/fixincludes/configure
+index 7b7109a9301..94a6de40cfa 100755
+--- a/fixincludes/configure
++++ b/fixincludes/configure
+@@ -5064,7 +5064,7 @@ else
+    # Systems known to be in this category are Windows (all variants),
+    # VMS, and Darwin.
+    case "$host_os" in
+-     vms* | cygwin* | pe | mingw* | darwin* | ultrix* | hpux10* | hpux11.00)
++     vms* | cygwin* | msys* | pe | mingw* | darwin* | ultrix* | hpux10* | hpux11.00)
+         gcc_cv_func_mmap_dev_zero=no ;;
+      *)
+         gcc_cv_func_mmap_dev_zero=yes;;
+@@ -5121,7 +5121,7 @@ else
+    # above for use of /dev/zero.
+    # Systems known to be in this category are Windows, VMS, and SCO Unix.
+    case "$host_os" in
+-     vms* | cygwin* | pe | mingw* | sco* | udk* )
++     vms* | cygwin* | msys* | pe | mingw* | sco* | udk* )
+         gcc_cv_func_mmap_anon=no ;;
+      *)
+         gcc_cv_func_mmap_anon=yes;;
+diff --git a/fixincludes/mkfixinc.sh b/fixincludes/mkfixinc.sh
+index b45f1795dcc..d947222731a 100755
+--- a/fixincludes/mkfixinc.sh
++++ b/fixincludes/mkfixinc.sh
+@@ -15,6 +15,9 @@ case $machine in
+     i?86-moss-msdos* | \
+     i?86-*-pe | \
+     i?86-*-cygwin* | \
++    x86_64-*-cygwin* | \
++    i?86-*-msys* | \
++    x86_64-*-msys* | \
+     i?86-*-mingw32* | \
+     x86_64-*-mingw32* | \
+     i?86-*-interix* | \
 diff --git a/gcc/configure b/gcc/configure
 index c8caff252f4..a4a089d3960 100755
 --- a/gcc/configure
