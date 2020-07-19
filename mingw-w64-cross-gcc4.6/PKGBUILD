@@ -12,6 +12,8 @@ _threads="win32"
 _basegccver=4.6
 pkgbase="${_mingw_suff}-${_realname}${_basegccver}"
 pkgname=("${_mingw_suff}-${_realname}${_basegccver}")
+provides=("${_mingw_suff}-${_realname}")
+conflicts=("${_mingw_suff}-${_realname}")
 pkgver=${_basegccver}.4
 pkgrel=1
 pkgdesc="GCC for the MinGW-w64"
@@ -37,9 +39,11 @@ noextract=("${_realname}-${pkgver}.tar.bz2")
 source=(
     "ftp://gcc.gnu.org/pub/gcc/releases/${_realname}-${pkgver}/${_realname}-${pkgver}.tar.bz2"
     104-gcc-4.6.4-Fix-texi-docs-syntax-errors.patch
+    950-gcc-4.6.4-configure-msys2.patch
 )
 sha256sums=('35af16afa0b67af9b8eb15cafb76d2bc5f568540552522f5dc2c88dd45d977e8'
-            '8a72e1b2cef99c78a9f7d8126d8509b580617fce68a289b8bcb05c98e4ffc548')
+            '8a72e1b2cef99c78a9f7d8126d8509b580617fce68a289b8bcb05c98e4ffc548'
+            'a5b313214ca57b0a5480acbd25dca1ec8102e4d5777f0f06093818e77df583cf')
 
 # =========================================== #
 # Helper macro(s) to help make tasks easier   #
@@ -51,10 +55,19 @@ apply_patch_with_msg() {
   done
 }
 
+replace_file_exists() {
+  for _fname in "$@"
+  do
+    if [[ -f ${_fname} && -f "${startdir}/${_realname}-${pkgver}-extracted/${_fname}" ]]; then
+      cp  "${startdir}/${_realname}-${pkgver}-extracted/${_fname}" ${_fname}
+    fi
+  done
+}
+
 del_file_exists() {
   for _fname in "$@"
   do
-    if [ -f ${_fname} ]; then
+    if [[ -f ${_fname} ]]; then
       rm -rf ${_fname}
     fi
   done
@@ -68,10 +81,54 @@ prepare() {
     tar --strip-components=1 -xjf ${startdir}/${_realname}-${pkgver}.tar.bz2 -C "${startdir}/${_realname}-${pkgver}-extracted"
   fi
 
-  msg2 "Synchronizing source directory"
-  mkdir -p "${srcdir}/${_realname}-${pkgver}"
-  time rsync --stats --itemize-changes --recursive --size-only --times \
-    "${startdir}/${_realname}-${pkgver}-extracted"/* "${srcdir}/${_realname}-${pkgver}"
+  if [ ! -d "${srcdir}/${_realname}-${pkgver}" ]; then
+    msg2 "Creating ${_realname}-${pkgver} folder and files"
+    mkdir -p ${_realname}-${pkgver}
+    cd ${startdir}/${_realname}-${pkgver}-extracted; \
+      cp -R --target-directory="${srcdir}/${_realname}-${pkgver}" *
+  else
+    replace_file_exists \
+      gcc/doc/gcc.texi            \
+      boehm-gc/configure          \
+      boehm-gc/configure.ac       \
+      config.guess                \
+      config.rpath                \
+      config/lthostflags.m4       \
+      config/tcl.m4               \
+      configure                   \
+      configure.ac                \
+      gcc/configure               \
+      gcc/configure.ac            \
+      libffi/acinclude.m4         \
+      libffi/configure            \
+      libffi/configure.ac         \
+      libgfortran/configure       \
+      libgo/config/libtool.m4     \
+      libgo/config/ltmain.sh      \
+      libgo/config/ltoptions.m4   \
+      libgo/configure             \
+      libgomp/configure           \
+      libiberty/configure         \
+      libiberty/configure.ac      \
+      libmudflap/configure        \
+      libobjc/configure           \
+      libobjc/configure.ac        \
+      libquadmath/configure       \
+      libssp/configure            \
+      libstdc++-v3/acinclude.m4   \
+      libstdc++-v3/configure      \
+      libstdc++-v3/configure.host \
+      libtool.m4                  \
+      ltmain.sh                   \
+      lto-plugin/configure        \
+      ltoptions.m4                \
+      zlib/configure
+  fi
+
+  #msg2 "Synchronizing source directory"
+  #mkdir -p "${srcdir}/${_realname}-${pkgver}"
+  #time rsync --stats --itemize-changes --recursive --size-only --times \
+    #"${startdir}/${_realname}-${pkgver}-extracted"/* "${srcdir}/${_realname}-${pkgver}"
 
   cd ${srcdir}/${_realname}-${pkgver}
 
@@ -80,11 +137,14 @@ prepare() {
   # hack! - some configure tests for header files using "$CPP $CPPFLAGS"
   #sed -i "/ac_cpp=/s/\$CPPFLAGS/\$CPPFLAGS -O2/" {libiberty,gcc}/configure
 
+  # del_file_exists
+
   # makeinfo Patches
   apply_patch_with_msg 104-gcc-4.6.4-Fix-texi-docs-syntax-errors.patch
 
   # MSYS2 Patches
-  # apply_patch_with_msg 
+  apply_patch_with_msg \
+    950-gcc-4.6.4-configure-msys2.patch
 
   # GCC Backport patches
   # apply_patch_with_msg
