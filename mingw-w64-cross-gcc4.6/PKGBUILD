@@ -97,33 +97,57 @@ prepare() {
       cp -R --target-directory="${srcdir}/${_realname}-${pkgver}" *
   else
     replace_file_exists \
-      config/elf.m4 \
-      fixincludes/configure \
-      fixincludes/mkfixinc.sh \
-      config.sub \
+      Makefile.in                 \
       boehm-gc/configure          \
       boehm-gc/configure.ac       \
       config.guess                \
       config.rpath                \
+      config.sub                  \
       config/dfp.m4               \
+      config/elf.m4               \
       config/lthostflags.m4       \
+      config/mmap.m4              \
       config/picflag.m4           \
       config/tcl.m4               \
       configure                   \
       configure.ac                \
+      fixincludes/configure       \
+      fixincludes/mkfixinc.sh     \
+      gcc/builtin-attrs.def       \
+      gcc/c-family/c-opts.c       \
       gcc/config.build            \
       gcc/config.gcc              \
       gcc/config.host             \
+      gcc/config/i386//cygming.opt              \
+      gcc/config/i386//cygwin.h   \
+      gcc/config/i386//mingw.opt  \
+      gcc/config/i386/cygwin-stdint.h           \
       gcc/configure               \
       gcc/configure.ac            \
+      gcc/cp/cfns.gperf           \
+      gcc/cp/cfns.h               \
+      gcc/cp/semantics.c          \
       gcc/doc/gcc.texi            \
+      gcc/gtm-builtins.def        \
       libada/configure            \
+      libatomic/Makefile.am       \
+      libatomic/Makefile.in       \
+      libatomic/aclocal.m4        \
+      libatomic/configure         \
+      libatomic/configure.ac      \
+      libatomic/configure.tgt     \
+      libbacktrace/configure      \
       libdecnumber/configure      \
       libffi/acinclude.m4         \
       libffi/configure            \
       libffi/configure.ac         \
+      libffi/src/x86/ffi.c        \
+      libffi/src/x86/win64.S      \
       libgcc/config.host          \
+      libgcc/config/i386/cygming-crtbegin.c     \
       libgcc/configure            \
+      libgcc/gthr-posix.h         \
+      libgfortran/acinclude.m4    \
       libgfortran/configure       \
       libgo/config/libtool.m4     \
       libgo/config/ltmain.sh      \
@@ -132,17 +156,30 @@ prepare() {
       libgomp/configure           \
       libiberty/configure         \
       libiberty/configure.ac      \
+      libitm/Makefile.am          \
+      libitm/Makefile.in          \
+      libitm/aclocal.m4           \
+      libitm/configure            \
+      libitm/configure.ac         \
+      libitm/configure.tgt        \
+      libitm/libitm.h             \
+      libitm/libitm_i.h           \
       libmudflap/configure        \
       libobjc/configure           \
       libobjc/configure.ac        \
       libquadmath/configure       \
+      libsanitizer/configure      \
       libssp/configure            \
       libstdc++-v3/acinclude.m4   \
+      libstdc++-v3/config/abi/pre/gnu.ver       \
       libstdc++-v3/configure      \
       libstdc++-v3/configure.host \
       libstdc++-v3/crossconfig.m4 \
+      libstdc++-v3/testsuite/lib/libstdc++.exp  \
       libtool.m4                  \
       ltmain.sh                   \
+      lto-plugin/Makefile.am      \
+      lto-plugin/Makefile.in      \
       lto-plugin/configure        \
       ltoptions.m4                \
       zlib/configure
