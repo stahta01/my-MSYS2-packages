@@ -96,6 +96,7 @@ prepare() {
       config/elf.m4 \
       fixincludes/configure \
       fixincludes/mkfixinc.sh \
+      config.sub \
       boehm-gc/configure          \
       boehm-gc/configure.ac       \
       config.guess                \
