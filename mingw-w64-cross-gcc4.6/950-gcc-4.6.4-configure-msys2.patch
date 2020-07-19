@@ -1,4 +1,4 @@
-From f8107c7114a8db4810bdeaaaf718b32ef0917f0e Mon Sep 17 00:00:00 2001
+From 2a2f729934245d51e6521834f41b7c2befbc59e2 Mon Sep 17 00:00:00 2001
 From: Tim Stahlhut <stahta01@gmail.com>
 Date: Sat, 18 Jul 2020 21:29:41 -0400
 Subject: gcc 4.6.4 configure msys2 part A
@@ -8,6 +8,7 @@ Subject: gcc 4.6.4 configure msys2 part A
  boehm-gc/configure.ac       |    2 +-
  config.guess                |    6 +
  config.rpath                |    8 +-
+ config.sub                  |    2 +-
  config/dfp.m4               |    3 +-
  config/elf.m4               |    2 +-
  config/lthostflags.m4       |    2 +-
@@ -42,7 +43,7 @@ Subject: gcc 4.6.4 configure msys2 part A
  lto-plugin/configure        |   30 +-
  ltoptions.m4                |    2 +-
  zlib/configure              |   28 +-
- 38 files changed, 6687 insertions(+), 694 deletions(-)
+ 39 files changed, 6688 insertions(+), 695 deletions(-)
 
 diff --git a/boehm-gc/configure b/boehm-gc/configure
 index 019054da22a..1a187c7f184 100755
@@ -301,6 +302,19 @@ index 4dea75957c2..4f12c27e029 100755
      shrext=.dll
      ;;
    darwin* | rhapsody*)
+diff --git a/config.sub b/config.sub
+index 204218c0738..cf3b5bd0d90 100755
+--- a/config.sub
++++ b/config.sub
+@@ -1307,7 +1307,7 @@ case $os in
+ 	      | -ptx* | -coff* | -ecoff* | -winnt* | -domain* | -vsta* \
+ 	      | -udi* | -eabi* | -lites* | -ieee* | -go32* | -aux* \
+ 	      | -chorusos* | -chorusrdb* | -cegcc* \
+-	      | -cygwin* | -pe* | -psos* | -moss* | -proelf* | -rtems* \
++	      | -cygwin* | -msys* | -pe* | -psos* | -moss* | -proelf* | -rtems* \
+ 	      | -mingw32* | -linux-gnu* | -linux-android* \
+ 	      | -linux-newlib* | -linux-uclibc* \
+ 	      | -uxpv* | -beos* | -mpeix* | -udk* \
 diff --git a/config/dfp.m4 b/config/dfp.m4
 index cc778b19bbb..0fb90e9e46c 100644
 --- a/config/dfp.m4
