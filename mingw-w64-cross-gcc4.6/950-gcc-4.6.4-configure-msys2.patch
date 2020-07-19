@@ -1,4 +1,4 @@
-From 698f70b4f6fc11a8a3fddfb68eea0ec9b00d29ff Mon Sep 17 00:00:00 2001
+From f8107c7114a8db4810bdeaaaf718b32ef0917f0e Mon Sep 17 00:00:00 2001
 From: Tim Stahlhut <stahta01@gmail.com>
 Date: Sat, 18 Jul 2020 21:29:41 -0400
 Subject: gcc 4.6.4 configure msys2 part A
@@ -16,8 +16,8 @@ Subject: gcc 4.6.4 configure msys2 part A
  configure.ac                |   16 +-
  fixincludes/configure       |    4 +-
  fixincludes/mkfixinc.sh     |    3 +
- gcc/configure               |   49 +-
- gcc/configure.ac            |    4 +-
+ gcc/configure               |   64 +-
+ gcc/configure.ac            |    8 +-
  libffi/acinclude.m4         |    4 +-
  libffi/configure            |   34 +-
  libffi/configure.ac         |    2 +-
@@ -42,7 +42,7 @@ Subject: gcc 4.6.4 configure msys2 part A
  lto-plugin/configure        |   30 +-
  ltoptions.m4                |    2 +-
  zlib/configure              |   28 +-
- 38 files changed, 6674 insertions(+), 688 deletions(-)
+ 38 files changed, 6687 insertions(+), 694 deletions(-)
 
 diff --git a/boehm-gc/configure b/boehm-gc/configure
 index 019054da22a..1a187c7f184 100755
@@ -561,10 +561,38 @@ index b45f1795dcc..d947222731a 100755
      x86_64-*-mingw32* | \
      i?86-*-interix* | \
 diff --git a/gcc/configure b/gcc/configure
-index c8caff252f4..a4a089d3960 100755
+index c8caff252f4..f9b21ebc927 100755
 --- a/gcc/configure
 +++ b/gcc/configure
-@@ -11127,7 +11127,7 @@ fi
+@@ -6929,7 +6929,8 @@ else
+   case $target in
+     powerpc*-*-linux* | i?86*-*-linux* | x86_64*-*-linux* | s390*-*-linux* | \
+     i?86*-*-mingw* | x86_64*-*-mingw* | \
+-    i?86*-*-cygwin*)
++    i?86*-*-cygwin* | x86_64*-*-cygwin* | \
++    i?86*-*-msys* | x86_64*-*-msys*)
+       enable_decimal_float=yes
+       ;;
+     *)
+@@ -8991,7 +8992,7 @@ else
+    # Systems known to be in this category are Windows (all variants),
+    # VMS, and Darwin.
+    case "$host_os" in
+-     vms* | cygwin* | pe | mingw* | darwin* | ultrix* | hpux10* | hpux11.00)
++     vms* | cygwin* | msys* | pe | mingw* | darwin* | ultrix* | hpux10* | hpux11.00)
+         gcc_cv_func_mmap_dev_zero=no ;;
+      *)
+         gcc_cv_func_mmap_dev_zero=yes;;
+@@ -9048,7 +9049,7 @@ else
+    # above for use of /dev/zero.
+    # Systems known to be in this category are Windows, VMS, and SCO Unix.
+    case "$host_os" in
+-     vms* | cygwin* | pe | mingw* | sco* | udk* )
++     vms* | cygwin* | msys* | pe | mingw* | sco* | udk* )
+         gcc_cv_func_mmap_anon=no ;;
+      *)
+         gcc_cv_func_mmap_anon=yes;;
+@@ -11127,7 +11128,7 @@ fi
  
  
  case $host_os in
@@ -573,7 +601,7 @@ index c8caff252f4..a4a089d3960 100755
      if test "x$enable_win32_registry" != xno; then
        { $as_echo "$as_me:${as_lineno-$LINENO}: checking for library containing RegOpenKeyExA" >&5
  $as_echo_n "checking for library containing RegOpenKeyExA... " >&6; }
-@@ -12081,7 +12081,7 @@ else
+@@ -12081,7 +12082,7 @@ else
      lt_cv_sys_max_cmd_len=-1;
      ;;
  
@@ -582,7 +610,7 @@ index c8caff252f4..a4a089d3960 100755
      # On Win9x/ME, this test blows up -- it succeeds, but takes
      # about 5 minutes as the teststring grows exponentially.
      # Worse, since 9x/ME are not pre-emptively multitasking,
-@@ -12423,7 +12423,7 @@ bsdi[45]*)
+@@ -12423,7 +12424,7 @@ bsdi[45]*)
    lt_cv_file_magic_test_file=/shlib/libc.so
    ;;
  
@@ -591,7 +619,7 @@ index c8caff252f4..a4a089d3960 100755
    # func_win32_libid is a shell function defined in ltmain.sh
    lt_cv_deplibs_check_method='file_magic ^x86 archive import|^x86 DLL'
    lt_cv_file_magic_cmd='func_win32_libid'
-@@ -13003,7 +13003,7 @@ case $host_os in
+@@ -13003,7 +13004,7 @@ case $host_os in
  aix*)
    symcode='[BCDT]'
    ;;
@@ -600,7 +628,7 @@ index c8caff252f4..a4a089d3960 100755
    symcode='[ABCDGISTW]'
    ;;
  hpux*)
-@@ -14602,7 +14602,7 @@ $as_echo_n "checking for $compiler option to produce PIC... " >&6; }
+@@ -14602,7 +14603,7 @@ $as_echo_n "checking for $compiler option to produce PIC... " >&6; }
        # PIC is the default for these OSes.
        ;;
  
@@ -609,7 +637,7 @@ index c8caff252f4..a4a089d3960 100755
        # This hack is so that the source file can tell whether it is being
        # built for inclusion in a dll (and should export symbols for example).
        # Although the cygwin gcc ignores -fPIC, still need this for old-style
-@@ -14684,7 +14684,7 @@ $as_echo_n "checking for $compiler option to produce PIC... " >&6; }
+@@ -14684,7 +14685,7 @@ $as_echo_n "checking for $compiler option to produce PIC... " >&6; }
        fi
        ;;
  
@@ -618,7 +646,7 @@ index c8caff252f4..a4a089d3960 100755
        # This hack is so that the source file can tell whether it is being
        # built for inclusion in a dll (and should export symbols for example).
        lt_prog_compiler_pic='-DDLL_EXPORT'
-@@ -15146,7 +15146,7 @@ $as_echo_n "checking whether the $compiler linker ($LD) supports shared librarie
+@@ -15146,7 +15147,7 @@ $as_echo_n "checking whether the $compiler linker ($LD) supports shared librarie
    extract_expsyms_cmds=
  
    case $host_os in
@@ -627,7 +655,7 @@ index c8caff252f4..a4a089d3960 100755
      # FIXME: the MSVC++ port hasn't been tested in a loooong time
      # When not using gcc, we currently assume that we are using
      # Microsoft Visual C++.
-@@ -15261,7 +15261,7 @@ _LT_EOF
+@@ -15261,7 +15262,7 @@ _LT_EOF
        fi
        ;;
  
@@ -636,7 +664,7 @@ index c8caff252f4..a4a089d3960 100755
        # _LT_TAGVAR(hardcode_libdir_flag_spec, ) is actually meaningless,
        # as there is no search path for DLLs.
        hardcode_libdir_flag_spec='-L$libdir'
-@@ -15692,7 +15692,7 @@ if test -z "$aix_libpath"; then aix_libpath="/usr/lib:/lib"; fi
+@@ -15692,7 +15693,7 @@ if test -z "$aix_libpath"; then aix_libpath="/usr/lib:/lib"; fi
        export_dynamic_flag_spec=-rdynamic
        ;;
  
@@ -645,7 +673,7 @@ index c8caff252f4..a4a089d3960 100755
        # When not using gcc, we currently assume that we are using
        # Microsoft Visual C++.
        # hardcode_libdir_flag_spec is actually meaningless, as there is
-@@ -16593,14 +16593,14 @@ bsdi[45]*)
+@@ -16593,14 +16594,14 @@ bsdi[45]*)
    # libtool to hard-code these into programs
    ;;
  
@@ -662,7 +690,7 @@ index c8caff252f4..a4a089d3960 100755
      library_names_spec='$libname.dll.a'
      # DLL is installed to $(libdir)/../bin by postinstall_cmds
      postinstall_cmds='base_file=`basename \${file}`~
-@@ -16622,6 +16622,12 @@ cygwin* | mingw* | pw32* | cegcc*)
+@@ -16622,6 +16623,18 @@ cygwin* | mingw* | pw32* | cegcc*)
        # Cygwin DLLs use 'cyg' prefix rather than 'lib'
        soname_spec='`echo ${libname} | sed -e 's/^lib/cyg/'``echo ${release} | $SED -e 's/[.]/-/g'`${versuffix}${shared_ext}'
  
@@ -672,10 +700,16 @@ index c8caff252f4..a4a089d3960 100755
 +      # Msys DLLs use 'msys-' prefix rather than 'lib'
 +      soname_spec='`echo ${libname} | sed -e 's/^lib/msys-/'``echo ${release} | $SED -e 's/[.]/-/g'`${versuffix}${shared_ext}'
 +
++      sys_lib_search_path_spec="$sys_lib_search_path_spec /usr/lib/w32api"
++      ;;
++    msys*)
++      # Msys DLLs use 'msys-' prefix rather than 'lib'
++      soname_spec='`echo ${libname} | sed -e 's/^lib/msys-/'``echo ${release} | $SED -e 's/[.]/-/g'`${versuffix}${shared_ext}'
++
        sys_lib_search_path_spec="$sys_lib_search_path_spec /usr/lib/w32api"
        ;;
      mingw* | cegcc*)
-@@ -17260,7 +17266,7 @@ else
+@@ -17260,7 +17273,7 @@ else
      lt_cv_dlopen_libs=
      ;;
  
@@ -684,7 +718,7 @@ index c8caff252f4..a4a089d3960 100755
      lt_cv_dlopen="dlopen"
      lt_cv_dlopen_libs=
      ;;
-@@ -18482,7 +18488,7 @@ if test -z "$aix_libpath"; then aix_libpath="/usr/lib:/lib"; fi
+@@ -18482,7 +18495,7 @@ if test -z "$aix_libpath"; then aix_libpath="/usr/lib:/lib"; fi
          esac
          ;;
  
@@ -693,7 +727,7 @@ index c8caff252f4..a4a089d3960 100755
          # _LT_TAGVAR(hardcode_libdir_flag_spec, CXX) is actually meaningless,
          # as there is no search path for DLLs.
          hardcode_libdir_flag_spec_CXX='-L$libdir'
-@@ -19450,7 +19456,7 @@ $as_echo_n "checking for $compiler option to produce PIC... " >&6; }
+@@ -19450,7 +19463,7 @@ $as_echo_n "checking for $compiler option to produce PIC... " >&6; }
      beos* | irix5* | irix6* | nonstopux* | osf3* | osf4* | osf5*)
        # PIC is the default for these OSes.
        ;;
@@ -702,7 +736,7 @@ index c8caff252f4..a4a089d3960 100755
        # This hack is so that the source file can tell whether it is being
        # built for inclusion in a dll (and should export symbols for example).
        # Although the cygwin gcc ignores -fPIC, still need this for old-style
-@@ -19990,7 +19996,7 @@ $as_echo_n "checking whether the $compiler linker ($LD) supports shared librarie
+@@ -19990,7 +20003,7 @@ $as_echo_n "checking whether the $compiler linker ($LD) supports shared librarie
    pw32*)
      export_symbols_cmds_CXX="$ltdll_cmds"
    ;;
@@ -711,7 +745,7 @@ index c8caff252f4..a4a089d3960 100755
      export_symbols_cmds_CXX='$NM $libobjs $convenience | $global_symbol_pipe | $SED -e '\''/^[BCDGRS][ ]/s/.*[ ]\([^ ]*\)/\1 DATA/;/^.*[ ]__nm__/s/^.*[ ]__nm__\([^ ]*\)[ ][^ ]*/\1 DATA/;/^I[ ]/d;/^[AITW][ ]/s/.* //'\'' | sort | uniq > $export_symbols'
    ;;
    *)
-@@ -20254,14 +20260,14 @@ bsdi[45]*)
+@@ -20254,14 +20267,14 @@ bsdi[45]*)
    # libtool to hard-code these into programs
    ;;
  
@@ -728,7 +762,7 @@ index c8caff252f4..a4a089d3960 100755
      library_names_spec='$libname.dll.a'
      # DLL is installed to $(libdir)/../bin by postinstall_cmds
      postinstall_cmds='base_file=`basename \${file}`~
-@@ -20283,6 +20289,11 @@ cygwin* | mingw* | pw32* | cegcc*)
+@@ -20283,6 +20296,11 @@ cygwin* | mingw* | pw32* | cegcc*)
        # Cygwin DLLs use 'cyg' prefix rather than 'lib'
        soname_spec='`echo ${libname} | sed -e 's/^lib/cyg/'``echo ${release} | $SED -e 's/[.]/-/g'`${versuffix}${shared_ext}'
  
@@ -740,7 +774,7 @@ index c8caff252f4..a4a089d3960 100755
        ;;
      mingw* | cegcc*)
        # MinGW DLLs use traditional 'lib' prefix
-@@ -22115,7 +22126,7 @@ else
+@@ -22115,7 +22133,7 @@ else
    test $ac_status = 0; }; }
      then
  	case $target_os in
@@ -749,7 +783,7 @@ index c8caff252f4..a4a089d3960 100755
      # Need to check that we generated the correct relocation for the
      # .debug_frame section.  This was fixed for binutils 2.21.
      gcc_cv_as_cfi_sections_directive=no
-@@ -23538,7 +23549,7 @@ fi
+@@ -23538,7 +23556,7 @@ fi
  
    i[34567]86-*-* | x86_64-*-*)
      case $target_os in
@@ -758,10 +792,28 @@ index c8caff252f4..a4a089d3960 100755
  	# Full C++ conformance when using a shared libstdc++-v3 requires some
  	# support from the Cygwin DLL, which in more recent versions exports
  	# wrappers to aid in interposing and redirecting operators new, delete,
+@@ -23564,7 +23582,7 @@ _ACEOF
+ 
+     esac
+     case $target_os in
+-      cygwin* | pe | mingw32*)
++      cygwin* | msys* | pe | mingw32*)
+ 	# Recent binutils allows the three-operand form of ".comm" on PE.  This
+ 	# definition is used unconditionally to initialise the default state of
+ 	# the target option variable that governs usage of the feature.
 diff --git a/gcc/configure.ac b/gcc/configure.ac
-index 48605c851b2..ef983864837 100644
+index 48605c851b2..8d0549d169a 100644
 --- a/gcc/configure.ac
 +++ b/gcc/configure.ac
+@@ -1579,7 +1579,7 @@ AC_ARG_ENABLE(win32-registry,
+                           of the registry key],,)
+ 
+ case $host_os in
+-  win32 | pe | cygwin* | mingw32* | uwin*)
++  win32 | pe | cygwin* | msys* | mingw32* | uwin*)
+     if test "x$enable_win32_registry" != xno; then
+       AC_SEARCH_LIBS(RegOpenKeyExA, advapi32,, [enable_win32_registry=no])
+     fi
 @@ -2462,7 +2462,7 @@ gcc_GAS_CHECK_FEATURE([cfi sections directive],
  	.cfi_startproc
  	.cfi_endproc],
@@ -780,6 +832,15 @@ index 48605c851b2..ef983864837 100644
  	# Full C++ conformance when using a shared libstdc++-v3 requires some
  	# support from the Cygwin DLL, which in more recent versions exports
  	# wrappers to aid in interposing and redirecting operators new, delete,
+@@ -3374,7 +3374,7 @@ changequote([,])dnl
+ 	   Cygwin DLL exports wrappers to support libstdc++ function replacement.])
+     esac
+     case $target_os in
+-      cygwin* | pe | mingw32*)
++      cygwin* | msys* | pe | mingw32*)
+ 	# Recent binutils allows the three-operand form of ".comm" on PE.  This
+ 	# definition is used unconditionally to initialise the default state of
+ 	# the target option variable that governs usage of the feature.
 diff --git a/libffi/acinclude.m4 b/libffi/acinclude.m4
 index 3e8f8ba570d..dd57e6d3c77 100644
 --- a/libffi/acinclude.m4
