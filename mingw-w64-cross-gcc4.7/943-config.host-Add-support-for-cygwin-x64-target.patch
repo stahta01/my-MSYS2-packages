@@ -1,7 +1,7 @@
-From 4c4121751385c200df32f107362710499758231b Mon Sep 17 00:00:00 2001
-From: Tim S <tim.stahlhut@gmail.com>
-Date: Fri, 17 Jul 2020 12:02:08 -0400
-Subject: cygwin: Backport of SVN 197176
+From 16b32125b4c15601e3f694afe1623867ef94a24e Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Mon, 20 Jul 2020 04:55:07 -0400
+Subject: cygwin: Partial Backport of SVN 197176
 
 config.host: Add support for cygwin x64 target.
 
@@ -11,14 +11,14 @@ config.host: Add support for cygwin x64 target.
 	* configure: Regenerated.
 ---
  libgcc/config.host | 20 +++++++++++++++++++-
- libgcc/configure   |  6 ++++--
- 2 files changed, 23 insertions(+), 3 deletions(-)
+ libgcc/configure   |  4 +++-
+ 2 files changed, 22 insertions(+), 2 deletions(-)
 
 diff --git a/libgcc/config.host b/libgcc/config.host
-index 4a769985898..7280aa74c57 100644
+index 4fe02bc13f2..f9a0886ff2f 100644
 --- a/libgcc/config.host
 +++ b/libgcc/config.host
-@@ -571,6 +571,23 @@ i[34567]86-*-cygwin*)
+@@ -600,6 +600,23 @@ i[34567]86-*-cygwin*)
  	fi
  	tmake_file="${tmake_file} ${tmake_eh_file} ${tmake_dlldir_file} i386/t-slibgcc-cygming i386/t-cygming i386/t-cygwin i386/t-crtfm i386/t-chkstk t-dfprules"
  	;;
@@ -42,21 +42,21 @@ index 4a769985898..7280aa74c57 100644
  i[34567]86-*-mingw*)
  	extra_parts="crtbegin.o crtend.o crtfastmath.o"
  	case ${target_thread_file} in
-@@ -1147,7 +1164,8 @@ i[34567]86-*-darwin* | x86_64-*-darwin* | \
+@@ -1172,7 +1189,8 @@ i[34567]86-*-darwin* | x86_64-*-darwin* | \
    i[34567]86-*-linux* | x86_64-*-linux* | \
    i[34567]86-*-gnu* | \
    i[34567]86-*-solaris2* | x86_64-*-solaris2.1[0-9]* | \
 -  i[34567]86-*-cygwin* | i[34567]86-*-mingw* | x86_64-*-mingw* | \
 +  i[34567]86-*-cygwin* | x86_64-*-cygwin* | \
 +  i[34567]86-*-mingw* | x86_64-*-mingw* | \
-   i[34567]86-*-freebsd* | x86_64-*-freebsd* | \
-   i[34567]86-*-openbsd* | x86_64-*-openbsd*)
+   i[34567]86-*-freebsd* | x86_64-*-freebsd*)
    	tmake_file="${tmake_file} t-softfp-tf"
+ 	if test "${host_address}" = 32; then
 diff --git a/libgcc/configure b/libgcc/configure
-index 1425df6c0de..bb36889ae56 100644
+index c161ae53c9b..bcb9f461163 100644
 --- a/libgcc/configure
 +++ b/libgcc/configure
-@@ -2228,7 +2228,9 @@ case "${host}" in
+@@ -2225,7 +2225,9 @@ case "${host}" in
      hppa*64*-*-hpux*)
  	# PIC is the default for 64-bit PA HP-UX.
  	;;
@@ -67,13 +67,4 @@ index 1425df6c0de..bb36889ae56 100644
  	;;
      i[34567]86-*-interix[3-9]*)
  	# Interix 3.x gcc -fpic/-fPIC options generate broken code.
-@@ -4078,7 +4080,7 @@ else
-     powerpc*-*-linux* | i?86*-*-linux* | x86_64*-*-linux* | s390*-*-linux* | \
-     i?86*-*-gnu* | \
-     i?86*-*-mingw* | x86_64*-*-mingw* | \
--    i?86*-*-cygwin*)
-+    i?86*-*-cygwin* | x86_64*-*-cygwin*)
-       enable_decimal_float=yes
-       ;;
-     *)
 -- 
