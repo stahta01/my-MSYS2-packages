@@ -1,5 +1,5 @@
---- libgcc/config/i386/cygming-crtbegin.c.orig	2013-07-25 18:39:34.579552100 +0800
-+++ libgcc/config/i386/cygming-crtbegin.c	2013-07-25 18:43:51.778712300 +0800
+--- a/libgcc/config/i386/cygming-crtbegin.c.orig	2013-07-25 18:39:34.579552100 +0800
++++ b/libgcc/config/i386/cygming-crtbegin.c	2013-07-25 18:43:51.778712300 +0800
 @@ -100,6 +100,8 @@
  extern void __gcc_register_frame (void);
  extern void __gcc_deregister_frame (void);

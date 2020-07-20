@@ -5,10 +5,14 @@ _mingw_suff=mingw-w64-cross
 _realname=gcc
 
 # Package build options
-_make_static_gcc_only=no
+_make_static_gcc_only=yes
 _threads="win32"
 _targets="i686-w64-mingw32 x86_64-w64-mingw32"
-_enable_gcc_lto=yes
+if [[ "$_make_static_gcc_only" != "yes" ]] ; then
+  _enable_gcc_lto=yes   # set to no or yes as wanted
+else
+  _enable_gcc_lto=no    # needs to be no when making only static GCC
+fi
 #_enable_ada=yes
 _enable_fortran=no
 #_enable_objc=no
@@ -252,11 +256,11 @@ prepare() {
     gcc/config/i386/cygwin-w64.h \
     gcc/config/i386/t-cygwin-w64
 
-  patch -p0 -i ${srcdir}/gcc-4.8-filename-output.patch
+  patch -p1 -i ${srcdir}/gcc-4.8-filename-output.patch
   patch -p1 -i ${srcdir}/gcc-4.8-lambda-ICE.patch
   #patch -p1 -i ${srcdir}/gcc-4.8-iconv.patch
 
-  patch -p0 -i ${srcdir}/gcc-4.8-libgcc-references.patch
+  patch -p1 -i ${srcdir}/gcc-4.8-libgcc-references.patch
   patch -p1 -i ${srcdir}/400-gcc-4.8-libstdc++export.patch
   patch -p1 -i ${srcdir}/gcc-4.7-stdthreads.patch
 
@@ -268,7 +272,7 @@ prepare() {
   patch -p2 -i ${srcdir}/024-4.7-libitm-cygwin.patch
   patch -p2 -i ${srcdir}/gcc-4.7-libstdc-cygwin.patch
   patch -p2 -i ${srcdir}/010-4.8-lto-plugin-soname.patch
-  patch -p0 -i ${srcdir}/gcc-4.8-specs-cygwin.patch
+  patch -p1 -i ${srcdir}/gcc-4.8-specs-cygwin.patch
 
   # Cygwin Backport patches
   apply_patch_with_msg \
@@ -318,6 +322,7 @@ build() {
 
   if [ "$_make_static_gcc_only" == "yes" ]; then
     configure_opts+=("--enable-static")
+    configure_opts+=("--disable-shared")
   else
     configure_opts+=("--enable-static")
     configure_opts+=("--enable-shared")
