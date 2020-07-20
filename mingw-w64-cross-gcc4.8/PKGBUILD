@@ -73,10 +73,10 @@ source=(
     'gcc-4.8-specs-cygwin.patch'
 )
 sha256sums=('09dc2276c73424bbbfda1dbddc62bbbf900c9f185acf7f3e1d773ce2d7e3cdc8'
-            '4942e94ccdf11ce260e029400bd1cee8b63e78d071ac2bae812ba261edb7b67b'
-            'af90eb0eb49e06b4735f428fee514c6b87f349c1d3669c8bc7bb6250d4126c4e'
-            '6e4322814f7b0f1d3ea3dbea0c8fa233d6ec9493354d7bd54e755ee971914d74'
-            '1015575631397b588050e53aba5795cc8357e55a2754f8bc6214b564f38f5a06'
+            'b2f835787a9bef12764ffbb3919dbfaf13001b4c94ba3ba9c3042fbb04b67141'
+            '669e6ac54d1e5bd92c23050db9a9245ac0c9f861609132a178083eec7ef77490'
+            '61ff12b14e1a0e1059235298cd8853bd75bff4f84ef2f5d2e3c0090f8df77f16'
+            '719da6d0995e5db807562165dc0e971c213e28746e75e1f21f9da48733199517'
             '8a72e1b2cef99c78a9f7d8126d8509b580617fce68a289b8bcb05c98e4ffc548'
             '21191b4fd57ce5f230fcc97b4d9ae31bdc387d7c7c8e39436aa7e4268d278d3d'
             '714e18e8e1a89c149dfabde6eb6dd0a7518590b7a911643de761b6d31c7acd2d'
@@ -89,16 +89,15 @@ sha256sums=('09dc2276c73424bbbfda1dbddc62bbbf900c9f185acf7f3e1d773ce2d7e3cdc8'
             '543d3f18edf80e125ec185df6a8d1e77db493f4e11b052397405ea143d88efb1'
             '82e71409edd694337cc9b98b68105baf6417ca78ee3539f3d45a394376b0cb37'
             '2106c9679c19a133ffffe64b9c950094695cf0d4e2609a90702f0d9e8bb9cfbc'
-            '9278e745190bac0b3f6ef74972aecd4e2891d4930f7b6fa8840c3d4f7fbf4f98'
+            '5b6f9b1d90073dfc8e8ada22e7663c1aa64b532315efc080591b69e176d70ef8'
             '301cfbe339043ca14205140acbec1d0f55178f01365ff309e4ddb90a3c934031'
             '9e0401c3e69317a45269fb689e4e89ee8f46997c2c52b11812a11c9faf142ede'
-            '52ddd5b2d5f337efa7475de211eccebd70e343c902107343b22d66951fb799d3'
+            '761f70e33dbb96c5749673e3577a155ff5d5692788f6181fccf2bcbba58bc2fd'
             '5e0fc1437ce0b357e78d440692e3a30a7905a5f360a67928a95b14ec8d45365b'
-            '027a411b3f222d4c43f7ea59e893d908af6d869a6c5c25d9109d1088f494e3c9'
-            '6812f82299b33c5e354e8a54fcc96149957e9ffa35d576537923621d97c6817c'
-            '7f3410ccc61f4b60ae9fc4201cc321f681771196e44fc61639bdf924a9132eec'
-            '3d33128b4ba26fe35e681dd17cb521a757b7801dec63ca7437eb784ec985d491')
-
+            'd8224641edd432e9f027ff0f67dbcc4c336ddefbdd4fd3ea65054873251a49f1'
+            '165a90c518b268f05c635f4fe4cb2a6073dc34780f93a3c46581aa700cf840ca'
+            '9cc6d43cd3afb4c33b987692890c151aae07df71093c87368f181c89dfba6ac0'
+            '4647a06ebe951c1e8db88191f092c24b24cfaedef1aa9e3dc4afe036d4eb2cc4')
 
 # =========================================== #
 # Helper macro(s) to help make tasks easier   #
@@ -345,7 +344,7 @@ build() {
     --host=${CHOST} \
     --target=${_target} \
     --libexecdir=/opt/lib \
-    --disable-bootstrap \
+    --enable-bootstrap \
     --with-arch=${_arch} \
     --with-tune=generic \
     --enable-languages=${_languages} \
