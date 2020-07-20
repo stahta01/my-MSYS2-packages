@@ -1,5 +1,5 @@
---- origsrc/gcc-4.7.2/libstdc++-v3/testsuite/lib/libstdc++.exp	2012-08-06 22:34:27.000000000 +0800
-+++ src/gcc-4.7.2/libstdc++-v3/testsuite/lib/libstdc++.exp	2013-02-26 19:31:07.934763700 +0800
+--- gcc-4.7.2/libstdc++-v3/testsuite/lib/libstdc++.exp	2012-08-06 22:34:27.000000000 +0800
++++ gcc-4.7.2/libstdc++-v3/testsuite/lib/libstdc++.exp	2013-02-26 19:31:07.934763700 +0800
 @@ -146,6 +146,9 @@ proc libstdc++_init { testfile } {
          set gccdir [file dirname $gccdir]
  	append ld_library_path_tmp ":${gccdir}"

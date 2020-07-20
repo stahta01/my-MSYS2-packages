@@ -1,5 +1,5 @@
---- origsrc/gcc-4.8-20130310/libatomic/Makefile.am	2013-01-14 12:16:23.000000000 -0600
-+++ src/gcc-4.8-20130310/libatomic/Makefile.am	2013-03-17 05:10:55.958313400 -0500
+--- gcc-4.8-20130310/libatomic/Makefile.am	2013-01-14 12:16:23.000000000 -0600
++++ gcc-4.8-20130310/libatomic/Makefile.am	2013-03-17 05:10:55.958313400 -0500
 @@ -66,7 +66,7 @@
  endif
  libatomic_version_info = -version-info $(libtool_VERSION)
@@ -9,8 +9,8 @@
  libatomic_la_SOURCES = gload.c gstore.c gcas.c gexch.c glfree.c lock.c init.c
  
  SIZEOBJS = load store cas exch fadd fsub fand fior fxor fnand tas
---- origsrc/gcc-4.8-20130310/libatomic/Makefile.in	2013-03-10 17:37:36.000000000 -0500
-+++ src/gcc-4.8-20130310/libatomic/Makefile.in	2013-03-17 05:13:32.732280300 -0500
+--- gcc-4.8-20130310/libatomic/Makefile.in	2013-03-10 17:37:36.000000000 -0500
++++ gcc-4.8-20130310/libatomic/Makefile.in	2013-03-17 05:13:32.732280300 -0500
 @@ -244,6 +244,7 @@
  libtool_VERSION = @libtool_VERSION@
  localedir = @localedir@
@@ -28,8 +28,8 @@
  libatomic_la_SOURCES = gload.c gstore.c gcas.c gexch.c glfree.c lock.c init.c
  SIZEOBJS = load store cas exch fadd fsub fand fior fxor fnand tas
  EXTRA_libatomic_la_SOURCES = $(addsuffix _n.c,$(SIZEOBJS))
---- origsrc/gcc-4.8-20130310/libatomic/aclocal.m4	2013-03-10 17:37:36.000000000 -0500
-+++ src/gcc-4.8-20130310/libatomic/aclocal.m4	2013-03-17 05:09:13.598458700 -0500
+--- gcc-4.8-20130310/libatomic/aclocal.m4	2013-03-10 17:37:36.000000000 -0500
++++ gcc-4.8-20130310/libatomic/aclocal.m4	2013-03-17 05:09:13.598458700 -0500
 @@ -993,6 +993,7 @@
  m4_include([../config/acx.m4])
  m4_include([../config/depstand.m4])
@@ -38,8 +38,8 @@
  m4_include([../config/multi.m4])
  m4_include([../config/override.m4])
  m4_include([../config/stdint.m4])
---- origsrc/gcc-4.8-20130310/libatomic/configure	2013-03-10 17:37:36.000000000 -0500
-+++ src/gcc-4.8-20130310/libatomic/configure	2013-03-17 05:29:38.288507000 -0500
+--- gcc-4.8-20130310/libatomic/configure	2013-03-10 17:37:36.000000000 -0500
++++ gcc-4.8-20130310/libatomic/configure	2013-03-17 05:29:38.288507000 -0500
 @@ -627,6 +627,7 @@
  MAINTAINER_MODE_TRUE
  enable_static
@@ -95,8 +95,8 @@
  
  
  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable maintainer-specific portions of Makefiles" >&5
---- origsrc/gcc-4.8-20130310/libatomic/configure.ac	2013-01-14 12:16:23.000000000 -0600
-+++ src/gcc-4.8-20130310/libatomic/configure.ac	2013-03-17 05:29:30.655070400 -0500
+--- gcc-4.8-20130310/libatomic/configure.ac	2013-01-14 12:16:23.000000000 -0600
++++ gcc-4.8-20130310/libatomic/configure.ac	2013-03-17 05:29:30.655070400 -0500
 @@ -143,6 +143,7 @@
  
  # Configure libtool
@@ -105,8 +105,8 @@
  AC_SUBST(enable_shared)
  AC_SUBST(enable_static)
  AM_MAINTAINER_MODE
---- origsrc/gcc-4.8-20130310/libatomic/configure.tgt	2013-01-14 12:16:23.000000000 -0600
-+++ src/gcc-4.8-20130310/libatomic/configure.tgt	2013-03-17 04:50:09.727033000 -0500
+--- gcc-4.8-20130310/libatomic/configure.tgt	2013-01-14 12:16:23.000000000 -0600
++++ gcc-4.8-20130310/libatomic/configure.tgt	2013-03-17 04:50:09.727033000 -0500
 @@ -108,7 +108,7 @@
    *-*-linux* | *-*-gnu* | *-*-k*bsd*-gnu \
    | *-*-netbsd* | *-*-freebsd* | *-*-openbsd* \
