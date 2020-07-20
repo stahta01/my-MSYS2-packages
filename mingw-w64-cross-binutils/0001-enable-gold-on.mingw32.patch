@@ -1,0 +1,27 @@
+diff --git binutils-2.28.orig/configure binutils-2.28/configure
+index f6d12b8..b5e26ac 100755
+--- binutils-2.28.orig/configure
++++ binutils-2.28/configure
+@@ -2955,6 +2955,7 @@ case "${ENABLE_GOLD}" in
+   yes|default)
+     # Check for ELF target.
+     is_elf=no
++    is_pe=no
+     case "${target}" in
+       *-*-elf* | *-*-sysv4* | *-*-unixware* | *-*-eabi* | hppa*64*-*-hpux* \
+       | *-*-linux* | *-*-gnu* | frv-*-uclinux* | *-*-irix5* | *-*-irix6* \
+@@ -2966,10 +2967,12 @@ case "${ENABLE_GOLD}" in
+           *)
+             is_elf=yes
+             ;;
+-        esac
++        esac;;
++      *-*-mingw*)
++        is_pe=yes;;
+     esac
+ 
+-    if test "$is_elf" = "yes"; then
++    if test "$is_elf" = "yes" -o "$is_pe" = "yes"; then
+       # Check for target supported by gold.
+       case "${target}" in
+         i?86-*-* | x86_64-*-* | sparc*-*-* | powerpc*-*-* | arm*-*-* \

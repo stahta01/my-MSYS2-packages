@@ -1,0 +1,205 @@
+diff --git binutils-2.28.orig/bfd/bfd-in.h binutils-2.28/bfd/bfd-in.h
+index 98b69d0..7fc69a7 100644
+--- binutils-2.28.orig/bfd/bfd-in.h
++++ binutils-2.28/bfd/bfd-in.h
+@@ -138,7 +138,7 @@ typedef BFD_HOST_U_64_BIT symvalue;
+ 
+ #if BFD_HOST_64BIT_LONG
+ #define BFD_VMA_FMT "l"
+-#elif defined (__MSVCRT__)
++#elif defined(__MSVCRT__) && !defined( __USE_MINGW_ANSI_STDIO)
+ #define BFD_VMA_FMT "I64"
+ #else
+ #define BFD_VMA_FMT "ll"
+diff --git binutils-2.28.orig/bfd/bfd-in2.h binutils-2.28/bfd/bfd-in2.h
+index 6288c3b..9e58935 100644
+--- binutils-2.28.orig/bfd/bfd-in2.h
++++ binutils-2.28/bfd/bfd-in2.h
+@@ -145,7 +145,7 @@ typedef BFD_HOST_U_64_BIT symvalue;
+ 
+ #if BFD_HOST_64BIT_LONG
+ #define BFD_VMA_FMT "l"
+-#elif defined (__MSVCRT__)
++#elif defined (__MSVCRT__) && !defined(__USE_MINGW_ANSI_STDIO)
+ #define BFD_VMA_FMT "I64"
+ #else
+ #define BFD_VMA_FMT "ll"
+diff --git binutils-2.28.orig/binutils/dwarf.c binutils-2.28/binutils/dwarf.c
+index 0184a7a..38f5f87 100644
+--- binutils-2.28.orig/binutils/dwarf.c
++++ binutils-2.28/binutils/dwarf.c
+@@ -164,7 +164,7 @@ get_encoded_value (unsigned char **pdata,
+ }
+ 
+ #if defined HAVE_LONG_LONG && SIZEOF_LONG_LONG > SIZEOF_LONG
+-# ifndef __MINGW32__
++#if !defined(__MSVCRT__) || defined(__USE_MINGW_ANSI_STDIO)
+ #  define DWARF_VMA_FMT		"ll"
+ #  define DWARF_VMA_FMT_LONG	"%16.16llx"
+ # else
+diff --git binutils-2.28.orig/binutils/nm.c binutils-2.28/binutils/nm.c
+index fcbab41..79f8dda 100644
+--- binutils-2.28.orig/binutils/nm.c
++++ binutils-2.28/binutils/nm.c
+@@ -172,7 +172,7 @@ static char value_format_32bit[] = "%08lx";
+ #if BFD_HOST_64BIT_LONG
+ static char value_format_64bit[] = "%016lx";
+ #elif BFD_HOST_64BIT_LONG_LONG
+-#ifndef __MSVCRT__
++#if !defined(__MSVCRT__) || defined(__USE_MINGW_ANSI_STDIO)
+ static char value_format_64bit[] = "%016llx";
+ #else
+ static char value_format_64bit[] = "%016I64x";
+@@ -304,7 +304,7 @@ set_print_radix (char *radix)
+ #if BFD_HOST_64BIT_LONG
+       value_format_64bit[5] = *radix;
+ #elif BFD_HOST_64BIT_LONG_LONG
+-#ifndef __MSVCRT__
++#if !defined(__MSVCRT__) || defined(__USE_MINGW_ANSI_STDIO)
+       value_format_64bit[6] = *radix;
+ #else
+       value_format_64bit[7] = *radix;
+diff --git binutils-2.28.orig/binutils/prdbg.c binutils-2.28/binutils/prdbg.c
+index 9bd01bc..5775b12 100644
+--- binutils-2.28.orig/binutils/prdbg.c
++++ binutils-2.28/binutils/prdbg.c
+@@ -502,7 +502,7 @@ print_vma (bfd_vma vma, char *buf, bfd_boolean unsignedp, bfd_boolean hexp)
+ #if BFD_HOST_64BIT_LONG_LONG
+   else if (sizeof (vma) <= sizeof (unsigned long long))
+     {
+-#ifndef __MSVCRT__
++#if !defined(__MSVCRT__) || defined(__USE_MINGW_ANSI_STDIO)
+       if (hexp)
+ 	sprintf (buf, "0x%llx", (unsigned long long) vma);
+       else if (unsignedp)
+diff --git binutils-2.28.orig/binutils/readelf.c binutils-2.28/binutils/readelf.c
+index 343b6ac..519d13e 100644
+--- binutils-2.28.orig/binutils/readelf.c
++++ binutils-2.28/binutils/readelf.c
+@@ -1156,7 +1156,7 @@ dump_relocations (FILE * file,
+ 		  : "%12.12lx  %12.12lx ",
+ 		  offset, inf);
+ #elif BFD_HOST_64BIT_LONG_LONG
+-#ifndef __MSVCRT__
++#if !defined(__MSVCRT__) || defined(__USE_MINGW_ANSI_STDIO)
+ 	  printf (do_wide
+ 		  ? "%16.16llx  %16.16llx "
+ 		  : "%12.12llx  %12.12llx ",
+@@ -12623,7 +12623,7 @@ dump_section_as_strings (Elf_Internal_Shdr * section, FILE * file)
+ 	{
+ 	  size_t maxlen = end - data;
+ 
+-#ifndef __MSVCRT__
++#if !defined(__MSVCRT__) || defined(__USE_MINGW_ANSI_STDIO)
+ 	  /* PR 11128: Use two separate invocations in order to work
+              around bugs in the Solaris 8 implementation of printf.  */
+ 	  printf ("  [%6tx]  ", data - start);
+diff --git binutils-2.28.orig/binutils/strings.c binutils-2.28/binutils/strings.c
+index e1511a8..797cb26 100644
+--- binutils-2.28.orig/binutils/strings.c
++++ binutils-2.28/binutils/strings.c
+@@ -592,7 +592,7 @@ print_strings (const char *filename, FILE *stream, file_ptr address,
+ #ifdef HAVE_LONG_LONG
+ 	    if (sizeof (start) > sizeof (long))
+ 	      {
+-# ifndef __MSVCRT__
++#if !defined(__MSVCRT__) || defined(__USE_MINGW_ANSI_STDIO)
+ 	        printf ("%7llo ", (unsigned long long) start);
+ # else
+ 	        printf ("%7I64o ", (unsigned long long) start);
+@@ -611,7 +611,7 @@ print_strings (const char *filename, FILE *stream, file_ptr address,
+ #ifdef HAVE_LONG_LONG
+ 	    if (sizeof (start) > sizeof (long))
+ 	      {
+-# ifndef __MSVCRT__
++#if !defined(__MSVCRT__) || defined(__USE_MINGW_ANSI_STDIO)
+ 	        printf ("%7lld ", (unsigned long long) start);
+ # else
+ 	        printf ("%7I64d ", (unsigned long long) start);
+@@ -630,7 +630,7 @@ print_strings (const char *filename, FILE *stream, file_ptr address,
+ #ifdef HAVE_LONG_LONG
+ 	    if (sizeof (start) > sizeof (long))
+ 	      {
+-# ifndef __MSVCRT__
++#if !defined(__MSVCRT__) || defined(__USE_MINGW_ANSI_STDIO)
+ 	        printf ("%7llx ", (unsigned long long) start);
+ # else
+ 	        printf ("%7I64x ", (unsigned long long) start);
+diff --git binutils-2.28.orig/gas/as.h binutils-2.28/gas/as.h
+index 76aa9ac..8aa271e 100644
+--- binutils-2.28.orig/gas/as.h
++++ binutils-2.28/gas/as.h
+@@ -438,10 +438,10 @@ typedef struct _pseudo_type pseudo_typeS;
+ 
+ #define PRINTF_LIKE(FCN) \
+   void FCN (const char *format, ...) \
+-    __attribute__ ((__format__ (__printf__, 1, 2)))
++    __attribute__ ((__format__ (gnu_printf, 1, 2)))
+ #define PRINTF_WHERE_LIKE(FCN) \
+   void FCN (const char *file, unsigned int line, const char *format, ...) \
+-    __attribute__ ((__format__ (__printf__, 3, 4)))
++    __attribute__ ((__format__ (gnu_printf, 3, 4)))
+ 
+ #else /* __GNUC__ < 2 || defined(VMS) */
+ 
+diff --git binutils-2.28.orig/gas/read.c binutils-2.28/gas/read.c
+index 5c0d320..c2e246e 100644
+--- binutils-2.28.orig/gas/read.c
++++ binutils-2.28/gas/read.c
+@@ -4424,7 +4424,7 @@ emit_expr_with_reloc (expressionS *exp,
+ 	{
+ 	  /* Leading bits contain both 0s & 1s.  */
+ #if defined (BFD64) && BFD_HOST_64BIT_LONG_LONG
+-#ifndef __MSVCRT__
++#if !defined(__MSVCRT__) || defined(__USE_MINGW_ANSI_STDIO)
+ 	  as_warn (_("value 0x%llx truncated to 0x%llx"),
+ 		   (unsigned long long) get, (unsigned long long) use);
+ #else
+diff --git binutils-2.28.orig/gold/configure binutils-2.28/gold/configure
+index cb020be..1658466 100755
+--- binutils-2.28.orig/gold/configure
++++ binutils-2.28/gold/configure
+@@ -7602,7 +7602,7 @@ else
+ /* end confdefs.h.  */
+ 
+ template<typename T> extern void foo(const char*, ...)
+-  __attribute__ ((__format__ (__printf__, 1, 2)));
++  __attribute__ ((__format__ (gnu_printf, 1, 2)));
+ template<typename T> void foo(const char* format, ...) {}
+ void bar() { foo<int>("%s\n", "foo"); }
+ 
+diff --git binutils-2.28.orig/gold/configure.ac binutils-2.28/gold/configure.ac
+index cbe3380..160241f 100644
+--- binutils-2.28.orig/gold/configure.ac
++++ binutils-2.28/gold/configure.ac
+@@ -635,7 +635,7 @@ AC_CACHE_CHECK([whether we can use attributes with template functions],
+ [gold_cv_template_attribute],
+ [AC_COMPILE_IFELSE([
+ template<typename T> extern void foo(const char*, ...)
+-  __attribute__ ((__format__ (__printf__, 1, 2)));
++  __attribute__ ((__format__ (gnu_printf, 1, 2)));
+ template<typename T> void foo(const char* format, ...) {}
+ void bar() { foo<int>("%s\n", "foo"); }
+ ], [gold_cv_template_attribute=yes], [gold_cv_template_attribute=no])])
+diff --git binutils-2.28.orig/include/ansidecl.h binutils-2.28/include/ansidecl.h
+index 6c0c837..3db56c6 100644
+--- binutils-2.28.orig/include/ansidecl.h
++++ binutils-2.28/include/ansidecl.h
+@@ -195,7 +195,7 @@ So instead we use the macro below and test it against specific values.  */
+    before GCC 3.3, but as of 3.3 we need to add the `nonnull'
+    attribute to retain this behavior.  */
+ #ifndef ATTRIBUTE_PRINTF
+-#define ATTRIBUTE_PRINTF(m, n) __attribute__ ((__format__ (__printf__, m, n))) ATTRIBUTE_NONNULL(m)
++#define ATTRIBUTE_PRINTF(m, n) __attribute__ ((__format__ (gnu_printf, m, n))) ATTRIBUTE_NONNULL(m)
+ #define ATTRIBUTE_PRINTF_1 ATTRIBUTE_PRINTF(1, 2)
+ #define ATTRIBUTE_PRINTF_2 ATTRIBUTE_PRINTF(2, 3)
+ #define ATTRIBUTE_PRINTF_3 ATTRIBUTE_PRINTF(3, 4)
+@@ -223,7 +223,7 @@ So instead we use the macro below and test it against specific values.  */
+    NULL format specifier was allowed as of gcc 3.3.  */
+ #ifndef ATTRIBUTE_NULL_PRINTF
+ # if (GCC_VERSION >= 3003)
+-#  define ATTRIBUTE_NULL_PRINTF(m, n) __attribute__ ((__format__ (__printf__, m, n)))
++#  define ATTRIBUTE_NULL_PRINTF(m, n) __attribute__ ((__format__ (gnu_printf, m, n)))
+ # else
+ #  define ATTRIBUTE_NULL_PRINTF(m, n)
+ # endif /* GNUC >= 3.3 */

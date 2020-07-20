@@ -1,0 +1,114 @@
+Configure scripts tend to do things like this:
+nm -B /dev/null
+which, on Windows, turn into:
+nm -B nul
+and nul here acts like a normal file with 0 size as far as stat() is concerned.
+Check harder for the file in question being unusual (isatty() does see that).
+And since configure script expects /dev/nul, do report it that way.
+
+diff --git binutils-2.28.orig/binutils/bucomm.c binutils-2.28/binutils/bucomm.c
+index e682717..32dc5d0 100644
+--- binutils-2.28.orig/binutils/bucomm.c
++++ binutils-2.28/binutils/bucomm.c
+@@ -587,6 +587,15 @@ get_file_size (const char * file_name)
+ {
+   struct stat statbuf;
+ 
++  int f, t;
++  t = -1;
++  f = open (file_name, O_RDONLY | O_BINARY);
++  if (f != 0)
++    {
++      t = isatty (f);
++      close (f);
++    }
++
+   if (stat (file_name, &statbuf) < 0)
+     {
+       if (errno == ENOENT)
+@@ -595,8 +604,15 @@ get_file_size (const char * file_name)
+ 	non_fatal (_("Warning: could not locate '%s'.  reason: %s"),
+ 		   file_name, strerror (errno));
+     }
+-  else if (! S_ISREG (statbuf.st_mode))
+-    non_fatal (_("Warning: '%s' is not an ordinary file"), file_name);
++  else if (! S_ISREG (statbuf.st_mode) || t > 0)
++    {
++#ifdef _WIN32
++      /* libtool passes /dev/null and checks for /dev/null in the output */
++      if (stricmp (file_name, "nul") == 0)
++        file_name = "/dev/null";
++#endif
++      non_fatal (_("Warning: '%s' is not an ordinary file"), file_name);
++    }
+   else if (statbuf.st_size < 0)
+     non_fatal (_("Warning: '%s' has negative size, probably it is too large"),
+                file_name);
+diff --git binutils-2.28.orig/binutils/elfedit.c binutils-2.28/binutils/elfedit.c
+index 0c84028..66a9cd2 100644
+--- binutils-2.28.orig/binutils/elfedit.c
++++ binutils-2.28/binutils/elfedit.c
+@@ -483,6 +483,14 @@ static int
+ check_file (const char *file_name, struct stat *statbuf_p)
+ {
+   struct stat statbuf;
++  int f, t;
++  t = -1;
++  f = open (file_name, O_RDONLY | O_BINARY);
++  if (f != 0)
++    {
++      t = isatty (f);
++      close (f);
++    }
+ 
+   if (statbuf_p == NULL)
+     statbuf_p = &statbuf;
+@@ -497,8 +505,13 @@ check_file (const char *file_name, struct stat *statbuf_p)
+       return 1;
+     }
+ 
+-  if (! S_ISREG (statbuf_p->st_mode))
++  if (! S_ISREG (statbuf_p->st_mode) || t > 0)
+     {
++#ifdef _WIN32
++      /* libtool passes /dev/null and checks for /dev/null in the output */
++      if (stricmp (file_name, "nul") == 0)
++        file_name = "/dev/null";
++#endif
+       error (_("'%s' is not an ordinary file\n"), file_name);
+       return 1;
+     }
+diff --git binutils-2.28.orig/binutils/readelf.c binutils-2.28/binutils/readelf.c
+index 8dca490..343b6ac 100644
+--- binutils-2.28.orig/binutils/readelf.c
++++ binutils-2.28/binutils/readelf.c
+@@ -17090,6 +17090,14 @@ process_file (char * file_name)
+   struct stat statbuf;
+   char armag[SARMAG];
+   int ret;
++  int f, t;
++  t = -1;
++  f = open (file_name, O_RDONLY | O_BINARY);
++  if (f != 0)
++    {
++      t = isatty (f);
++      close (f);
++    }
+ 
+   if (stat (file_name, &statbuf) < 0)
+     {
+@@ -17101,8 +17109,13 @@ process_file (char * file_name)
+       return 1;
+     }
+ 
+-  if (! S_ISREG (statbuf.st_mode))
++  if (! S_ISREG (statbuf.st_mode) || t > 0)
+     {
++#ifdef _WIN32
++      /* libtool passes /dev/null and checks for /dev/null in the output */
++      if (stricmp (file_name, "nul") == 0)
++        file_name = "/dev/null";
++#endif
+       error (_("'%s' is not an ordinary file\n"), file_name);
+       return 1;
+     }
