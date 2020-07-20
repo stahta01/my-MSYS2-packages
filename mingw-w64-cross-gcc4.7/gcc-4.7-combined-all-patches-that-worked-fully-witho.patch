@@ -1,0 +1,1052 @@
+From bb375f68efa604f672eebcb4ed769437d75312e3 Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Sun, 19 Jul 2020 23:45:02 -0400
+Subject: gcc 4.7 combined all patches that worked fully without error
+
+---
+ Makefile.in                                   |   6 -
+ gcc/config.build                              |   4 +
+ gcc/config.gcc                                |  52 +++++-
+ gcc/config.host                               |  13 +-
+ gcc/config/i386/cygming.opt                   |   4 +
+ gcc/config/i386/cygwin-stdint.h               |  34 +++-
+ gcc/config/i386/cygwin-w64.h                  |  84 ++++++++++
+ gcc/config/i386/cygwin.h                      |  23 ++-
+ gcc/config/i386/cygwin.opt                    |  27 +++
+ gcc/config/i386/mingw-w64.h                   |   2 +-
+ gcc/config/i386/mingw.opt                     |   4 -
+ gcc/config/i386/msys-w64.h                    |  84 ++++++++++
+ gcc/config/i386/msys.h                        | 156 ++++++++++++++++++
+ gcc/config/i386/t-cygwin-w64                  |   3 +
+ gcc/config/i386/t-msys-w64                    |   3 +
+ gcc/cp/cfns.gperf                             |   3 +
+ gcc/cp/cfns.h                                 |   3 +
+ gcc/cp/semantics.c                            |   6 +-
+ gcc/doc/gcc.texi                              |   4 +-
+ .../g++.dg/cpp0x/lambda/lambda-names1.C       |   9 +
+ libada/configure                              |   4 +-
+ libgcc/config.host                            |   6 +
+ libgcc/config/i386/t-msys                     |  19 +++
+ libgcc/gthr-posix.h                           |   2 +-
+ libiberty/configure                           |   4 +-
+ libstdc++-v3/config/abi/pre/gnu.ver           |   2 +-
+ libstdc++-v3/configure                        |  10 +-
+ libstdc++-v3/crossconfig.m4                   |   2 +-
+ libstdc++-v3/testsuite/lib/libstdc++.exp      |   3 +
+ lto-plugin/Makefile.am                        |   2 +-
+ lto-plugin/Makefile.in                        |   2 +-
+ 31 files changed, 544 insertions(+), 36 deletions(-)
+ create mode 100644 gcc/config/i386/cygwin-w64.h
+ create mode 100644 gcc/config/i386/cygwin.opt
+ create mode 100644 gcc/config/i386/msys-w64.h
+ create mode 100644 gcc/config/i386/msys.h
+ create mode 100644 gcc/config/i386/t-cygwin-w64
+ create mode 100644 gcc/config/i386/t-msys-w64
+ create mode 100644 gcc/testsuite/g++.dg/cpp0x/lambda/lambda-names1.C
+ create mode 100644 libgcc/config/i386/t-msys
+
+diff --git a/Makefile.in b/Makefile.in
+index 4b991391572..52643f44058 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -1573,7 +1573,6 @@ install-info-target: maybe-install-info-target-libgo
+ install-info-target: maybe-install-info-target-libtermcap
+ install-info-target: maybe-install-info-target-winsup
+ install-info-target: maybe-install-info-target-libgloss
+-install-info-target: maybe-install-info-target-libffi
+ install-info-target: maybe-install-info-target-libjava
+ install-info-target: maybe-install-info-target-zlib
+ install-info-target: maybe-install-info-target-boehm-gc
+@@ -1651,7 +1650,6 @@ install-pdf-target: maybe-install-pdf-target-libgo
+ install-pdf-target: maybe-install-pdf-target-libtermcap
+ install-pdf-target: maybe-install-pdf-target-winsup
+ install-pdf-target: maybe-install-pdf-target-libgloss
+-install-pdf-target: maybe-install-pdf-target-libffi
+ install-pdf-target: maybe-install-pdf-target-libjava
+ install-pdf-target: maybe-install-pdf-target-zlib
+ install-pdf-target: maybe-install-pdf-target-boehm-gc
+@@ -1729,7 +1727,6 @@ install-html-target: maybe-install-html-target-libgo
+ install-html-target: maybe-install-html-target-libtermcap
+ install-html-target: maybe-install-html-target-winsup
+ install-html-target: maybe-install-html-target-libgloss
+-install-html-target: maybe-install-html-target-libffi
+ install-html-target: maybe-install-html-target-libjava
+ install-html-target: maybe-install-html-target-zlib
+ install-html-target: maybe-install-html-target-boehm-gc
+@@ -1807,7 +1804,6 @@ installcheck-target: maybe-installcheck-target-libgo
+ installcheck-target: maybe-installcheck-target-libtermcap
+ installcheck-target: maybe-installcheck-target-winsup
+ installcheck-target: maybe-installcheck-target-libgloss
+-installcheck-target: maybe-installcheck-target-libffi
+ installcheck-target: maybe-installcheck-target-libjava
+ installcheck-target: maybe-installcheck-target-zlib
+ installcheck-target: maybe-installcheck-target-boehm-gc
+@@ -2402,7 +2398,6 @@ install-target:  \
+     maybe-install-target-libtermcap \
+     maybe-install-target-winsup \
+     maybe-install-target-libgloss \
+-    maybe-install-target-libffi \
+     maybe-install-target-libjava \
+     maybe-install-target-zlib \
+     maybe-install-target-boehm-gc \
+@@ -2500,7 +2495,6 @@ install-strip-target:  \
+     maybe-install-strip-target-libtermcap \
+     maybe-install-strip-target-winsup \
+     maybe-install-strip-target-libgloss \
+-    maybe-install-strip-target-libffi \
+     maybe-install-strip-target-libjava \
+     maybe-install-strip-target-zlib \
+     maybe-install-strip-target-boehm-gc \
+diff --git a/gcc/config.build b/gcc/config.build
+index 26809b61225..f9437d6f69a 100644
+--- a/gcc/config.build
++++ b/gcc/config.build
+@@ -66,6 +66,10 @@ case $build in
+     build_xm_file=i386/xm-cygwin.h
+     build_exeext=.exe
+     ;;
++  i[34567]86-*-msys* | x86_64-*-msys* )
++    build_xm_file=i386/xm-cygwin.h
++    build_exeext=.exe
++    ;;
+   i[34567]86-*-mingw32* | x86_64-*-mingw*)
+     build_xm_file=i386/xm-mingw32.h
+     build_exeext=.exe
+diff --git a/gcc/config.gcc b/gcc/config.gcc
+index 9503b96cfc3..9f7f43480bf 100644
+--- a/gcc/config.gcc
++++ b/gcc/config.gcc
+@@ -1424,7 +1424,51 @@ i[34567]86-*-cygwin*)
+ 	xm_file=i386/xm-cygwin.h
+ 	tmake_file="${tmake_file} i386/t-cygming t-slibgcc"
+ 	target_gtfiles="\$(srcdir)/config/i386/winnt.c"
+-	extra_options="${extra_options} i386/cygming.opt"
++	extra_options="${extra_options} i386/cygming.opt i386/cygwin.opt"
++	extra_objs="winnt.o winnt-stubs.o"
++	c_target_objs="${c_target_objs} msformat-c.o"
++	cxx_target_objs="${cxx_target_objs} winnt-cxx.o msformat-c.o"
++	if test x$enable_threads = xyes; then
++		thread_file='posix'
++	fi
++	use_gcc_stdint=wrap
++	;;
++x86_64-*-cygwin*)
++	need_64bit_isa=yes
++	tm_file="${tm_file} i386/unix.h i386/bsd.h i386/gas.h dbxcoff.h i386/cygming.h i386/cygwin.h i386/cygwin-w64.h i386/cygwin-stdint.h"
++	xm_file=i386/xm-cygwin.h
++	tmake_file="${tmake_file} i386/t-cygming t-slibgcc i386/t-cygwin-w64"
++	target_gtfiles="\$(srcdir)/config/i386/winnt.c"
++	extra_options="${extra_options} i386/cygming.opt i386/cygwin.opt"
++	extra_objs="winnt.o winnt-stubs.o"
++	c_target_objs="${c_target_objs} msformat-c.o"
++	cxx_target_objs="${cxx_target_objs} winnt-cxx.o msformat-c.o"
++	if test x$enable_threads = xyes; then
++		thread_file='posix'
++	fi
++	use_gcc_stdint=wrap
++	;;
++i[34567]86-*-msys*)
++	tm_file="${tm_file} i386/unix.h i386/bsd.h i386/gas.h dbxcoff.h i386/cygming.h i386/msys.h i386/cygwin-stdint.h"
++	xm_file=i386/xm-cygwin.h
++	tmake_file="${tmake_file} i386/t-cygming t-slibgcc"
++	target_gtfiles="\$(srcdir)/config/i386/winnt.c"
++	extra_options="${extra_options} i386/cygming.opt i386/cygwin.opt"
++	extra_objs="winnt.o winnt-stubs.o"
++	c_target_objs="${c_target_objs} msformat-c.o"
++	cxx_target_objs="${cxx_target_objs} winnt-cxx.o msformat-c.o"
++	if test x$enable_threads = xyes; then
++		thread_file='posix'
++	fi
++	use_gcc_stdint=wrap
++	;;
++x86_64-*-msys*)
++	need_64bit_isa=yes
++	tm_file="${tm_file} i386/unix.h i386/bsd.h i386/gas.h dbxcoff.h i386/cygming.h i386/msys.h i386/msys-w64.h i386/cygwin-stdint.h"
++	xm_file=i386/xm-cygwin.h
++	tmake_file="${tmake_file} i386/t-cygming t-slibgcc i386/t-msys-w64"
++	target_gtfiles="\$(srcdir)/config/i386/winnt.c"
++	extra_options="${extra_options} i386/cygming.opt i386/cygwin.opt"
+ 	extra_objs="winnt.o winnt-stubs.o"
+ 	c_target_objs="${c_target_objs} msformat-c.o"
+ 	cxx_target_objs="${cxx_target_objs} winnt-cxx.o msformat-c.o"
+@@ -3574,7 +3618,11 @@ case ${target} in
+ 		;;
+ 	i[34567]86-*-solaris2* | x86_64-*-solaris2.1[0-9]*)
+ 		;;
+-	i[34567]86-*-cygwin* | i[34567]86-*-mingw* | x86_64-*-mingw*)
++	i[34567]86-*-cygwin* | x86_64-*-cygwin*)
++		;;
++	i[34567]86-*-msys* | x86_64-*-msys*)
++		;;
++	i[34567]86-*-mingw* | x86_64-*-mingw*)
+ 		;;
+ 	i[34567]86-*-freebsd* | x86_64-*-freebsd*)
+ 		;;
+diff --git a/gcc/config.host b/gcc/config.host
+index 696c79e3507..81343e37d10 100644
+--- a/gcc/config.host
++++ b/gcc/config.host
+@@ -240,14 +240,21 @@ case ${host} in
+     out_host_hook_obj=host-cygwin.o
+     host_xmake_file="${host_xmake_file} i386/x-cygwin"
+     host_exeext=.exe
+-    host_lto_plugin_soname=cyglto_plugin-0.dll
++    host_lto_plugin_soname=cyglto_plugin.dll
++    ;;
++  i[34567]86-*-msys* | x86_64-*-msys*)
++    host_xm_file=i386/xm-cygwin.h
++    out_host_hook_obj=host-cygwin.o
++    host_xmake_file="${host_xmake_file} i386/x-cygwin"
++    host_exeext=.exe
++    host_lto_plugin_soname=msys-lto_plugin.dll
+     ;;
+   i[34567]86-*-mingw32*)
+     host_xm_file=i386/xm-mingw32.h
+     host_xmake_file="${host_xmake_file} i386/x-mingw32"
+     host_exeext=.exe
+     out_host_hook_obj=host-mingw32.o
+-    host_lto_plugin_soname=liblto_plugin-0.dll
++    host_lto_plugin_soname=liblto_plugin.dll
+     ;;
+   x86_64-*-mingw*)
+     use_long_long_for_widest_fast_int=yes
+@@ -255,7 +262,7 @@ case ${host} in
+     host_xmake_file="${host_xmake_file} i386/x-mingw32"
+     host_exeext=.exe
+     out_host_hook_obj=host-mingw32.o
+-    host_lto_plugin_soname=liblto_plugin-0.dll
++    host_lto_plugin_soname=liblto_plugin.dll
+     ;;
+   i[34567]86-*-uwin*)
+     echo "*** UWIN may not be used as a host platform because"
+diff --git a/gcc/config/i386/cygming.opt b/gcc/config/i386/cygming.opt
+index 2d235237039..146e7b84aee 100644
+--- a/gcc/config/i386/cygming.opt
++++ b/gcc/config/i386/cygming.opt
+@@ -50,6 +50,10 @@ muse-libstdc-wrappers
+ Target Condition({defined (USE_CYGWIN_LIBSTDCXX_WRAPPERS)})
+ Compile code that relies on Cygwin DLL wrappers to support C++ operator new/delete replacement
+ 
++fset-stack-executable
++Common Report Var(flag_setstackexecutable) Init(1) Optimization
++For nested functions on stack executable permission is set.
++
+ posix
+ Driver
+ 
+diff --git a/gcc/config/i386/cygwin-stdint.h b/gcc/config/i386/cygwin-stdint.h
+index df865f717cb..6bc7b2bec02 100644
+--- a/gcc/config/i386/cygwin-stdint.h
++++ b/gcc/config/i386/cygwin-stdint.h
+@@ -24,39 +24,71 @@ along with GCC; see the file COPYING3.  If not see
+ #define INT8_TYPE "signed char"
+ #define INT16_TYPE "short int"
+ #define INT32_TYPE "int"
++#ifdef __x86_64__
++#define INT64_TYPE "long int"
++#else
+ #define INT64_TYPE "long long int"
++#endif
+ 
+ #define UINT8_TYPE "unsigned char"
+ #define UINT16_TYPE "short unsigned int"
+ #define UINT32_TYPE "unsigned int"
++#ifdef __x86_64__
++#define UINT64_TYPE "long unsigned int"
++#else
+ #define UINT64_TYPE "long long unsigned int"
++#endif
+ 
+ /* Minimum-width integer types */
+ 
+ #define INT_LEAST8_TYPE "signed char"
+ #define INT_LEAST16_TYPE "short int"
+ #define INT_LEAST32_TYPE "int"
++#ifdef __x86_64__
++#define INT_LEAST64_TYPE "long int"
++#else
+ #define INT_LEAST64_TYPE "long long int"
++#endif
+ 
+ #define UINT_LEAST8_TYPE "unsigned char"
+ #define UINT_LEAST16_TYPE "short unsigned int"
+ #define UINT_LEAST32_TYPE "unsigned int"
++#ifdef __x86_64__
++#define UINT_LEAST64_TYPE "long unsigned int"
++#else
+ #define UINT_LEAST64_TYPE "long long unsigned int"
++#endif
+ 
+ /* Fastest minimum-width integer types */
+ 
+ #define INT_FAST8_TYPE "signed char"
++#ifdef __x86_64__
++#define INT_FAST16_TYPE "long int"
++#define INT_FAST32_TYPE "long int"
++#define INT_FAST64_TYPE "long int"
++#else
+ #define INT_FAST16_TYPE "int"
+ #define INT_FAST32_TYPE "int"
+ #define INT_FAST64_TYPE "long long int"
++#endif
+ 
+ #define UINT_FAST8_TYPE "unsigned char"
++#ifdef __x86_64__
++#define UINT_FAST16_TYPE "long unsigned int"
++#define UINT_FAST32_TYPE "long unsigned int"
++#define UINT_FAST64_TYPE "long unsigned int"
++#else
+ #define UINT_FAST16_TYPE "unsigned int"
+ #define UINT_FAST32_TYPE "unsigned int"
+ #define UINT_FAST64_TYPE "long long unsigned int"
++#endif
+ 
+ /* Integer types capable of holding object pointers */
+ 
++#ifdef __x86_64__
++#define INTPTR_TYPE "long int"
++#define UINTPTR_TYPE "long unsigned int"
++#else
+ #define INTPTR_TYPE "int"
+ #define UINTPTR_TYPE "unsigned int"
+-
++#endif
+diff --git a/gcc/config/i386/cygwin-w64.h b/gcc/config/i386/cygwin-w64.h
+new file mode 100644
+index 00000000000..152632e15e2
+--- /dev/null
++++ b/gcc/config/i386/cygwin-w64.h
+@@ -0,0 +1,84 @@
++/* Operating system specific defines to be used when targeting GCC for
++   hosting on Windows 32/64 via Cygwin runtime, using GNU tools and
++   the Windows API Library.
++   Copyright (C) 2013 Free Software Foundation, Inc.
++
++This file is part of GCC.
++
++GCC is free software; you can redistribute it and/or modify
++it under the terms of the GNU General Public License as published by
++the Free Software Foundation; either version 3, or (at your option)
++any later version.
++
++GCC is distributed in the hope that it will be useful,
++but WITHOUT ANY WARRANTY; without even the implied warranty of
++MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++GNU General Public License for more details.
++
++You should have received a copy of the GNU General Public License
++along with GCC; see the file COPYING3.  If not see
++<http://www.gnu.org/licenses/>.  */
++
++/* Enable multilib.  */
++
++#undef ASM_SPEC
++#define ASM_SPEC "%{m32:--32} %{m64:--64}"
++
++/* To implement C++ function replacement we always wrap the cxx
++   malloc-like operators.  See N2800 #17.6.4.6 [replacement.functions] */
++#undef CXX_WRAP_SPEC_LIST
++#define CXX_WRAP_SPEC_LIST " \
++  --wrap _Znwm \
++  --wrap _Znam \
++  --wrap _ZdlPv \
++  --wrap _ZdaPv \
++  --wrap _ZnwmRKSt9nothrow_t \
++  --wrap _ZnamRKSt9nothrow_t \
++  --wrap _ZdlPvRKSt9nothrow_t \
++  --wrap _ZdaPvRKSt9nothrow_t \
++"
++
++#undef SPEC_32
++#undef SPEC_64
++#define SPEC_32 "m32"
++#define SPEC_64 "!m32"
++
++#undef SUB_LINK_ENTRY32
++#undef SUB_LINK_ENTRY64
++#define SUB_LINK_ENTRY32 "-e __cygwin_dll_entry@12"
++#define SUB_LINK_ENTRY64 "-e _cygwin_dll_entry"
++
++#undef SUB_LINK_SPEC
++#undef SUB_LINK_ENTRY
++#define SUB_LINK_SPEC "%{" SPEC_64 ":-m i386pep} %{" SPEC_32 ":-m i386pe}"
++#define SUB_LINK_ENTRY "%{" SPEC_64 ":" SUB_LINK_ENTRY64 "} %{" SPEC_32 ":" SUB_LINK_ENTRY32 "}"
++
++#undef MULTILIB_DEFAULTS
++#define MULTILIB_DEFAULTS { "m64" }
++
++#undef LINK_SPEC
++#define LINK_SPEC SUB_LINK_SPEC "\
++  %{mwindows:--subsystem windows} \
++  %{mconsole:--subsystem console} \
++  " CXX_WRAP_SPEC " \
++  %{shared: %{mdll: %eshared and mdll are not compatible}} \
++  %{shared: --shared} %{mdll:--dll} \
++  %{static:-Bstatic} %{!static:-Bdynamic} \
++  %{shared|mdll: " SUB_LINK_ENTRY " --enable-auto-image-base} \
++  %(shared_libgcc_undefs) \
++  --dll-search-prefix=cyg \
++  %{rdynamic: --export-all-symbols} \
++  %{!shared: %{!mdll: %{" SPEC_32 ":--large-address-aware} --tsaware}}"
++
++/* Cygwin64 will have a 64-bit long type. */
++#undef LONG_TYPE_SIZE
++#define LONG_TYPE_SIZE (TARGET_64BIT ? 64 : 32)
++
++/* Override default "long long unsigned int" from cygming.h. */
++#undef SIZE_TYPE
++#define SIZE_TYPE (TARGET_64BIT ? "long unsigned int" : "unsigned int")
++#undef PTRDIFF_TYPE
++#define PTRDIFF_TYPE (TARGET_64BIT ? "long int" : "int")
++
++#undef LIBGCC_SONAME
++#define LIBGCC_SONAME "cyggcc_s-seh-1.dll"
+diff --git a/gcc/config/i386/cygwin.h b/gcc/config/i386/cygwin.h
+index 5cf7f9cf51d..fce214f0ac7 100644
+--- a/gcc/config/i386/cygwin.h
++++ b/gcc/config/i386/cygwin.h
+@@ -19,11 +19,20 @@ You should have received a copy of the GNU General Public License
+ along with GCC; see the file COPYING3.  If not see
+ <http://www.gnu.org/licenses/>.  */
+ 
+-#define EXTRA_OS_CPP_BUILTINS()  /* Nothing.  */
++#define EXTRA_OS_CPP_BUILTINS()					\
++  do								\
++    {								\
++      builtin_define ("__CYGWIN__");				\
++      if (!TARGET_64BIT)					\
++	builtin_define ("__CYGWIN32__");			\
++      builtin_define ("__unix__");				\
++      builtin_define ("__unix");				\
++    }								\
++  while (0)
+ 
+ #undef CPP_SPEC
+ #define CPP_SPEC "%(cpp_cpu) %{posix:-D_POSIX_SOURCE} \
+-  -D__CYGWIN32__ -D__CYGWIN__ %{!ansi:-Dunix} -D__unix__ -D__unix \
++  %{!ansi:-Dunix} %{pthread: } \
+   %{mwin32:-DWIN32 -D_WIN32 -D__WIN32 -D__WIN32__ %{!ansi:-DWINNT}} \
+   %{!nostdinc:%{!mno-win32:-idirafter ../include/w32api%s -idirafter ../../include/w32api%s}}\
+ "
+@@ -72,12 +81,14 @@ along with GCC; see the file COPYING3.  If not see
+ #undef LIB_SPEC
+ #define LIB_SPEC "\
+   %{pg:-lgmon} \
++  %{pthread: } \
+   -lcygwin \
+   %{mwindows:-lgdi32 -lcomdlg32} \
+   -ladvapi32 -lshell32 -luser32 -lkernel32"
+ 
+ /* To implement C++ function replacement we always wrap the cxx
+    malloc-like operators.  See N2800 #17.6.4.6 [replacement.functions] */
++#undef CXX_WRAP_SPEC_LIST
+ #define CXX_WRAP_SPEC_LIST " \
+   --wrap _Znwj \
+   --wrap _Znaj \
+@@ -115,7 +126,9 @@ along with GCC; see the file COPYING3.  If not see
+   %{shared: --shared} %{mdll:--dll} \
+   %{static:-Bstatic} %{!static:-Bdynamic} \
+   %{shared|mdll: --enable-auto-image-base -e __cygwin_dll_entry@12} \
+-  --dll-search-prefix=cyg -tsaware"
++  --dll-search-prefix=cyg \
++  %{rdynamic: --export-all-symbols} \
++  %{!shared: %{!mdll: --large-address-aware --tsaware}}"
+ 
+ /* Binutils does not handle weak symbols from dlls correctly.  For now,
+    do not use them unnecessarily in gthr-posix.h.  */
+@@ -140,3 +153,7 @@ along with GCC; see the file COPYING3.  If not see
+ /* We should find a way to not have to update this manually.  */
+ #define LIBGCJ_SONAME "cyggcj" /*LIBGCC_EH_EXTN*/ "-13.dll"
+ 
++/* Make stack executable to avoid DEP problems with trampolines.  */
++#define HAVE_ENABLE_EXECUTE_STACK
++#undef  CHECK_EXECUTE_STACK_ENABLED
++#define CHECK_EXECUTE_STACK_ENABLED flag_setstackexecutable
+diff --git a/gcc/config/i386/cygwin.opt b/gcc/config/i386/cygwin.opt
+new file mode 100644
+index 00000000000..4c6950948cf
+--- /dev/null
++++ b/gcc/config/i386/cygwin.opt
+@@ -0,0 +1,27 @@
++; Cygwin-specific options.
++
++; Copyright (C) 2005, 2007, 2009, 2010, 2011 Free Software Foundation, Inc.
++;
++; This file is part of GCC.
++;
++; GCC is free software; you can redistribute it and/or modify it under
++; the terms of the GNU General Public License as published by the Free
++; Software Foundation; either version 3, or (at your option) any later
++; version.
++;
++; GCC is distributed in the hope that it will be useful, but WITHOUT ANY
++; WARRANTY; without even the implied warranty of MERCHANTABILITY or
++; FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
++; for more details.
++;
++; You should have received a copy of the GNU General Public License
++; along with GCC; see the file COPYING3.  If not see
++; <http://www.gnu.org/licenses/>.
++
++pthread
++Driver
++
++rdynamic
++Driver
++
++; Retain blank line above
+diff --git a/gcc/config/i386/mingw-w64.h b/gcc/config/i386/mingw-w64.h
+index a45ce28b282..a901a3d57e6 100644
+--- a/gcc/config/i386/mingw-w64.h
++++ b/gcc/config/i386/mingw-w64.h
+@@ -44,7 +44,7 @@ along with GCC; see the file COPYING3.  If not see
+ #define LIB_SPEC "%{pg:-lgmon} %{" SPEC_PTHREAD1 ":-lpthread} " \
+ 		 "%{" SPEC_PTHREAD2 ": } " \
+ 		 "%{mwindows:-lgdi32 -lcomdlg32} " \
+-		 "-ladvapi32 -lshell32 -luser32 -lkernel32"
++		 "-ladvapi32 -lshell32 -luser32 -lkernel32 -liconv"
+ 
+ #undef SPEC_32
+ #undef SPEC_64
+diff --git a/gcc/config/i386/mingw.opt b/gcc/config/i386/mingw.opt
+index f7ae1892ee7..6dd25492a99 100644
+--- a/gcc/config/i386/mingw.opt
++++ b/gcc/config/i386/mingw.opt
+@@ -28,8 +28,4 @@ Wpedantic-ms-format
+ C ObjC C++ ObjC++ Var(warn_pedantic_ms_format) Init(1) Warning
+ Warn about none ISO msvcrt scanf/printf width extensions
+ 
+-fset-stack-executable
+-Common Report Var(flag_setstackexecutable) Init(1) Optimization
+-For nested functions on stack executable permission is set.
+-
+ ; Need to retain blank line above.
+diff --git a/gcc/config/i386/msys-w64.h b/gcc/config/i386/msys-w64.h
+new file mode 100644
+index 00000000000..22f4cdcc1a0
+--- /dev/null
++++ b/gcc/config/i386/msys-w64.h
+@@ -0,0 +1,84 @@
++/* Operating system specific defines to be used when targeting GCC for
++   hosting on Windows 32/64 via MSYS runtime, using GNU tools and
++   the Windows API Library.
++   Copyright (C) 2013 Free Software Foundation, Inc.
++
++This file is part of GCC.
++
++GCC is free software; you can redistribute it and/or modify
++it under the terms of the GNU General Public License as published by
++the Free Software Foundation; either version 3, or (at your option)
++any later version.
++
++GCC is distributed in the hope that it will be useful,
++but WITHOUT ANY WARRANTY; without even the implied warranty of
++MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++GNU General Public License for more details.
++
++You should have received a copy of the GNU General Public License
++along with GCC; see the file COPYING3.  If not see
++<http://www.gnu.org/licenses/>.  */
++
++/* Enable multilib.  */
++
++#undef ASM_SPEC
++#define ASM_SPEC "%{m32:--32} %{m64:--64}"
++
++/* To implement C++ function replacement we always wrap the cxx
++   malloc-like operators.  See N2800 #17.6.4.6 [replacement.functions] */
++#undef CXX_WRAP_SPEC_LIST
++#define CXX_WRAP_SPEC_LIST " \
++  --wrap _Znwm \
++  --wrap _Znam \
++  --wrap _ZdlPv \
++  --wrap _ZdaPv \
++  --wrap _ZnwmRKSt9nothrow_t \
++  --wrap _ZnamRKSt9nothrow_t \
++  --wrap _ZdlPvRKSt9nothrow_t \
++  --wrap _ZdaPvRKSt9nothrow_t \
++"
++
++#undef SPEC_32
++#undef SPEC_64
++#define SPEC_32 "m32"
++#define SPEC_64 "!m32"
++
++#undef SUB_LINK_ENTRY32
++#undef SUB_LINK_ENTRY64
++#define SUB_LINK_ENTRY32 "-e __msys_dll_entry@12"
++#define SUB_LINK_ENTRY64 "-e _msys_dll_entry"
++
++#undef SUB_LINK_SPEC
++#undef SUB_LINK_ENTRY
++#define SUB_LINK_SPEC "%{" SPEC_64 ":-m i386pep} %{" SPEC_32 ":-m i386pe}"
++#define SUB_LINK_ENTRY "%{" SPEC_64 ":" SUB_LINK_ENTRY64 "} %{" SPEC_32 ":" SUB_LINK_ENTRY32 "}"
++
++#undef MULTILIB_DEFAULTS
++#define MULTILIB_DEFAULTS { "m64" }
++
++#undef LINK_SPEC
++#define LINK_SPEC SUB_LINK_SPEC "\
++  %{mwindows:--subsystem windows} \
++  %{mconsole:--subsystem console} \
++  " CXX_WRAP_SPEC " \
++  %{shared: %{mdll: %eshared and mdll are not compatible}} \
++  %{shared: --shared} %{mdll:--dll} \
++  %{static:-Bstatic} %{!static:-Bdynamic} \
++  %{shared|mdll: " SUB_LINK_ENTRY " --enable-auto-image-base} \
++  %(shared_libgcc_undefs) \
++  --dll-search-prefix=msys- \
++  %{rdynamic: --export-all-symbols} \
++  %{!shared: %{!mdll: %{" SPEC_32 ":--large-address-aware} --tsaware}}"
++
++/* MSYS64 will have a 64-bit long type. */
++#undef LONG_TYPE_SIZE
++#define LONG_TYPE_SIZE (TARGET_64BIT ? 64 : 32)
++
++/* Override default "long long unsigned int" from cygming.h. */
++#undef SIZE_TYPE
++#define SIZE_TYPE (TARGET_64BIT ? "long unsigned int" : "unsigned int")
++#undef PTRDIFF_TYPE
++#define PTRDIFF_TYPE (TARGET_64BIT ? "long int" : "int")
++
++#undef LIBGCC_SONAME
++#define LIBGCC_SONAME "msys-gcc_s-seh-1.dll"
+diff --git a/gcc/config/i386/msys.h b/gcc/config/i386/msys.h
+new file mode 100644
+index 00000000000..65edc3252e5
+--- /dev/null
++++ b/gcc/config/i386/msys.h
+@@ -0,0 +1,156 @@
++/* Operating system specific defines to be used when targeting GCC for
++   hosting on Windows32, using a Unix style C library and tools.
++   Copyright (C) 1995-2013 Free Software Foundation, Inc.
++
++This file is part of GCC.
++
++GCC is free software; you can redistribute it and/or modify
++it under the terms of the GNU General Public License as published by
++the Free Software Foundation; either version 3, or (at your option)
++any later version.
++
++GCC is distributed in the hope that it will be useful,
++but WITHOUT ANY WARRANTY; without even the implied warranty of
++MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++GNU General Public License for more details.
++
++You should have received a copy of the GNU General Public License
++along with GCC; see the file COPYING3.  If not see
++<http://www.gnu.org/licenses/>.  */
++
++#define EXTRA_OS_CPP_BUILTINS()					\
++  do								\
++    {								\
++      builtin_define ("__CYGWIN__");			\
++      builtin_define ("__MSYS__");				\
++      if (!TARGET_64BIT)					\
++	builtin_define ("__CYGWIN32__");			\
++      builtin_define ("__unix__");				\
++      builtin_define ("__unix");				\
++    }								\
++  while (0)
++
++#undef CPP_SPEC
++#define CPP_SPEC "%(cpp_cpu) %{posix:-D_POSIX_SOURCE} \
++  %{!ansi:-Dunix} %{pthread: } \
++  -D__MSYS__ \
++  %{mwin32:-DWIN32 -D_WIN32 -D__WIN32 -D__WIN32__ %{!ansi:-DWINNT}} \
++  %{!nostdinc:%{!mno-win32:-idirafter ../include/w32api%s -idirafter ../../include/w32api%s}}\
++"
++
++#undef STARTFILE_SPEC
++#define STARTFILE_SPEC "\
++  %{!shared: %{!mdll: crt0%O%s \
++  %{pg:gcrt0%O%s}}}\
++  crtbegin.o%s"
++
++#undef ENDFILE_SPEC
++#define ENDFILE_SPEC \
++  "%{Ofast|ffast-math|funsafe-math-optimizations:crtfastmath.o%s}\
++   crtend.o%s"
++
++/* Normally, -lgcc is not needed since everything in it is in the DLL, but we
++   want to allow things to be added to it when installing new versions of
++   GCC without making a new msys-2.0.dll, so we leave it.  Profiling is handled
++   by calling the init function from main.  */
++
++#ifdef ENABLE_SHARED_LIBGCC
++#define SHARED_LIBGCC_SPEC " \
++ %{static|static-libgcc:-lgcc -lgcc_eh} \
++ %{!static: \
++   %{!static-libgcc: \
++     -lgcc_s -lgcc \
++    } \
++  } "
++#else
++#define SHARED_LIBGCC_SPEC " -lgcc "
++#endif
++
++#undef REAL_LIBGCC_SPEC
++#define REAL_LIBGCC_SPEC SHARED_LIBGCC_SPEC
++
++/* We have to dynamic link to get to the system DLLs.  All of libc, libm and
++   the Unix stuff is in msys-2.0.dll.  The import library is called
++   'libmsys-2.0.a'.  For Windows applications, include more libraries, but
++   always include kernel32.  We'd like to specific subsystem windows to
++   ld, but that doesn't work just yet.  */
++
++#undef LIB_SPEC
++#define LIB_SPEC "\
++  %{pg:-lgmon} \
++  %{pthread: } \
++  -lmsys-2.0 \
++  %{mwindows:-lgdi32 -lcomdlg32} \
++  -ladvapi32 -lshell32 -luser32 -lkernel32"
++
++/* To implement C++ function replacement we always wrap the cxx
++   malloc-like operators.  See N2800 #17.6.4.6 [replacement.functions] */
++#undef CXX_WRAP_SPEC_LIST
++#define CXX_WRAP_SPEC_LIST " \
++  --wrap _Znwj \
++  --wrap _Znaj \
++  --wrap _ZdlPv \
++  --wrap _ZdaPv \
++  --wrap _ZnwjRKSt9nothrow_t \
++  --wrap _ZnajRKSt9nothrow_t \
++  --wrap _ZdlPvRKSt9nothrow_t \
++  --wrap _ZdaPvRKSt9nothrow_t \
++"
++
++#if defined (USE_CYGWIN_LIBSTDCXX_WRAPPERS)
++
++#if USE_CYGWIN_LIBSTDCXX_WRAPPERS
++/* Default on, only explict -mno disables.  */
++#define CXX_WRAP_SPEC_OPT "!mno-use-libstdc-wrappers"
++#else
++/* Default off, only explict -m enables.  */
++#define CXX_WRAP_SPEC_OPT "muse-libstdc-wrappers"
++#endif
++
++#define CXX_WRAP_SPEC "%{" CXX_WRAP_SPEC_OPT ":" CXX_WRAP_SPEC_LIST "}"
++
++#else /* !defined (USE_CYGWIN_LIBSTDCXX_WRAPPERS)  */
++
++#define CXX_WRAP_SPEC ""
++
++#endif /* ?defined (USE_CYGWIN_LIBSTDCXX_WRAPPERS) */
++
++#define LINK_SPEC "\
++  %{mwindows:--subsystem windows} \
++  %{mconsole:--subsystem console} \
++  " CXX_WRAP_SPEC " \
++  %{shared: %{mdll: %eshared and mdll are not compatible}} \
++  %{shared: --shared} %{mdll:--dll} \
++  %{static:-Bstatic} %{!static:-Bdynamic} \
++  %{shared|mdll: --enable-auto-image-base -e __msys_dll_entry@12} \
++  --dll-search-prefix=msys- \
++  %{rdynamic: --export-all-symbols} \
++  %{!shared: %{!mdll: --large-address-aware --tsaware}}"
++
++/* Binutils does not handle weak symbols from dlls correctly.  For now,
++   do not use them unnecessarily in gthr-posix.h.  */
++#define GTHREAD_USE_WEAK 0
++
++/* Every program on MSYS links against msys-2.0.dll which contains 
++   the pthread routines.  There is no need to explicitly link them
++   and the -pthread flag is not recognized.  */
++#undef GOMP_SELF_SPECS
++#define GOMP_SELF_SPECS ""
++#undef GTM_SELF_SPECS
++#define GTM_SELF_SPECS ""
++
++/* This matches SHLIB_SONAME and SHLIB_SOVERSION in t-msys. */
++#if DWARF2_UNWIND_INFO
++#define LIBGCC_EH_EXTN ""
++#else
++#define LIBGCC_EH_EXTN "-sjlj"
++#endif
++#define LIBGCC_SONAME "msys-gcc_s" LIBGCC_EH_EXTN "-1.dll"
++
++/* We should find a way to not have to update this manually.  */
++#define LIBGCJ_SONAME "msys-gcj" /*LIBGCC_EH_EXTN*/ "-14.dll"
++
++/* Make stack executable to avoid DEP problems with trampolines.  */
++#define HAVE_ENABLE_EXECUTE_STACK
++#undef  CHECK_EXECUTE_STACK_ENABLED
++#define CHECK_EXECUTE_STACK_ENABLED flag_setstackexecutable
+diff --git a/gcc/config/i386/t-cygwin-w64 b/gcc/config/i386/t-cygwin-w64
+new file mode 100644
+index 00000000000..01968fd88c3
+--- /dev/null
++++ b/gcc/config/i386/t-cygwin-w64
+@@ -0,0 +1,3 @@
++MULTILIB_OPTIONS = m64/m32
++MULTILIB_DIRNAMES = 64
++MULTILIB_OSDIRNAMES = ../lib ../lib32
+diff --git a/gcc/config/i386/t-msys-w64 b/gcc/config/i386/t-msys-w64
+new file mode 100644
+index 00000000000..01968fd88c3
+--- /dev/null
++++ b/gcc/config/i386/t-msys-w64
+@@ -0,0 +1,3 @@
++MULTILIB_OPTIONS = m64/m32
++MULTILIB_DIRNAMES = 64
++MULTILIB_OSDIRNAMES = ../lib ../lib32
+diff --git a/gcc/cp/cfns.gperf b/gcc/cp/cfns.gperf
+index ef1ed083d32..ba0c487a603 100644
+--- a/gcc/cp/cfns.gperf
++++ b/gcc/cp/cfns.gperf
+@@ -22,6 +22,9 @@ __inline
+ static unsigned int hash (const char *, unsigned int);
+ #ifdef __GNUC__
+ __inline
++#ifdef __GNUC_STDC_INLINE__
++__attribute__ ((__gnu_inline__))
++#endif
+ #endif
+ const char * libc_name_p (const char *, unsigned int);
+ %}
+diff --git a/gcc/cp/cfns.h b/gcc/cp/cfns.h
+index 62cdfab93aa..2fb9b4632b9 100644
+--- a/gcc/cp/cfns.h
++++ b/gcc/cp/cfns.h
+@@ -53,6 +53,9 @@ __inline
+ static unsigned int hash (const char *, unsigned int);
+ #ifdef __GNUC__
+ __inline
++#ifdef __GNUC_STDC_INLINE__
++__attribute__ ((__gnu_inline__))
++#endif
+ #endif
+ const char * libc_name_p (const char *, unsigned int);
+ /* maximum key range = 391, duplicates = 0 */
+diff --git a/gcc/cp/semantics.c b/gcc/cp/semantics.c
+index e71f7d99f2f..a787fe00c53 100644
+--- a/gcc/cp/semantics.c
++++ b/gcc/cp/semantics.c
+@@ -2662,8 +2662,10 @@ finish_member_declaration (tree decl)
+ 					      /*friend_p=*/0);
+ 	}
+     }
+-  /* Enter the DECL into the scope of the class.  */
+-  else if (pushdecl_class_level (decl))
++  /* Enter the DECL into the scope of the class, if the class
++     isn't a closure (whose fields are supposed to be unnamed).  */
++  else if (CLASSTYPE_LAMBDA_EXPR (current_class_type)
++	   || pushdecl_class_level (decl))
+     {
+       if (TREE_CODE (decl) == USING_DECL)
+ 	{
+diff --git a/gcc/doc/gcc.texi b/gcc/doc/gcc.texi
+index 0e167bae004..3019dc410f3 100644
+--- a/gcc/doc/gcc.texi
++++ b/gcc/doc/gcc.texi
+@@ -86,9 +86,9 @@ Published by:
+ @item GNU Press
+ @tab Website: www.gnupress.org
+ @item a division of the
+-@tab General: @tex press@@gnu.org @end tex
++@tab General: @email{press@@gnu.org}
+ @item Free Software Foundation
+-@tab Orders:  @tex sales@@gnu.org @end tex
++@tab Orders:  @email{sales@@gnu.org}
+ @item 51 Franklin Street, Fifth Floor
+ @tab Tel 617-542-5942
+ @item Boston, MA 02110-1301 USA
+diff --git a/gcc/testsuite/g++.dg/cpp0x/lambda/lambda-names1.C b/gcc/testsuite/g++.dg/cpp0x/lambda/lambda-names1.C
+new file mode 100644
+index 00000000000..df2b03705ae
+--- /dev/null
++++ b/gcc/testsuite/g++.dg/cpp0x/lambda/lambda-names1.C
+@@ -0,0 +1,9 @@
++// PR c++/56710
++// { dg-options "-std=c++11 -Wall" }
++
++int main()
++{
++    int t = 0;
++    return [&]() -> int {int __t; __t = t; return __t; }();
++    return [&t]() -> int {int __t; __t = t; return __t; }();
++}
+diff --git a/libada/configure b/libada/configure
+index da92d0edbce..19d3e5e7e77 100755
+--- a/libada/configure
++++ b/libada/configure
+@@ -2834,7 +2834,9 @@ case "${host}" in
+     hppa*64*-*-hpux*)
+ 	# PIC is the default for 64-bit PA HP-UX.
+ 	;;
+-    i[34567]86-*-cygwin* | i[34567]86-*-mingw* | x86_64-*-mingw*)
++    i[34567]86-*-cygwin* | x86_64-*-cygwin*)
++	;;
++    i[34567]86-*-mingw* | x86_64-*-mingw*)
+ 	;;
+     i[34567]86-*-interix[3-9]*)
+ 	# Interix 3.x gcc -fpic/-fPIC options generate broken code.
+diff --git a/libgcc/config.host b/libgcc/config.host
+index b64da4a26d9..4fe02bc13f2 100644
+--- a/libgcc/config.host
++++ b/libgcc/config.host
+@@ -273,6 +273,12 @@ case ${host} in
+ i[34567]86-*-mingw* | x86_64-*-mingw*)
+   enable_execute_stack=config/i386/enable-execute-stack-mingw32.c
+   ;;
++i[34567]86-*-cygwin* | x86_64-*-cygwin*)
++  enable_execute_stack=config/i386/enable-execute-stack-mingw32.c
++  ;;
++i[34567]86-*-msys* | x86_64-*-msys*)
++  enable_execute_stack=config/i386/enable-execute-stack-mingw32.c
++  ;;
+ *)
+   enable_execute_stack=enable-execute-stack-empty.c;
+   ;;
+diff --git a/libgcc/config/i386/t-msys b/libgcc/config/i386/t-msys
+new file mode 100644
+index 00000000000..9142002a34b
+--- /dev/null
++++ b/libgcc/config/i386/t-msys
+@@ -0,0 +1,19 @@
++# If we are building next to winsup, this will let us find the real
++# limits.h when building libgcc2.  Otherwise, winsup must be installed
++# first.
++LIBGCC2_INCLUDES += -I$(srcdir)/../winsup/include \
++	-I$(srcdir)/../winsup/cygwin/include
++
++# MSYS-specific parts of LIB_SPEC
++SHLIB_LC = -lmsys-2.0 -ladvapi32 -lshell32 -luser32 -lkernel32
++
++# We have already included one of the t-{dw2,sjlj}-eh fragments for EH_MODEL
++SHLIB_EH_EXTENSION = $(subst -dw2,,-$(EH_MODEL))
++
++# MSYS uses different conventions than MinGW; override generic SHLIB_ def'ns here.
++SHLIB_IMPLIB = @shlib_base_name@$(SHLIB_EXT).a
++SHLIB_SONAME = msys-gcc_s$(SHLIB_EH_EXTENSION)-$(SHLIB_SOVERSION)$(SHLIB_EXT)
++# This must match the definitions of SHLIB_SONAME/SHLIB_SOVERSION and LIBGCC_SONAME.
++# We'd like to use SHLIB_SONAME here too, and we can, since
++# we don't rely on shlib_base_name substitution for it.
++SHLIB_MKMAP_OPTS = -v pe_dll=$(SHLIB_SONAME)
+diff --git a/libgcc/gthr-posix.h b/libgcc/gthr-posix.h
+index a935e929184..4e4eea0a646 100644
+--- a/libgcc/gthr-posix.h
++++ b/libgcc/gthr-posix.h
+@@ -88,7 +88,7 @@ typedef struct timespec __gthread_time_t;
+ # define __GTHREAD_COND_INIT_FUNCTION __gthread_cond_init_function
+ #endif
+ 
+-#if SUPPORTS_WEAK && GTHREAD_USE_WEAK
++#if SUPPORTS_WEAK && GTHREAD_USE_WEAK && !defined(__MINGW32__)
+ # ifndef __gthrw_pragma
+ #  define __gthrw_pragma(pragma)
+ # endif
+diff --git a/libiberty/configure b/libiberty/configure
+index 6e98352f356..0a3662bd7c3 100755
+--- a/libiberty/configure
++++ b/libiberty/configure
+@@ -4865,7 +4865,9 @@ case "${host}" in
+     hppa*64*-*-hpux*)
+ 	# PIC is the default for 64-bit PA HP-UX.
+ 	;;
+-    i[34567]86-*-cygwin* | i[34567]86-*-mingw* | x86_64-*-mingw*)
++    i[34567]86-*-cygwin* | x86_64-*-cygwin*)
++	;;
++    i[34567]86-*-mingw* | x86_64-*-mingw*)
+ 	;;
+     i[34567]86-*-interix[3-9]*)
+ 	# Interix 3.x gcc -fpic/-fPIC options generate broken code.
+diff --git a/libstdc++-v3/config/abi/pre/gnu.ver b/libstdc++-v3/config/abi/pre/gnu.ver
+index b99a8121680..fa4211312d0 100644
+--- a/libstdc++-v3/config/abi/pre/gnu.ver
++++ b/libstdc++-v3/config/abi/pre/gnu.ver
+@@ -1512,7 +1512,7 @@ CXXABI_1.3.6 {
+     __cxa_allocate_dependent_exception;
+     __cxa_free_dependent_exception;
+     __cxa_deleted_virtual;
+-
++    _ZTC*;
+ } CXXABI_1.3.5;
+ 
+ 
+diff --git a/libstdc++-v3/configure b/libstdc++-v3/configure
+index b6424958200..b2b567e646b 100755
+--- a/libstdc++-v3/configure
++++ b/libstdc++-v3/configure
+@@ -3525,11 +3525,11 @@ MAKEINFO=${MAKEINFO-"${am_missing_run}makeinfo"}
+ 
+ # We need awk for the "check" target.  The system "awk" is bad on
+ # some platforms.
+-# Always define AMTAR for backward compatibility.
++# Always define AMTAR for backward compatibility.  Yes, it's still used
++# in the wild :-(  We should find a proper way to deprecate it ...
++AMTAR='$${TAR-tar}'
+ 
+-AMTAR=${AMTAR-"${am_missing_run}tar"}
+-
+-am__tar='${AMTAR} chof - "$$tardir"'; am__untar='${AMTAR} xf -'
++am__tar='$${TAR-tar} chof - "$$tardir"' am__untar='$${TAR-tar} xf -'
+ 
+ 
+ 
+@@ -45520,7 +45520,7 @@ $as_echo "#define HAVE_TLS 1" >>confdefs.h
+ 	;;
+     esac
+     ;;
+-  *-linux* | *-uclinux* | *-gnu* | *-kfreebsd*-gnu | *-knetbsd*-gnu)
++  *-linux* | *-uclinux* | *-gnu* | *-kfreebsd*-gnu | *-knetbsd*-gnu | *-cygwin*)
+ 
+   # All these tests are for C++; save the language and the compiler flags.
+   # The CXXFLAGS thing is suspicious, but based on similar bits previously
+diff --git a/libstdc++-v3/crossconfig.m4 b/libstdc++-v3/crossconfig.m4
+index 361ed0b8641..bc25b04c309 100644
+--- a/libstdc++-v3/crossconfig.m4
++++ b/libstdc++-v3/crossconfig.m4
+@@ -141,7 +141,7 @@ case "${host}" in
+ 	;;
+     esac
+     ;;
+-  *-linux* | *-uclinux* | *-gnu* | *-kfreebsd*-gnu | *-knetbsd*-gnu)
++  *-linux* | *-uclinux* | *-gnu* | *-kfreebsd*-gnu | *-knetbsd*-gnu | *-cygwin*)
+     GLIBCXX_CHECK_COMPILER_FEATURES
+     GLIBCXX_CHECK_LINKER_FEATURES
+     GLIBCXX_CHECK_MATH_SUPPORT
+diff --git a/libstdc++-v3/testsuite/lib/libstdc++.exp b/libstdc++-v3/testsuite/lib/libstdc++.exp
+index abb92bf358d..cca95d0c3d0 100644
+--- a/libstdc++-v3/testsuite/lib/libstdc++.exp
++++ b/libstdc++-v3/testsuite/lib/libstdc++.exp
+@@ -146,6 +146,9 @@ proc libstdc++_init { testfile } {
+         set gccdir [file dirname $gccdir]
+ 	append ld_library_path_tmp ":${gccdir}"
+     }
++    if { [string match "*-*-cygwin*" $target_triplet] } {
++	append ld_library_path_tmp ":${blddir}/../libgcc"
++    }
+     v3track gccdir 3
+ 
+     # Locate libgomp. This is only required for parallel mode.
+diff --git a/lto-plugin/Makefile.am b/lto-plugin/Makefile.am
+index b24015e137b..ea176d9f441 100644
+--- a/lto-plugin/Makefile.am
++++ b/lto-plugin/Makefile.am
+@@ -22,7 +22,7 @@ liblto_plugin_la_SOURCES = lto-plugin.c
+ liblto_plugin_la_LIBADD = \
+ 	$(if $(wildcard ../libiberty/pic/libiberty.a),$(Wc)../libiberty/pic/libiberty.a,)
+ # Note that we intentionally override the bindir supplied by ACX_LT_HOST_FLAGS
+-liblto_plugin_la_LDFLAGS = $(lt_host_flags) -module -bindir $(libexecsubdir) \
++liblto_plugin_la_LDFLAGS = $(lt_host_flags) -module -avoid-version -bindir $(libexecsubdir) \
+ 	$(if $(wildcard ../libiberty/pic/libiberty.a),,-Wc,../libiberty/libiberty.a)
+ liblto_plugin_la_DEPENDENCIES = $(if $(wildcard \
+ 	../libiberty/pic/libiberty.a),../libiberty/pic/libiberty.a,)
+diff --git a/lto-plugin/Makefile.in b/lto-plugin/Makefile.in
+index 0c8d89fc7e2..c591d5dd2de 100644
+--- a/lto-plugin/Makefile.in
++++ b/lto-plugin/Makefile.in
+@@ -242,7 +242,7 @@ liblto_plugin_la_LIBADD = \
+ 	$(if $(wildcard ../libiberty/pic/libiberty.a),$(Wc)../libiberty/pic/libiberty.a,)
+ 
+ # Note that we intentionally override the bindir supplied by ACX_LT_HOST_FLAGS
+-liblto_plugin_la_LDFLAGS = $(lt_host_flags) -module -bindir $(libexecsubdir) \
++liblto_plugin_la_LDFLAGS = $(lt_host_flags) -module -avoid-version -bindir $(libexecsubdir) \
+ 	$(if $(wildcard ../libiberty/pic/libiberty.a),,-Wc,../libiberty/libiberty.a)
+ 
+ liblto_plugin_la_DEPENDENCIES = $(if $(wildcard \
+-- 
+2.27.0.windows.1
+
