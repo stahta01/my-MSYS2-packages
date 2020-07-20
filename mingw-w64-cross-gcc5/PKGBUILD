@@ -5,7 +5,7 @@ _mingw_suff=mingw-w64-cross
 _realname=gcc
 
 # Package build options
-_make_static_gcc_only=no
+_make_static_gcc_only=yes
 _threads="win32"
 _targets="i686-w64-mingw32 x86_64-w64-mingw32" #armv7-w64-mingw32 
 if [[ "$_make_static_gcc_only" != "yes" ]] ; then
@@ -227,7 +227,7 @@ build() {
   if [ "$_make_static_gcc_only" == "yes" ]; then
     configure_opts+=("--enable-static")
     configure_opts+=("--disable-shared")
-    configure_opts+=("--disable-threads)
+    configure_opts+=("--disable-threads")
   else
     configure_opts+=("--enable-static")
     configure_opts+=("--enable-shared")
