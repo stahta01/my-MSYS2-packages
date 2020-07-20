@@ -84,7 +84,7 @@ sha256sums=('92e61c6dc3a0a449e62d72a38185fda550168a86702dea07125ebd3ec3996282'
             'f9b3270704b1a7769053b72dbc4471829b0bc3395743c3a1927729ebfc13dbb1'
             '2fd097dcd783c187a480659939ab8cf133f697acde82e4e7b30609a9e6d0e8fe'
             'fba7508237bf8e6ae261ed6fcdbc02442241444048acef5c8e0a88d18d76c24b'
-            '7020b523797b5fdad1b7c0e10585a8af7c914baf977d99ca7fdfe15055efe6bd'
+            'feb0a38f4fdd5dd8bdeaa1e33d608e4a905c8ebea688b282591ed4211d19dcf2'
             '50d5449c610804fb1b059cbb28edf849e1e51c32e326a8b8d95301dff39c85a1'
             '865ed62eb9af20142fb2cae6708c52aabdc538284e8a88648bfec97abb7ccf70'
             '543d3f18edf80e125ec185df6a8d1e77db493f4e11b052397405ea143d88efb1'
@@ -279,10 +279,10 @@ prepare() {
 
   # Cygwin Backport patches
   # 942-crossconfig.m4-Add-support-for-cygwin-x64-target.patch \
-  #? of ? work # 943-config.host-Add-support-for-cygwin-x64-target.patch \
   # 944-configure-Regenerated.patch \
   # ? # 940-dfp.m4-Add-support-for-cygwin-x64-target.patch \
-  # apply_patch_with_msg \
+  apply_patch_with_msg \
+    943-config.host-Add-support-for-cygwin-x64-target.patch
     # 941-config.build-Add-support-for-cygwin-x64-target.patch
     # 945-gcc-4.8-libdecnumber-cygwin64.patch
     # 946-configure-Regenerated.patch
@@ -290,7 +290,7 @@ prepare() {
   # MSYS2 Patches
   apply_patch_with_msg \
     950-gcc-4.7-configure-msys2.patch
-    #? of ? work # 951-gcc-4.8.0-msys2-spec.patch
+    # 951-gcc-4.8.0-msys2-spec.patch
 
   # GCC Backport patches
   apply_patch_with_msg 104-gcc-4.6.4-Fix-texi-docs-syntax-errors.patch
