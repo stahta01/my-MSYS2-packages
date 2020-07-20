@@ -1,0 +1,68 @@
+From 159b03d3d59cfb47d6c3ec7b3ee76357464d6b1e Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Mon, 20 Jul 2020 05:43:33 -0400
+Subject: 4.7 lto plugin soname
+
+---
+ gcc/config.host        | 6 +++---
+ lto-plugin/Makefile.am | 2 +-
+ lto-plugin/Makefile.in | 2 +-
+ 3 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/gcc/config.host b/gcc/config.host
+index 696c79e3507..7c4b858ebfa 100644
+--- a/gcc/config.host
++++ b/gcc/config.host
+@@ -240,14 +240,14 @@ case ${host} in
+     out_host_hook_obj=host-cygwin.o
+     host_xmake_file="${host_xmake_file} i386/x-cygwin"
+     host_exeext=.exe
+-    host_lto_plugin_soname=cyglto_plugin-0.dll
++    host_lto_plugin_soname=cyglto_plugin.dll
+     ;;
+   i[34567]86-*-mingw32*)
+     host_xm_file=i386/xm-mingw32.h
+     host_xmake_file="${host_xmake_file} i386/x-mingw32"
+     host_exeext=.exe
+     out_host_hook_obj=host-mingw32.o
+-    host_lto_plugin_soname=liblto_plugin-0.dll
++    host_lto_plugin_soname=liblto_plugin.dll
+     ;;
+   x86_64-*-mingw*)
+     use_long_long_for_widest_fast_int=yes
+@@ -255,7 +255,7 @@ case ${host} in
+     host_xmake_file="${host_xmake_file} i386/x-mingw32"
+     host_exeext=.exe
+     out_host_hook_obj=host-mingw32.o
+-    host_lto_plugin_soname=liblto_plugin-0.dll
++    host_lto_plugin_soname=liblto_plugin.dll
+     ;;
+   i[34567]86-*-uwin*)
+     echo "*** UWIN may not be used as a host platform because"
+diff --git a/lto-plugin/Makefile.am b/lto-plugin/Makefile.am
+index b24015e137b..ea176d9f441 100644
+--- a/lto-plugin/Makefile.am
++++ b/lto-plugin/Makefile.am
+@@ -22,7 +22,7 @@ liblto_plugin_la_SOURCES = lto-plugin.c
+ liblto_plugin_la_LIBADD = \
+ 	$(if $(wildcard ../libiberty/pic/libiberty.a),$(Wc)../libiberty/pic/libiberty.a,)
+ # Note that we intentionally override the bindir supplied by ACX_LT_HOST_FLAGS
+-liblto_plugin_la_LDFLAGS = $(lt_host_flags) -module -bindir $(libexecsubdir) \
++liblto_plugin_la_LDFLAGS = $(lt_host_flags) -module -avoid-version -bindir $(libexecsubdir) \
+ 	$(if $(wildcard ../libiberty/pic/libiberty.a),,-Wc,../libiberty/libiberty.a)
+ liblto_plugin_la_DEPENDENCIES = $(if $(wildcard \
+ 	../libiberty/pic/libiberty.a),../libiberty/pic/libiberty.a,)
+diff --git a/lto-plugin/Makefile.in b/lto-plugin/Makefile.in
+index 0c8d89fc7e2..c591d5dd2de 100644
+--- a/lto-plugin/Makefile.in
++++ b/lto-plugin/Makefile.in
+@@ -242,7 +242,7 @@ liblto_plugin_la_LIBADD = \
+ 	$(if $(wildcard ../libiberty/pic/libiberty.a),$(Wc)../libiberty/pic/libiberty.a,)
+ 
+ # Note that we intentionally override the bindir supplied by ACX_LT_HOST_FLAGS
+-liblto_plugin_la_LDFLAGS = $(lt_host_flags) -module -bindir $(libexecsubdir) \
++liblto_plugin_la_LDFLAGS = $(lt_host_flags) -module -avoid-version -bindir $(libexecsubdir) \
+ 	$(if $(wildcard ../libiberty/pic/libiberty.a),,-Wc,../libiberty/libiberty.a)
+ 
+ liblto_plugin_la_DEPENDENCIES = $(if $(wildcard \
+-- 
