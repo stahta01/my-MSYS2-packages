@@ -791,82 +791,6 @@ index 00000000000..01968fd88c3
 +MULTILIB_OPTIONS = m64/m32
 +MULTILIB_DIRNAMES = 64
 +MULTILIB_OSDIRNAMES = ../lib ../lib32
-diff --git a/gcc/cp/cfns.gperf b/gcc/cp/cfns.gperf
-index ef1ed083d32..ba0c487a603 100644
---- a/gcc/cp/cfns.gperf
-+++ b/gcc/cp/cfns.gperf
-@@ -22,6 +22,9 @@ __inline
- static unsigned int hash (const char *, unsigned int);
- #ifdef __GNUC__
- __inline
-+#ifdef __GNUC_STDC_INLINE__
-+__attribute__ ((__gnu_inline__))
-+#endif
- #endif
- const char * libc_name_p (const char *, unsigned int);
- %}
-diff --git a/gcc/cp/cfns.h b/gcc/cp/cfns.h
-index 62cdfab93aa..2fb9b4632b9 100644
---- a/gcc/cp/cfns.h
-+++ b/gcc/cp/cfns.h
-@@ -53,6 +53,9 @@ __inline
- static unsigned int hash (const char *, unsigned int);
- #ifdef __GNUC__
- __inline
-+#ifdef __GNUC_STDC_INLINE__
-+__attribute__ ((__gnu_inline__))
-+#endif
- #endif
- const char * libc_name_p (const char *, unsigned int);
- /* maximum key range = 391, duplicates = 0 */
-diff --git a/gcc/cp/semantics.c b/gcc/cp/semantics.c
-index e71f7d99f2f..a787fe00c53 100644
---- a/gcc/cp/semantics.c
-+++ b/gcc/cp/semantics.c
-@@ -2662,8 +2662,10 @@ finish_member_declaration (tree decl)
- 					      /*friend_p=*/0);
- 	}
-     }
--  /* Enter the DECL into the scope of the class.  */
--  else if (pushdecl_class_level (decl))
-+  /* Enter the DECL into the scope of the class, if the class
-+     isn't a closure (whose fields are supposed to be unnamed).  */
-+  else if (CLASSTYPE_LAMBDA_EXPR (current_class_type)
-+	   || pushdecl_class_level (decl))
-     {
-       if (TREE_CODE (decl) == USING_DECL)
- 	{
-diff --git a/gcc/doc/gcc.texi b/gcc/doc/gcc.texi
-index 0e167bae004..3019dc410f3 100644
---- a/gcc/doc/gcc.texi
-+++ b/gcc/doc/gcc.texi
-@@ -86,9 +86,9 @@ Published by:
- @item GNU Press
- @tab Website: www.gnupress.org
- @item a division of the
--@tab General: @tex press@@gnu.org @end tex
-+@tab General: @email{press@@gnu.org}
- @item Free Software Foundation
--@tab Orders:  @tex sales@@gnu.org @end tex
-+@tab Orders:  @email{sales@@gnu.org}
- @item 51 Franklin Street, Fifth Floor
- @tab Tel 617-542-5942
- @item Boston, MA 02110-1301 USA
-diff --git a/gcc/testsuite/g++.dg/cpp0x/lambda/lambda-names1.C b/gcc/testsuite/g++.dg/cpp0x/lambda/lambda-names1.C
-new file mode 100644
-index 00000000000..df2b03705ae
---- /dev/null
-+++ b/gcc/testsuite/g++.dg/cpp0x/lambda/lambda-names1.C
-@@ -0,0 +1,9 @@
-+// PR c++/56710
-+// { dg-options "-std=c++11 -Wall" }
-+
-+int main()
-+{
-+    int t = 0;
-+    return [&]() -> int {int __t; __t = t; return __t; }();
-+    return [&t]() -> int {int __t; __t = t; return __t; }();
-+}
 diff --git a/libada/configure b/libada/configure
 index da92d0edbce..19d3e5e7e77 100755
 --- a/libada/configure
@@ -924,19 +848,6 @@ index 00000000000..9142002a34b
 +# We'd like to use SHLIB_SONAME here too, and we can, since
 +# we don't rely on shlib_base_name substitution for it.
 +SHLIB_MKMAP_OPTS = -v pe_dll=$(SHLIB_SONAME)
-diff --git a/libgcc/gthr-posix.h b/libgcc/gthr-posix.h
-index a935e929184..4e4eea0a646 100644
---- a/libgcc/gthr-posix.h
-+++ b/libgcc/gthr-posix.h
-@@ -88,7 +88,7 @@ typedef struct timespec __gthread_time_t;
- # define __GTHREAD_COND_INIT_FUNCTION __gthread_cond_init_function
- #endif
- 
--#if SUPPORTS_WEAK && GTHREAD_USE_WEAK
-+#if SUPPORTS_WEAK && GTHREAD_USE_WEAK && !defined(__MINGW32__)
- # ifndef __gthrw_pragma
- #  define __gthrw_pragma(pragma)
- # endif
 diff --git a/libiberty/configure b/libiberty/configure
 index 6e98352f356..0a3662bd7c3 100755
 --- a/libiberty/configure
@@ -952,19 +863,6 @@ index 6e98352f356..0a3662bd7c3 100755
  	;;
      i[34567]86-*-interix[3-9]*)
  	# Interix 3.x gcc -fpic/-fPIC options generate broken code.
-diff --git a/libstdc++-v3/config/abi/pre/gnu.ver b/libstdc++-v3/config/abi/pre/gnu.ver
-index b99a8121680..fa4211312d0 100644
---- a/libstdc++-v3/config/abi/pre/gnu.ver
-+++ b/libstdc++-v3/config/abi/pre/gnu.ver
-@@ -1512,7 +1512,7 @@ CXXABI_1.3.6 {
-     __cxa_allocate_dependent_exception;
-     __cxa_free_dependent_exception;
-     __cxa_deleted_virtual;
--
-+    _ZTC*;
- } CXXABI_1.3.5;
- 
- 
 diff --git a/libstdc++-v3/configure b/libstdc++-v3/configure
 index b6424958200..b2b567e646b 100755
 --- a/libstdc++-v3/configure

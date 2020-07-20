@@ -8,7 +8,11 @@ _realname=gcc
 _make_static_gcc_only=yes
 _threads="win32"
 _targets="i686-w64-mingw32 x86_64-w64-mingw32"
-_enable_gcc_lto=yes
+if [[ "$_make_static_gcc_only" != "yes" ]] ; then
+  _enable_gcc_lto=yes   # set to no or yes as wanted
+else
+  _enable_gcc_lto=no    # needs to be no when making only static GCC
+fi
 #_enable_ada=yes
 _enable_fortran=no
 #_enable_objc=no
@@ -86,7 +90,7 @@ sha256sums=('92e61c6dc3a0a449e62d72a38185fda550168a86702dea07125ebd3ec3996282'
             '543d3f18edf80e125ec185df6a8d1e77db493f4e11b052397405ea143d88efb1'
             '78e634b5a9ac24672c933ff027de426b9453d5fa21b9a05fb9e7de4747e605cb'
             '2106c9679c19a133ffffe64b9c950094695cf0d4e2609a90702f0d9e8bb9cfbc'
-            '267b7fbfc1b79283b7367b7b0f6e235d05e4392a9fba3c771f0463b88b67c8fc'
+            '6119c1b82a1ac364d19ed83e8a886655f0d9cbeec3aba13624d0ca6817cf1570'
             '9278e745190bac0b3f6ef74972aecd4e2891d4930f7b6fa8840c3d4f7fbf4f98'
             '301cfbe339043ca14205140acbec1d0f55178f01365ff309e4ddb90a3c934031'
             '9e0401c3e69317a45269fb689e4e89ee8f46997c2c52b11812a11c9faf142ede'
@@ -148,6 +152,7 @@ prepare() {
       cp -R --target-directory="${srcdir}/${_realname}-${pkgver}" *
   else
     replace_file_exists \
+      gcc/config/i386/mingw-w64.h \
       Makefile.in                 \
       boehm-gc/configure          \
       boehm-gc/configure.ac       \
@@ -255,38 +260,37 @@ prepare() {
 
   apply_patch_with_msg gcc-4.7-combined-all-patches-that-worked-fully-witho.patch
 
-  patch -p0 -i ${srcdir}/gcc-4.8-filename-output.patch
+  #patch -p0 -i ${srcdir}/gcc-4.8-filename-output.patch
   patch -p1 -i ${srcdir}/gcc-4.8-lambda-ICE.patch
-  #patch -p1 -i ${srcdir}/gcc-4.8-iconv.patch
+  ###patch -p1 -i ${srcdir}/gcc-4.8-iconv.patch
 
-  patch -p0 -i ${srcdir}/gcc-4.8-libgcc-references.patch
+  #1 of 3 work # patch -p0 -i ${srcdir}/gcc-4.8-libgcc-references.patch
   patch -p1 -i ${srcdir}/400-gcc-4.8-libstdc++export.patch
   patch -p1 -i ${srcdir}/gcc-4.7-stdthreads.patch
 
   # Cygwin patches
-  patch -p2 -i ${srcdir}/001-4.7-execstack.patch
-  patch -p2 -i ${srcdir}/gcc-4.8-libatomic-cygwin.patch
-  patch -p2 -i ${srcdir}/007-4.7-libffi-noinst.patch
-  patch -p2 -i ${srcdir}/gcc-4.8-libffi-cygwin64.patch
-  patch -p2 -i ${srcdir}/024-4.7-libitm-cygwin.patch
-  patch -p2 -i ${srcdir}/gcc-4.7-libstdc-cygwin.patch
-  patch -p2 -i ${srcdir}/010-4.8-lto-plugin-soname.patch
-  patch -p0 -i ${srcdir}/gcc-4.8-specs-cygwin.patch
+  #1 of ? work # patch -p2 -i ${srcdir}/001-4.7-execstack.patch
+  #patch -p2 -i ${srcdir}/007-4.7-libffi-noinst.patch
+  #? of ? work # patch -p2 -i ${srcdir}/gcc-4.8-libffi-cygwin64.patch
+  #? of ? work # patch -p2 -i ${srcdir}/024-4.7-libitm-cygwin.patch
+  #? of ? work # patch -p2 -i ${srcdir}/gcc-4.7-libstdc-cygwin.patch
+  #? of ? work # patch -p2 -i ${srcdir}/010-4.8-lto-plugin-soname.patch
+  #? of ? work # patch -p0 -i ${srcdir}/gcc-4.8-specs-cygwin.patch
 
   # Cygwin Backport patches
-  apply_patch_with_msg \
-    940-dfp.m4-Add-support-for-cygwin-x64-target.patch \
-    941-config.build-Add-support-for-cygwin-x64-target.patch \
-    942-crossconfig.m4-Add-support-for-cygwin-x64-target.patch \
-    943-config.host-Add-support-for-cygwin-x64-target.patch \
-    944-configure-Regenerated.patch \
-    945-gcc-4.8-libdecnumber-cygwin64.patch \
-    946-configure-Regenerated.patch
+  # 942-crossconfig.m4-Add-support-for-cygwin-x64-target.patch \
+  #? of ? work # 943-config.host-Add-support-for-cygwin-x64-target.patch \
+  # 944-configure-Regenerated.patch \
+  # ? # 940-dfp.m4-Add-support-for-cygwin-x64-target.patch \
+  # apply_patch_with_msg \
+    # 941-config.build-Add-support-for-cygwin-x64-target.patch
+    # 945-gcc-4.8-libdecnumber-cygwin64.patch
+    # 946-configure-Regenerated.patch
 
   # MSYS2 Patches
   apply_patch_with_msg \
-    950-gcc-4.7-configure-msys2.patch \
-    951-gcc-4.8.0-msys2-spec.patch
+    950-gcc-4.7-configure-msys2.patch
+    #? of ? work # 951-gcc-4.8.0-msys2-spec.patch
 
   # GCC Backport patches
   apply_patch_with_msg 104-gcc-4.6.4-Fix-texi-docs-syntax-errors.patch
@@ -321,6 +325,7 @@ build() {
 
   if [ "$_make_static_gcc_only" == "yes" ]; then
     configure_opts+=("--enable-static")
+    configure_opts+=("--disable-shared")
   else
     configure_opts+=("--enable-static")
     configure_opts+=("--enable-shared")
