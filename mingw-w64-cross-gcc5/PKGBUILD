@@ -5,14 +5,25 @@ _mingw_suff=mingw-w64-cross
 _realname=gcc
 
 # Package build options
-_make_gcc_only=no
+_make_static_gcc_only=no
 _threads="win32"
 _targets="i686-w64-mingw32 x86_64-w64-mingw32" #armv7-w64-mingw32 
+if [[ "$_make_static_gcc_only" != "yes" ]] ; then
+  _enable_gcc_lto=yes   # set to no or yes as wanted
+else
+  _enable_gcc_lto=no    # needs to be no when making only static GCC
+fi
+#_enable_ada=yes
+_enable_fortran=no
+#_enable_objc=no
 
-pkgbase="${_mingw_suff}-${_realname}5"
-pkgname=("${_mingw_suff}-${_realname}")
-pkgver=5.3.0
-pkgrel=2
+_basegccver=5
+pkgbase="${_mingw_suff}-${_realname}${_basegccver}"
+pkgname=("${_mingw_suff}-${_realname}${_basegccver}")
+provides=("${_mingw_suff}-${_realname}")
+conflicts=("${_mingw_suff}-${_realname}")
+pkgver=${_basegccver}.3.0
+pkgrel=3
 pkgdesc="Cross GCC for the MinGW-w64"
 arch=('i686' 'x86_64')
 url="https://gcc.gnu.org"
@@ -21,10 +32,9 @@ groups=("${_mingw_suff}-toolchain" "${_mingw_suff}")
 depends=("zlib" "mpc"
          "${_mingw_suff}-binutils"
          "${_mingw_suff}-headers")
-if [[ "$_make_gcc_only" != "yes" ]] ; then
+if [[ "$_make_static_gcc_only" != "yes" ]] ; then
   depends+=("${_mingw_suff}-crt"
-            "${_mingw_suff}-winpthreads"
-            "${_mingw_suff}-windows-default-manifest")
+            "${_mingw_suff}-winpthreads")
 fi
 makedepends=("gcc" 'lndir' "gmp-devel" "mpc-devel" "zlib-devel")
 #checkdepends=('dejagnu')
@@ -196,20 +206,41 @@ build() {
   for _target in ${_targets}; do
   mkdir -p ${srcdir}/gcc-build-${_target} && cd ${srcdir}/gcc-build-${_target}
 
-  local _langs="c,lto,c++"
   case "${_target}" in
     i686*)
       local _conf="--disable-sjlj-exceptions --with-dwarf2"
       local _arch=i686
-      _langs="${_langs} fortran"
     ;;
 
     x86_64*)
       local _arch=x86-64
       local _conf=""
-      _langs="${_langs} fortran"
     ;;
   esac
+
+  if [ "$_enable_gcc_lto" == "yes" ]; then
+    configure_opts+=("--enable-lto")
+  else
+    configure_opts+=("--disable-lto")
+  fi
+
+  if [ "$_make_static_gcc_only" == "yes" ]; then
+    configure_opts+=("--enable-static")
+    configure_opts+=("--disable-shared")
+    configure_opts+=("--disable-threads)
+  else
+    configure_opts+=("--enable-static")
+    configure_opts+=("--enable-shared")
+    configure_opts+=("--enable-threads=${_threads}")
+  fi
+
+  local _languages="c,c++"
+  if [ "$_enable_gcc_lto" == "yes" ]; then
+    _languages+=",lto"
+  fi
+  if [ "$_enable_fortran" == "yes" ]; then
+    _languages+=",fortran"
+  fi
 
 #--with-pkgversion="Rev${pkgrel}, Built by MSYS2 project" \
 #--with-bugurl="https://sourceforge.net/projects/msys2" \
@@ -218,12 +249,6 @@ build() {
 
 # --program-prefix=prefix
 # --program-suffix=${_gcc_program_suffix}
-
-  if [[ "$_make_gcc_only" == "yes" ]] ; then
-    _config_threads="--disable-threads"
-  else
-    _config_threads="--enable-threads=${_threads}"
-  fi
 
   ../${_realname}-${pkgver}/configure \
     --prefix=/opt \
@@ -234,9 +259,8 @@ build() {
     --disable-bootstrap \
     --with-arch=${_arch} \
     --with-tune=generic \
-    --enable-languages=${_langs} \
+    --enable-languages=${_languages} \
     --enable-shared --enable-static \
-    ${_config_threads} \
     --enable-graphite \
     --enable-fully-dynamic-string \
     --enable-libstdcxx-time=yes \
@@ -257,11 +281,12 @@ build() {
     --with-{gmp,mpfr,mpc}=/usr \
     --with-gnu-as --with-gnu-ld \
     ${_conf} \
+    "${configure_opts[@]}" \
     CFLAGS="-O2 -pipe" \
     CXXFALGS="-O2 -pipe"
 
 
-  if [[ "$_make_gcc_only" == "yes" ]] ; then
+  if [[ "$_make_static_gcc_only" == "yes" ]] ; then
     make all-gcc
   else
     make all
@@ -272,13 +297,13 @@ build() {
 package() {
   for _target in ${_targets}; do
     cd ${srcdir}/gcc-build-${_target}
-    if [[ "$_make_gcc_only" == "yes" ]] ; then
+    if [[ "$_make_static_gcc_only" == "yes" ]] ; then
       make -j1 DESTDIR=${pkgdir} install-gcc
     else
       make -j1 DESTDIR=${pkgdir} install
     fi
 
-    if [[ "$_make_gcc_only" != "yes" ]] ; then
+    if [[ "$_make_static_gcc_only" != "yes" ]] ; then
       mv ${pkgdir}/opt/lib/gcc/${_target}/lib/libgcc_s.a ${pkgdir}/opt/lib/gcc/${_target}/${pkgver}/
       mv ${pkgdir}/opt/lib/gcc/${_target}/libgcc*.dll ${pkgdir}/opt/lib/gcc/${_target}/${pkgver}/
     fi
