@@ -130,13 +130,6 @@ prepare() {
       gcc/doc/gcc.texi            \
       gcc/gtm-builtins.def        \
       libada/configure            \
-      libatomic/Makefile.am       \
-      libatomic/Makefile.in       \
-      libatomic/aclocal.m4        \
-      libatomic/configure         \
-      libatomic/configure.ac      \
-      libatomic/configure.tgt     \
-      libbacktrace/configure      \
       libdecnumber/configure      \
       libffi/acinclude.m4         \
       libffi/configure            \
@@ -156,19 +149,10 @@ prepare() {
       libgomp/configure           \
       libiberty/configure         \
       libiberty/configure.ac      \
-      libitm/Makefile.am          \
-      libitm/Makefile.in          \
-      libitm/aclocal.m4           \
-      libitm/configure            \
-      libitm/configure.ac         \
-      libitm/configure.tgt        \
-      libitm/libitm.h             \
-      libitm/libitm_i.h           \
       libmudflap/configure        \
       libobjc/configure           \
       libobjc/configure.ac        \
       libquadmath/configure       \
-      libsanitizer/configure      \
       libssp/configure            \
       libstdc++-v3/acinclude.m4   \
       libstdc++-v3/config/abi/pre/gnu.ver       \
