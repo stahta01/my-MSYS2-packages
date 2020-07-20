@@ -1,0 +1,14 @@
+diff --git a/libstdc++-v3/testsuite/lib/libstdc++.exp b/libstdc++-v3/testsuite/lib/libstdc++.exp
+index abb92bf358d..cca95d0c3d0 100644
+--- a/libstdc++-v3/testsuite/lib/libstdc++.exp
++++ b/libstdc++-v3/testsuite/lib/libstdc++.exp
+@@ -146,6 +146,9 @@ proc libstdc++_init { testfile } {
+         set gccdir [file dirname $gccdir]
+ 	append ld_library_path_tmp ":${gccdir}"
+     }
++    if { [string match "*-*-cygwin*" $target_triplet] } {
++	append ld_library_path_tmp ":${blddir}/../libgcc"
++    }
+     v3track gccdir 3
+ 
+     # Locate libgomp. This is only required for parallel mode.

@@ -905,20 +905,6 @@ index 361ed0b8641..bc25b04c309 100644
      GLIBCXX_CHECK_COMPILER_FEATURES
      GLIBCXX_CHECK_LINKER_FEATURES
      GLIBCXX_CHECK_MATH_SUPPORT
-diff --git a/libstdc++-v3/testsuite/lib/libstdc++.exp b/libstdc++-v3/testsuite/lib/libstdc++.exp
-index abb92bf358d..cca95d0c3d0 100644
---- a/libstdc++-v3/testsuite/lib/libstdc++.exp
-+++ b/libstdc++-v3/testsuite/lib/libstdc++.exp
-@@ -146,6 +146,9 @@ proc libstdc++_init { testfile } {
-         set gccdir [file dirname $gccdir]
- 	append ld_library_path_tmp ":${gccdir}"
-     }
-+    if { [string match "*-*-cygwin*" $target_triplet] } {
-+	append ld_library_path_tmp ":${blddir}/../libgcc"
-+    }
-     v3track gccdir 3
- 
-     # Locate libgomp. This is only required for parallel mode.
 diff --git a/lto-plugin/Makefile.am b/lto-plugin/Makefile.am
 index b24015e137b..ea176d9f441 100644
 --- a/lto-plugin/Makefile.am
