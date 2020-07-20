@@ -48,7 +48,7 @@ source=(
     "ftp://gcc.gnu.org/pub/gcc/releases/${_realname}-${pkgver}/${_realname}-${pkgver}.tar.bz2"
     '001-4.7-execstack.patch'
     '007-4.7-libffi-noinst.patch'
-    '010-4.8-lto-plugin-soname.patch'
+    '010-4.7-lto-plugin-soname.patch'
     '024-4.7-libitm-cygwin.patch'
     104-gcc-4.6.4-Fix-texi-docs-syntax-errors.patch
     '400-gcc-4.8-libstdc++export.patch'
@@ -71,7 +71,7 @@ source=(
     'gcc-4.7-libstdc-cygwin.patch'
     'gcc-4.8-libatomic-cygwin.patch'
     'gcc-4.8-libffi-cygwin64.patch'
-    'gcc-4.8-specs-cygwin.patch'
+    'gcc-4.7-specs-cygwin.patch'
 )
 sha256sums=('92e61c6dc3a0a449e62d72a38185fda550168a86702dea07125ebd3ec3996282'
             '4942e94ccdf11ce260e029400bd1cee8b63e78d071ac2bae812ba261edb7b67b'
@@ -273,9 +273,9 @@ prepare() {
   #patch -p2 -i ${srcdir}/007-4.7-libffi-noinst.patch
   #? of ? work # patch -p2 -i ${srcdir}/gcc-4.8-libffi-cygwin64.patch
   #? of ? work # patch -p2 -i ${srcdir}/024-4.7-libitm-cygwin.patch
-  #? of ? work # patch -p2 -i ${srcdir}/gcc-4.7-libstdc-cygwin.patch
-  #? of ? work # patch -p2 -i ${srcdir}/010-4.8-lto-plugin-soname.patch
-  #? of ? work # patch -p0 -i ${srcdir}/gcc-4.8-specs-cygwin.patch
+  apply_patch_with_msg gcc-4.7-libstdc-cygwin.patch
+  #apply_patch_with_msg 010-4.7-lto-plugin-soname.patch
+  #apply_patch_with_msg gcc-4.7-specs-cygwin.patch
 
   # Cygwin Backport patches
   # 942-crossconfig.m4-Add-support-for-cygwin-x64-target.patch \
