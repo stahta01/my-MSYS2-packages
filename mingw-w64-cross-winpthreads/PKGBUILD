@@ -2,7 +2,7 @@
 
 _realname=winpthreads
 _mingw_suff=mingw-w64-cross
-_basegccver=4.6
+_basegccver=4.8
 pkgname="${_mingw_suff}-${_realname}"
 pkgname="${_mingw_suff}-${_realname}-gcc${_basegccver}"
 provides=("${_mingw_suff}-${_realname}")
@@ -14,7 +14,7 @@ arch=('i686' 'x86_64')
 url="https://mingw-w64.sourceforge.io/"
 license=('custom')
 groups=("${_mingw_suff}-toolchain" "${_mingw_suff}")
-makedepends=("${_mingw_suff}-gcc"
+makedepends=("${_mingw_suff}-gcc${_basegccver}"
              "${_mingw_suff}-binutils"
              "${_mingw_suff}-headers")
 depends=("${_mingw_suff}-crt=${pkgver}")
