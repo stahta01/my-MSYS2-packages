@@ -1,7 +1,7 @@
-From 80b09b10d3ccfc141c879e40a959311f1c0b14c1 Mon Sep 17 00:00:00 2001
+From 80fc08dca67aed7a246050631048660018dfd1f1 Mon Sep 17 00:00:00 2001
 From: Tim Stahlhut <stahta01@gmail.com>
 Date: Sat, 18 Jul 2020 21:29:41 -0400
-Subject: gcc 4.6.4 configure msys2 part A
+Subject: gcc 4.6.4 configure msys2
 
 ---
  boehm-gc/configure          |   45 +-
@@ -24,7 +24,8 @@ Subject: gcc 4.6.4 configure msys2 part A
  libffi/configure            |   36 +-
  libffi/configure.ac         |    4 +-
  libgcc/configure            |    3 +-
- libgfortran/configure       |   49 +-
+ libgfortran/acinclude.m4    |    2 +-
+ libgfortran/configure       |   51 +-
  libgo/config/libtool.m4     |   36 +-
  libgo/config/ltmain.sh      |   52 +-
  libgo/config/ltoptions.m4   |    2 +-
@@ -46,7 +47,7 @@ Subject: gcc 4.6.4 configure msys2 part A
  lto-plugin/configure        |   30 +-
  ltoptions.m4                |    2 +-
  zlib/configure              |   28 +-
- 42 files changed, 6702 insertions(+), 701 deletions(-)
+ 43 files changed, 6704 insertions(+), 703 deletions(-)
 
 diff --git a/boehm-gc/configure b/boehm-gc/configure
 index 019054da22a..1a187c7f184 100755
@@ -1081,8 +1082,21 @@ index 8a27aab1886..68d8724f634 100644
        enable_decimal_float=yes
        ;;
      *)
+diff --git a/libgfortran/acinclude.m4 b/libgfortran/acinclude.m4
+index 62c3b452c6d..f6adec691a6 100644
+--- a/libgfortran/acinclude.m4
++++ b/libgfortran/acinclude.m4
+@@ -108,7 +108,7 @@ AC_DEFUN([LIBGFOR_GTHREAD_WEAK], [
+ 	      [Define to 1 if the target supports #pragma weak])
+   fi
+   case "$host" in
+-    *-*-darwin* | *-*-hpux* | *-*-cygwin* | *-*-mingw* | alpha*-dec-osf* )
++    *-*-darwin* | *-*-hpux* | *-*-cygwin* | *-*-msys* | *-*-mingw* | alpha*-dec-osf* )
+       AC_DEFINE(GTHREAD_USE_WEAK, 0,
+ 		[Define to 0 if the target shouldn't use #pragma weak])
+       ;;
 diff --git a/libgfortran/configure b/libgfortran/configure
-index 1e61aeb4910..b53b09b2b28 100755
+index 1e61aeb4910..dec3fac131f 100755
 --- a/libgfortran/configure
 +++ b/libgfortran/configure
 @@ -6633,7 +6633,7 @@ else
@@ -1279,6 +1293,15 @@ index 1e61aeb4910..b53b09b2b28 100755
        ;;
      mingw* | cegcc*)
        # MinGW DLLs use traditional 'lib' prefix
+@@ -25699,7 +25710,7 @@ $as_echo "#define SUPPORTS_WEAK 1" >>confdefs.h
+ 
+   fi
+   case "$host" in
+-    *-*-darwin* | *-*-hpux* | *-*-cygwin* | *-*-mingw* | alpha*-dec-osf* )
++    *-*-darwin* | *-*-hpux* | *-*-cygwin* | *-*-msys* | *-*-mingw* | alpha*-dec-osf* )
+ 
+ $as_echo "#define GTHREAD_USE_WEAK 0" >>confdefs.h
+ 
 diff --git a/libgo/config/libtool.m4 b/libgo/config/libtool.m4
 index a546739eb4e..27fbda5e3a3 100644
 --- a/libgo/config/libtool.m4
