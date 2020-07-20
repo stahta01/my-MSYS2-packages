@@ -7,7 +7,7 @@ _variant=gcc
 
 _realname=crt
 _mingw_suff=mingw-w64-cross
-_basegccver=4.6
+_basegccver=4.8
 pkgbase="${_mingw_suff}-${_realname}"
 pkgname="${_mingw_suff}-${_realname}-gcc${_basegccver}"
 provides=("${_mingw_suff}-${_realname}")
@@ -29,7 +29,7 @@ if [ "${_variant}" = "clang" ]; then
   pkgname="${_mingw_suff}-${_realname}-clang"
   _imptool=genlib
 else
-  makedepends=("${_mingw_suff}-gcc" "${_mingw_suff}-binutils")
+  makedepends=("${_mingw_suff}-gcc${_basegccver}" "${_mingw_suff}-binutils")
   _imptool=dlltool
 fi
 
