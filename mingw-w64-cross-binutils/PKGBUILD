@@ -85,6 +85,7 @@ build() {
       --build=${CHOST} \
       --host=${CHOST} \
       --target=${_target} \
+      --with-sysroot=/opt/${_target} \
       --prefix=/opt \
       --disable-werror \
       --with-libiconv-prefix=/usr \
