@@ -300,6 +300,7 @@ prepare() {
 
 build() {
   for _target in ${_targets}; do
+  [[ -d ${srcdir}/gcc-build-${_target} ]] && rm -rf ${srcdir}/gcc-build-${_target}
   mkdir -p ${srcdir}/gcc-build-${_target} && cd ${srcdir}/gcc-build-${_target}
 
   local -a configure_opts
@@ -343,6 +344,7 @@ build() {
     --build=${CHOST} \
     --host=${CHOST} \
     --target=${_target} \
+    --with-sysroot=/opt/${_target} \
     --libexecdir=/opt/lib \
     --enable-bootstrap \
     --with-arch=${_arch} \
