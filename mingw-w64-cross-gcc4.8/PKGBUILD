@@ -5,13 +5,13 @@ _mingw_suff=mingw-w64-cross
 _realname=gcc
 
 # Package build options
-_make_static_gcc_only=no
+_make_static_gcc_only=yes
 _threads="win32"
 _targets="i686-w64-mingw32"
 if [[ "$_make_static_gcc_only" != "yes" ]] ; then
   _enable_gcc_lto=yes   # set to no or yes as wanted
 else
-  _enable_gcc_lto=no    # needs to be no when making only static GCC
+  _enable_gcc_lto=no    # needs to be no when making only static GCC        # TODO: Verify this is really needed
 fi
 #_enable_ada=yes
 _enable_fortran=no
@@ -51,6 +51,7 @@ source=(
     '010-4.8-lto-plugin-soname.patch'
     '009-4.7-libitm-cygwin.patch'
     104-gcc-4.6.4-Fix-texi-docs-syntax-errors.patch
+    133-gcc-4.7.0-mingw-dont-ignore-native-system-header-dir.patch
     '400-gcc-4.8-libstdc++export.patch'
     461-gcc-4.0-cfns-fix-mismatch-in-gnu_inline-attributes.patch
     940-dfp.m4-Add-support-for-cygwin-x64-target.patch
@@ -78,6 +79,7 @@ sha256sums=('09dc2276c73424bbbfda1dbddc62bbbf900c9f185acf7f3e1d773ce2d7e3cdc8'
             '61ff12b14e1a0e1059235298cd8853bd75bff4f84ef2f5d2e3c0090f8df77f16'
             '719da6d0995e5db807562165dc0e971c213e28746e75e1f21f9da48733199517'
             '8a72e1b2cef99c78a9f7d8126d8509b580617fce68a289b8bcb05c98e4ffc548'
+            'f281fc387fa101052b2c2aa70bb0f9638c62372d98f64852b2e5ba7bce507e32'
             '21191b4fd57ce5f230fcc97b4d9ae31bdc387d7c7c8e39436aa7e4268d278d3d'
             '714e18e8e1a89c149dfabde6eb6dd0a7518590b7a911643de761b6d31c7acd2d'
             'f9b3270704b1a7769053b72dbc4471829b0bc3395743c3a1927729ebfc13dbb1'
@@ -296,6 +298,7 @@ prepare() {
 
   # Misc Patches
   apply_patch_with_msg \
+    133-gcc-4.7.0-mingw-dont-ignore-native-system-header-dir.patch \
     461-gcc-4.0-cfns-fix-mismatch-in-gnu_inline-attributes.patch
 }
 
@@ -308,7 +311,7 @@ build() {
     
   case "${_target}" in
     i686*)
-      local _conf="--disable-sjlj-exceptions --with-dwarf2"
+      local _conf="--enable-sjlj-exceptions --with-dwarf2"         # TODO: See if "sjlj-exceptions" works better
       local _arch=i686
     ;;
     
@@ -329,7 +332,7 @@ build() {
     configure_opts+=("--disable-shared")
   else
     configure_opts+=("--enable-static")
-    configure_opts+=("--disable-shared")
+    configure_opts+=("--disable-shared")            # TODO: TEST ONLY OPTION
   fi
 
   local _languages="c,c++"
