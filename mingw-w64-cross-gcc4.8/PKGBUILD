@@ -329,7 +329,7 @@ build() {
     configure_opts+=("--disable-shared")
   else
     configure_opts+=("--enable-static")
-    configure_opts+=("--enable-shared")
+    configure_opts+=("--disable-shared")
   fi
 
   local _languages="c,c++"
@@ -346,6 +346,7 @@ build() {
     --host=${CHOST} \
     --target=${_target} \
     --with-sysroot=/opt/${_target} \
+    --with-native-system-header-dir=/opt/${_target}/include \
     --libexecdir=/opt/lib \
     --enable-bootstrap \
     --with-arch=${_arch} \
@@ -363,6 +364,7 @@ build() {
     --enable-checking=release \
     --disable-rpath \
     --disable-win32-registry \
+    --disable-nls \
     --disable-werror \
     --disable-symvers \
     --with-libiconv \
