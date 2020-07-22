@@ -308,16 +308,16 @@ build() {
   mkdir -p ${srcdir}/gcc-build-${_target} && cd ${srcdir}/gcc-build-${_target}
 
   local -a configure_opts
-    
+
   case "${_target}" in
     i686*)
-      local _conf="--enable-sjlj-exceptions --with-dwarf2"         # TODO: See if "sjlj-exceptions" works better
+      configure_opts+=("--disable-sjlj-exceptions")
+      configure_opts+=("--with-dwarf2")
       local _arch=i686
     ;;
-    
+  
     x86_64*)
       local _arch=x86-64
-      local _conf=""
     ;;
   esac
 
@@ -332,7 +332,8 @@ build() {
     configure_opts+=("--disable-shared")
   else
     configure_opts+=("--enable-static")
-    configure_opts+=("--disable-shared")            # TODO: TEST ONLY OPTION
+    configure_opts+=("--enable-shared")
+    configure_opts+=("--enable-shared-libgcc") 
   fi
 
   local _languages="c,c++"
@@ -375,7 +376,6 @@ build() {
     --without-isl \
     --with-{gmp,mpfr,mpc}=/usr \
     --with-gnu-as --with-gnu-ld \
-    ${_conf} \
     "${configure_opts[@]}" \
     CFLAGS="-O2 -pipe" \
     CXXFALGS="-O2 -pipe"
