@@ -20,7 +20,7 @@ _sourcedir=mingw-w64-v${pkgver}
 source=("https://sourceforge.net/projects/mingw-w64/files/mingw-w64/mingw-w64-release/mingw-w64-v${pkgver}.tar.bz2")
 sha256sums=('SKIP')
 
-_targets="i686-w64-mingw32 x86_64-w64-mingw32 armv7-w64-mingw32"
+_targets="i686-w64-mingw32"
 
 prepare() {
   cd "${srcdir}/${_sourcedir}"
