@@ -5,7 +5,7 @@ _mingw_suff=mingw-w64-cross
 _realname=gcc
 
 # Package build options
-_make_static_gcc_only=yes
+_make_static_gcc_only=no
 _threads="win32"
 _targets="i686-w64-mingw32"
 if [[ "$_make_static_gcc_only" != "yes" ]] ; then
@@ -51,7 +51,6 @@ source=(
     '010-4.8-lto-plugin-soname.patch'
     '009-4.7-libitm-cygwin.patch'
     104-gcc-4.6.4-Fix-texi-docs-syntax-errors.patch
-    133-gcc-4.8-mingw-dont-ignore-native-system-header-dir.patch
     '400-gcc-4.8-libstdc++export.patch'
     461-gcc-4.0-cfns-fix-mismatch-in-gnu_inline-attributes.patch
     940-dfp.m4-Add-support-for-cygwin-x64-target.patch
