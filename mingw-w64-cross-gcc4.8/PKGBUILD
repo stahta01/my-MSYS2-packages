@@ -298,7 +298,6 @@ prepare() {
 
   # Misc Patches
   apply_patch_with_msg \
-    133-gcc-4.7.0-mingw-dont-ignore-native-system-header-dir.patch \
     461-gcc-4.0-cfns-fix-mismatch-in-gnu_inline-attributes.patch
 }
 
@@ -350,7 +349,6 @@ build() {
     --host=${CHOST} \
     --target=${_target} \
     --with-sysroot=/opt/${_target} \
-    --with-native-system-header-dir=/opt/${_target}/include \
     --libexecdir=/opt/lib \
     --enable-bootstrap \
     --with-arch=${_arch} \
