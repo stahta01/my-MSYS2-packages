@@ -27,7 +27,7 @@ source=("https://sourceforge.net/projects/mingw-w64/files/mingw-w64/mingw-w64-re
 sha256sums=('SKIP'
             'd9e8af81682d9bf70e3d87506f51156cec61260b810a234bce861cb2eb3a5919')
 
-_targets="i686-w64-mingw32 x86_64-w64-mingw32"
+_targets="i686-w64-mingw32"
 
 prepare() {
   cd "${srcdir}/${_sourcedir}"
