@@ -87,6 +87,7 @@ build() {
       --target=${_target} \
       --with-sysroot=/opt/${_target} \
       --prefix=/opt \
+      --disable-nls \
       --disable-werror \
       --with-libiconv-prefix=/usr \
       $_conf
