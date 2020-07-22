@@ -11,7 +11,7 @@ _targets="i686-w64-mingw32"
 if [[ "$_make_static_gcc_only" != "yes" ]] ; then
   _enable_gcc_lto=yes   # set to no or yes as wanted
 else
-  _enable_gcc_lto=no    # needs to be no when making only static GCC
+  _enable_gcc_lto=no    # needs to be no when making only static GCC        # TODO: Verify this is really needed
 fi
 #_enable_ada=yes
 _enable_fortran=no
@@ -49,8 +49,9 @@ source=(
     '001-4.7-execstack.patch'
     '007-4.7-libffi-noinst.patch'
     '010-4.7-lto-plugin-soname.patch'
-    '024-4.7-libitm-cygwin.patch'
+    '009-4.7-libitm-cygwin.patch'
     104-gcc-4.6.4-Fix-texi-docs-syntax-errors.patch
+    133-gcc-4.7.0-mingw-dont-ignore-native-system-header-dir.patch
     '400-gcc-4.8-libstdc++export.patch'
     461-gcc-4.0-cfns-fix-mismatch-in-gnu_inline-attributes.patch
     940-dfp.m4-Add-support-for-cygwin-x64-target.patch
@@ -62,7 +63,6 @@ source=(
     946-configure-Regenerated.patch
     950-gcc-4.7-configure-msys2.patch
     951-gcc-4.8.0-msys2-spec.patch
-    gcc-4.7-combined-all-patches-that-worked-fully-witho.patch
     'gcc-4.8-filename-output.patch'
     'gcc-4.8-lambda-ICE.patch'
     'gcc-4.8-iconv.patch'
@@ -73,33 +73,33 @@ source=(
     'gcc-4.8-libffi-cygwin64.patch'
     'gcc-4.7-specs-cygwin.patch'
 )
-sha256sums=('92e61c6dc3a0a449e62d72a38185fda550168a86702dea07125ebd3ec3996282'
-            '4942e94ccdf11ce260e029400bd1cee8b63e78d071ac2bae812ba261edb7b67b'
-            'af90eb0eb49e06b4735f428fee514c6b87f349c1d3669c8bc7bb6250d4126c4e'
-            '6e4322814f7b0f1d3ea3dbea0c8fa233d6ec9493354d7bd54e755ee971914d74'
-            '1015575631397b588050e53aba5795cc8357e55a2754f8bc6214b564f38f5a06'
+sha256sums=('09dc2276c73424bbbfda1dbddc62bbbf900c9f185acf7f3e1d773ce2d7e3cdc8'
+            '1723f0fd7f647f4b8be043372285326bbecc21b47bfa11c270f1178cb01aea52'
+            '669e6ac54d1e5bd92c23050db9a9245ac0c9f861609132a178083eec7ef77490'
+            '61ff12b14e1a0e1059235298cd8853bd75bff4f84ef2f5d2e3c0090f8df77f16'
+            '719da6d0995e5db807562165dc0e971c213e28746e75e1f21f9da48733199517'
             '8a72e1b2cef99c78a9f7d8126d8509b580617fce68a289b8bcb05c98e4ffc548'
+            'f281fc387fa101052b2c2aa70bb0f9638c62372d98f64852b2e5ba7bce507e32'
             '21191b4fd57ce5f230fcc97b4d9ae31bdc387d7c7c8e39436aa7e4268d278d3d'
             '714e18e8e1a89c149dfabde6eb6dd0a7518590b7a911643de761b6d31c7acd2d'
             'f9b3270704b1a7769053b72dbc4471829b0bc3395743c3a1927729ebfc13dbb1'
             '2fd097dcd783c187a480659939ab8cf133f697acde82e4e7b30609a9e6d0e8fe'
             'fba7508237bf8e6ae261ed6fcdbc02442241444048acef5c8e0a88d18d76c24b'
-            'feb0a38f4fdd5dd8bdeaa1e33d608e4a905c8ebea688b282591ed4211d19dcf2'
+            '7020b523797b5fdad1b7c0e10585a8af7c914baf977d99ca7fdfe15055efe6bd'
             '50d5449c610804fb1b059cbb28edf849e1e51c32e326a8b8d95301dff39c85a1'
             '865ed62eb9af20142fb2cae6708c52aabdc538284e8a88648bfec97abb7ccf70'
             '543d3f18edf80e125ec185df6a8d1e77db493f4e11b052397405ea143d88efb1'
-            '78e634b5a9ac24672c933ff027de426b9453d5fa21b9a05fb9e7de4747e605cb'
+            '82e71409edd694337cc9b98b68105baf6417ca78ee3539f3d45a394376b0cb37'
             '2106c9679c19a133ffffe64b9c950094695cf0d4e2609a90702f0d9e8bb9cfbc'
-            '6119c1b82a1ac364d19ed83e8a886655f0d9cbeec3aba13624d0ca6817cf1570'
-            '9278e745190bac0b3f6ef74972aecd4e2891d4930f7b6fa8840c3d4f7fbf4f98'
+            '5b6f9b1d90073dfc8e8ada22e7663c1aa64b532315efc080591b69e176d70ef8'
             '301cfbe339043ca14205140acbec1d0f55178f01365ff309e4ddb90a3c934031'
             '9e0401c3e69317a45269fb689e4e89ee8f46997c2c52b11812a11c9faf142ede'
-            '52ddd5b2d5f337efa7475de211eccebd70e343c902107343b22d66951fb799d3'
+            '761f70e33dbb96c5749673e3577a155ff5d5692788f6181fccf2bcbba58bc2fd'
             '5e0fc1437ce0b357e78d440692e3a30a7905a5f360a67928a95b14ec8d45365b'
-            '027a411b3f222d4c43f7ea59e893d908af6d869a6c5c25d9109d1088f494e3c9'
-            '6812f82299b33c5e354e8a54fcc96149957e9ffa35d576537923621d97c6817c'
-            '7f3410ccc61f4b60ae9fc4201cc321f681771196e44fc61639bdf924a9132eec'
-            '3d33128b4ba26fe35e681dd17cb521a757b7801dec63ca7437eb784ec985d491')
+            'd8224641edd432e9f027ff0f67dbcc4c336ddefbdd4fd3ea65054873251a49f1'
+            '165a90c518b268f05c635f4fe4cb2a6073dc34780f93a3c46581aa700cf840ca'
+            '9cc6d43cd3afb4c33b987692890c151aae07df71093c87368f181c89dfba6ac0'
+            '4647a06ebe951c1e8db88191f092c24b24cfaedef1aa9e3dc4afe036d4eb2cc4')
 
 # =========================================== #
 # Helper macro(s) to help make tasks easier   #
@@ -152,7 +152,6 @@ prepare() {
       cp -R --target-directory="${srcdir}/${_realname}-${pkgver}" *
   else
     replace_file_exists \
-      gcc/config/i386/mingw-w64.h \
       Makefile.in                 \
       boehm-gc/configure          \
       boehm-gc/configure.ac       \
@@ -258,62 +257,67 @@ prepare() {
     gcc/config/i386/cygwin-w64.h \
     gcc/config/i386/t-cygwin-w64
 
-  apply_patch_with_msg gcc-4.7-combined-all-patches-that-worked-fully-witho.patch
+  apply_patch_with_msg \
+    gcc-4.8-filename-output.patch \
+    gcc-4.8-lambda-ICE.patch
+  #apply_patch_with_msg gcc-4.8-iconv.patch
 
-  #patch -p0 -i ${srcdir}/gcc-4.8-filename-output.patch
-  patch -p1 -i ${srcdir}/gcc-4.8-lambda-ICE.patch
-  ###patch -p1 -i ${srcdir}/gcc-4.8-iconv.patch
-
-  #1 of 3 work # patch -p0 -i ${srcdir}/gcc-4.8-libgcc-references.patch
-  patch -p1 -i ${srcdir}/400-gcc-4.8-libstdc++export.patch
-  patch -p1 -i ${srcdir}/gcc-4.7-stdthreads.patch
+  apply_patch_with_msg \
+    gcc-4.8-libgcc-references.patch \
+    400-gcc-4.8-libstdc++export.patch \
+    gcc-4.7-stdthreads.patch
 
   # Cygwin patches
-  #1 of ? work # patch -p2 -i ${srcdir}/001-4.7-execstack.patch
-  #patch -p2 -i ${srcdir}/007-4.7-libffi-noinst.patch
-  #? of ? work # patch -p2 -i ${srcdir}/gcc-4.8-libffi-cygwin64.patch
-  #? of ? work # patch -p2 -i ${srcdir}/024-4.7-libitm-cygwin.patch
-  apply_patch_with_msg gcc-4.7-libstdc-cygwin.patch
-  #apply_patch_with_msg 010-4.7-lto-plugin-soname.patch
-  #apply_patch_with_msg gcc-4.7-specs-cygwin.patch
+  apply_patch_with_msg \
+    001-4.7-execstack.patch \
+    gcc-4.8-libatomic-cygwin.patch \
+    007-4.7-libffi-noinst.patch \
+    gcc-4.8-libffi-cygwin64.patch \
+    009-4.7-libitm-cygwin.patch \
+    gcc-4.7-libstdc-cygwin.patch \
+    010-4.8-lto-plugin-soname.patch \
+    011-gcc-4.8-specs-cygwin.patch
 
   # Cygwin Backport patches
-  # 942-crossconfig.m4-Add-support-for-cygwin-x64-target.patch \
-  # 944-configure-Regenerated.patch \
-  # ? # 940-dfp.m4-Add-support-for-cygwin-x64-target.patch \
   apply_patch_with_msg \
-    943-config.host-Add-support-for-cygwin-x64-target.patch
-    # 941-config.build-Add-support-for-cygwin-x64-target.patch
-    # 945-gcc-4.8-libdecnumber-cygwin64.patch
-    # 946-configure-Regenerated.patch
+    940-dfp.m4-Add-support-for-cygwin-x64-target.patch \
+    941-config.build-Add-support-for-cygwin-x64-target.patch \
+    942-crossconfig.m4-Add-support-for-cygwin-x64-target.patch \
+    943-config.host-Add-support-for-cygwin-x64-target.patch \
+    944-configure-Regenerated.patch \
+    945-gcc-4.8-libdecnumber-cygwin64.patch \
+    946-configure-Regenerated.patch
 
   # MSYS2 Patches
   apply_patch_with_msg \
-    950-gcc-4.7-configure-msys2.patch
-    # 951-gcc-4.8.0-msys2-spec.patch
+    950-gcc-4.8.0-configure-msys2.patch \
+    951-gcc-4.8.0-msys2-spec.patch
 
   # GCC Backport patches
   apply_patch_with_msg 104-gcc-4.6.4-Fix-texi-docs-syntax-errors.patch
 
   # Misc Patches
-  apply_patch_with_msg 461-gcc-4.0-cfns-fix-mismatch-in-gnu_inline-attributes.patch
+  apply_patch_with_msg \
+    133-gcc-4.7.0-mingw-dont-ignore-native-system-header-dir.patch \
+    461-gcc-4.0-cfns-fix-mismatch-in-gnu_inline-attributes.patch
 }
 
 build() {
   for _target in ${_targets}; do
+  [[ -d ${srcdir}/gcc-build-${_target} ]] && rm -rf ${srcdir}/gcc-build-${_target}
   mkdir -p ${srcdir}/gcc-build-${_target} && cd ${srcdir}/gcc-build-${_target}
 
   local -a configure_opts
-    
+
   case "${_target}" in
     i686*)
-      local _conf="--disable-sjlj-exceptions --with-dwarf2"
+      configure_opts+=("--disable-sjlj-exceptions")
+      configure_opts+=("--with-dwarf2")
       local _arch=i686
     ;;
-    
+  
     x86_64*)
       local _arch=x86-64
-      local _conf=""
     ;;
   esac
 
@@ -329,6 +333,7 @@ build() {
   else
     configure_opts+=("--enable-static")
     configure_opts+=("--enable-shared")
+    configure_opts+=("--enable-shared-libgcc") 
   fi
 
   local _languages="c,c++"
@@ -344,8 +349,10 @@ build() {
     --build=${CHOST} \
     --host=${CHOST} \
     --target=${_target} \
+    --with-sysroot=/opt/${_target} \
+    --with-native-system-header-dir=/opt/${_target}/include \
     --libexecdir=/opt/lib \
-    --disable-bootstrap \
+    --enable-bootstrap \
     --with-arch=${_arch} \
     --with-tune=generic \
     --enable-languages=${_languages} \
@@ -361,6 +368,7 @@ build() {
     --enable-checking=release \
     --disable-rpath \
     --disable-win32-registry \
+    --disable-nls \
     --disable-werror \
     --disable-symvers \
     --with-libiconv \
@@ -368,13 +376,12 @@ build() {
     --without-isl \
     --with-{gmp,mpfr,mpc}=/usr \
     --with-gnu-as --with-gnu-ld \
-    ${_conf} \
     "${configure_opts[@]}" \
     CFLAGS="-O2 -pipe" \
     CXXFALGS="-O2 -pipe"
 
   if [[ "$_make_static_gcc_only" == "yes" ]] ; then
-    make all gcc
+    make all-gcc
   else
     make all
   fi
@@ -385,12 +392,14 @@ package() {
   for _target in ${_targets}; do
     cd ${srcdir}/gcc-build-${_target}
     if [[ "$_make_static_gcc_only" == "yes" ]] ; then
-      make -j1 DESTDIR=${pkgdir} install gcc
+      make -j1 DESTDIR=${pkgdir} install-gcc
     else
       make -j1 DESTDIR=${pkgdir} install
     fi
-    mv ${pkgdir}/opt/lib/gcc/${_target}/lib/libgcc_s.a ${pkgdir}/opt/lib/gcc/${_target}/${pkgver}/
-    mv ${pkgdir}/opt/lib/gcc/${_target}/libgcc*.dll ${pkgdir}/opt/lib/gcc/${_target}/${pkgver}/
+    if [[ "$_make_static_gcc_only" != "yes" ]] ; then
+      mv ${pkgdir}/opt/lib/gcc/${_target}/lib/libgcc_s.a ${pkgdir}/opt/lib/gcc/${_target}/${pkgver}/
+      mv ${pkgdir}/opt/lib/gcc/${_target}/libgcc*.dll ${pkgdir}/opt/lib/gcc/${_target}/${pkgver}/
+    fi
     for _f in ${pkgdir}/opt/bin/*.exe; do
       strip -s ${_f}
     done
