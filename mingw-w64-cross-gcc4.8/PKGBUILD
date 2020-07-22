@@ -7,7 +7,7 @@ _realname=gcc
 # Package build options
 _make_static_gcc_only=yes
 _threads="win32"
-_targets="i686-w64-mingw32 x86_64-w64-mingw32"
+_targets="i686-w64-mingw32"
 if [[ "$_make_static_gcc_only" != "yes" ]] ; then
   _enable_gcc_lto=yes   # set to no or yes as wanted
 else
