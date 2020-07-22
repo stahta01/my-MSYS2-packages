@@ -41,7 +41,7 @@ sha256sums=('6297433ee120b11b4b0a1c8f3512d7d73501753142ab9e2daa13c5a3edd32a72'
             'b072622977e44e57192b3ee6471092d49e407e88a4f56c95833c1f4d0f1dfefb'
             '1b7ca45e74bb6e3addccfaba67cae94be0a0f78f632438869c12c70c8afa39f4')
 
-_targets="i686-w64-mingw32 x86_64-w64-mingw32"
+_targets="i686-w64-mingw32"
 
 prepare() {
   cd ${srcdir}/binutils-${pkgver}
