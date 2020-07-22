@@ -51,7 +51,6 @@ source=(
     '010-4.7-lto-plugin-soname.patch'
     '009-4.7-libitm-cygwin.patch'
     104-gcc-4.6.4-Fix-texi-docs-syntax-errors.patch
-    133-gcc-4.7.0-mingw-dont-ignore-native-system-header-dir.patch
     '400-gcc-4.8-libstdc++export.patch'
     461-gcc-4.0-cfns-fix-mismatch-in-gnu_inline-attributes.patch
     940-dfp.m4-Add-support-for-cygwin-x64-target.patch
@@ -298,7 +297,6 @@ prepare() {
 
   # Misc Patches
   apply_patch_with_msg \
-    133-gcc-4.7.0-mingw-dont-ignore-native-system-header-dir.patch \
     461-gcc-4.0-cfns-fix-mismatch-in-gnu_inline-attributes.patch
 }
 
@@ -350,7 +348,6 @@ build() {
     --host=${CHOST} \
     --target=${_target} \
     --with-sysroot=/opt/${_target} \
-    --with-native-system-header-dir=/opt/${_target}/include \
     --libexecdir=/opt/lib \
     --enable-bootstrap \
     --with-arch=${_arch} \
