@@ -37,7 +37,6 @@ build() {
     --with-sysroot=/opt/${_target} \
     --prefix=/opt/${_target} \
     --enable-sdk=all \
-    --with-default-win32-winnt=0x601 \
     --enable-idl \
     --without-widl
   done
