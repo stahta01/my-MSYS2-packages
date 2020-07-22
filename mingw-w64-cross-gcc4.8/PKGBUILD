@@ -298,7 +298,6 @@ prepare() {
 
   # Misc Patches
   apply_patch_with_msg \
-    133-gcc-4.8-mingw-dont-ignore-native-system-header-dir.patch \
     461-gcc-4.0-cfns-fix-mismatch-in-gnu_inline-attributes.patch
 }
 
