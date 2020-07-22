@@ -32,10 +32,11 @@ build() {
     mkdir -p ${srcdir}/headers-${_target} && cd ${srcdir}/headers-${_target}
     ${srcdir}/${_sourcedir}/mingw-w64-headers/configure \
     --build=${CHOST} \
-    --host=${_target} \
+    --host=${CHOST} \
+    --target=${_target} \
+    --with-sysroot=/opt/${_target} \
     --prefix=/opt/${_target} \
     --enable-sdk=all \
-    --enable-secure-api \
     --with-default-win32-winnt=0x601 \
     --enable-idl \
     --without-widl
