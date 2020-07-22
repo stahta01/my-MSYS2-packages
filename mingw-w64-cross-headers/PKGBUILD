@@ -15,7 +15,7 @@ license=('custom')
 provides=("${_mingw_suff}-${_realname}=${pkgver}")
 groups=("${_mingw_suff}-toolchain" "${_mingw_suff}")
 makedepends=()
-options=('!strip' '!libtool' '!emptydirs' '!buildflags')
+options=('!strip' '!libtool' 'emptydirs' '!buildflags')
 _sourcedir=mingw-w64-v${pkgver}
 source=("https://sourceforge.net/projects/mingw-w64/files/mingw-w64/mingw-w64-release/mingw-w64-v${pkgver}.tar.bz2")
 sha256sums=('SKIP')
@@ -48,6 +48,10 @@ package() {
     msg "Installing ${_target} headers"
     cd ${srcdir}/headers-${_target}
     make DESTDIR=${pkgdir} install
+
+    # work around GCC build bug
+    mkdir -p ${pkgdir}/opt/${_target}/mingw/include
+    mkdir -p ${pkgdir}/opt/${_target}/mingw/lib
 
     # Moved these statements to mingw-w64-cross-winpthreads
     #   because mingw-w64-cross-crt needed them
