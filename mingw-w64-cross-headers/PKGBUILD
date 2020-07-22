@@ -50,6 +50,8 @@ package() {
     make DESTDIR=${pkgdir} install
 
     # work around GCC build bug
+    #  In GCC 4.9.0 and later a better work around is
+    #  using native-system-header-dir and patching "gcc/config.gcc".
     mkdir -p ${pkgdir}/opt/${_target}/mingw/include
     mkdir -p ${pkgdir}/opt/${_target}/mingw/lib
 
