@@ -43,8 +43,18 @@ noextract=("${_realname}-${pkgver}.tar.bz2")
 source=(
     "ftp://gcc.gnu.org/pub/gcc/releases/${_realname}-${pkgver}/${_realname}-${pkgver}.tar.bz2"
     104-gcc-4.6.4-Fix-texi-docs-syntax-errors.patch
+    111-gcc-4.0-fix-for-windows-not-minding-non-existant-parent-dirs.patch
+    121-gcc-4.0-handle-use-mingw-ansi-stdio.patch
+    131-gcc-4.0-windows-lrealpath-no-force-lowercase-nor-backslash.patch
+    132-gcc-4.3-dont-escape-arguments-that-dont-need-it-in-pex-win32.c.patch
+    141-gcc-4.4-ktietz-libgomp.patch
     461-gcc-4.0-cfns-fix-mismatch-in-gnu_inline-attributes.patch
+    941-config.build-Add-support-for-cygwin-x64-target.patch
     942-crossconfig.m4-Add-support-for-cygwin-x64-target.patch
+    943-config.host-Add-support-for-cygwin-x64-target.patch
+    944-configure-Regenerated.patch
+    945-gcc-4.6-libdecnumber-cygwin64.patch
+    946-configure-Regenerated.patch
     950-gcc-4.6.4-configure-msys2.patch
     951-gcc-4.6-msys2-spec.patch
 )
@@ -195,7 +205,13 @@ prepare() {
   apply_patch_with_msg 104-gcc-4.6.4-Fix-texi-docs-syntax-errors.patch
 
   # GCC Backport patches
-  apply_patch_with_msg 942-crossconfig.m4-Add-support-for-cygwin-x64-target.patch
+  apply_patch_with_msg \
+    941-config.build-Add-support-for-cygwin-x64-target.patch \
+    942-crossconfig.m4-Add-support-for-cygwin-x64-target.patch \
+    943-config.host-Add-support-for-cygwin-x64-target.patch \
+    944-configure-Regenerated.patch \
+    945-gcc-4.6-libdecnumber-cygwin64.patch \
+    946-configure-Regenerated.patch
 
   # MSYS2 Patches
   apply_patch_with_msg \
@@ -204,7 +220,13 @@ prepare() {
 
   # Misc Patches
   apply_patch_with_msg \
-    461-gcc-4.0-cfns-fix-mismatch-in-gnu_inline-attributes.patch
+    461-gcc-4.0-cfns-fix-mismatch-in-gnu_inline-attributes.patch \
+    111-gcc-4.0-fix-for-windows-not-minding-non-existant-parent-dirs.patch \
+    121-gcc-4.0-handle-use-mingw-ansi-stdio.patch \
+    131-gcc-4.0-windows-lrealpath-no-force-lowercase-nor-backslash.patch \
+    132-gcc-4.3-dont-escape-arguments-that-dont-need-it-in-pex-win32.c.patch \
+    141-gcc-4.4-ktietz-libgomp.patch
+
 }
 
 build() {
