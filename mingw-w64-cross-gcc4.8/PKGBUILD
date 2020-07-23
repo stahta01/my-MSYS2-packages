@@ -49,7 +49,7 @@ source=(
     '001-4.7-execstack.patch'
     '007-4.7-libffi-noinst.patch'
     '010-4.8-lto-plugin-soname.patch'
-    '009-4.7-libitm-cygwin.patch'
+    '009-4.8-libitm-cygwin.patch'
     104-gcc-4.6.4-Fix-texi-docs-syntax-errors.patch
     '400-gcc-4.8-libstdc++export.patch'
     461-gcc-4.0-cfns-fix-mismatch-in-gnu_inline-attributes.patch
@@ -271,7 +271,7 @@ prepare() {
     gcc-4.8-libatomic-cygwin.patch \
     007-4.7-libffi-noinst.patch \
     gcc-4.8-libffi-cygwin64.patch \
-    009-4.7-libitm-cygwin.patch \
+    009-4.8-libitm-cygwin.patch \
     gcc-4.7-libstdc-cygwin.patch \
     010-4.8-lto-plugin-soname.patch \
     011-gcc-4.8-specs-cygwin.patch
