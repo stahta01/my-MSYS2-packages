@@ -9,7 +9,6 @@ Subject: gcc 4.6.4 configure msys2
  config.guess                |    6 +
  config.rpath                |    8 +-
  config.sub                  |    2 +-
- config/dfp.m4               |    3 +-
  config/elf.m4               |    2 +-
  config/lthostflags.m4       |    2 +-
  config/tcl.m4               |    4 +-
@@ -319,20 +318,6 @@ index 204218c0738..cf3b5bd0d90 100755
  	      | -mingw32* | -linux-gnu* | -linux-android* \
  	      | -linux-newlib* | -linux-uclibc* \
  	      | -uxpv* | -beos* | -mpeix* | -udk* \
-diff --git a/config/dfp.m4 b/config/dfp.m4
-index cc778b19bbb..0fb90e9e46c 100644
---- a/config/dfp.m4
-+++ b/config/dfp.m4
-@@ -22,7 +22,8 @@ Valid choices are 'yes', 'bid', 'dpd', and 'no'.]) ;;
-   case $1 in
-     powerpc*-*-linux* | i?86*-*-linux* | x86_64*-*-linux* | s390*-*-linux* | \
-     i?86*-*-mingw* | x86_64*-*-mingw* | \
--    i?86*-*-cygwin*)
-+    i?86*-*-cygwin* | x86_64*-*-cygwin* | \
-+    i?86*-*-msys* | x86_64*-*-msys*)
-       enable_decimal_float=yes
-       ;;
-     *)
 diff --git a/config/elf.m4 b/config/elf.m4
 index 007006eaea2..7732ee4646f 100644
 --- a/config/elf.m4
