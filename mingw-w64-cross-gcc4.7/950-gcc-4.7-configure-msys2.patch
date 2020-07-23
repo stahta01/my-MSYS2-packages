@@ -335,7 +335,7 @@ index cc778b19bbb..0fb90e9e46c 100644
    case $1 in
      powerpc*-*-linux* | i?86*-*-linux* | x86_64*-*-linux* | s390*-*-linux* | \
      i?86*-*-mingw* | x86_64*-*-mingw* | \
--    i?86*-*-cygwin*)
+-    i?86*-*-cygwin* | x86_64*-*-cygwin*)
 +    i?86*-*-cygwin* | x86_64*-*-cygwin* | \
 +    i?86*-*-msys* | x86_64*-*-msys*)
        enable_decimal_float=yes
@@ -594,7 +594,7 @@ index 0d8c5e71d1f..ca3d681cdba 100755
    case $target in
      powerpc*-*-linux* | i?86*-*-linux* | x86_64*-*-linux* | s390*-*-linux* | \
      i?86*-*-mingw* | x86_64*-*-mingw* | \
--    i?86*-*-cygwin*)
+-    i?86*-*-cygwin* | x86_64*-*-cygwin*)
 +    i?86*-*-cygwin* | x86_64*-*-cygwin* | \
 +    i?86*-*-msys* | x86_64*-*-msys*)
        enable_decimal_float=yes
