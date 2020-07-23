@@ -31,6 +31,7 @@ _targets="i686-w64-mingw32"
 
 prepare() {
   cd "${srcdir}/${_sourcedir}"
+  rm -f mingw-w64-libraries/winpthreads/src/libgcc/dll_frame_info.c
   patch -Nbp1 -i "${srcdir}"/0001-Define-__-de-register_frame_info-in-fake-libgcc_s.patch
   cd "${srcdir}/${_sourcedir}"/mingw-w64-libraries/winpthreads
   autoreconf -vfi
