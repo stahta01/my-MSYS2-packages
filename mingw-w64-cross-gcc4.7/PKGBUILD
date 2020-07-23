@@ -59,17 +59,13 @@ source=(
     942-crossconfig.m4-Add-support-for-cygwin-x64-target.patch
     943-config.host-Add-support-for-cygwin-x64-target.patch
     944-configure-Regenerated.patch
-    945-gcc-4.8-libdecnumber-cygwin64.patch
+    945-gcc-4.7-libdecnumber-cygwin64.patch
     946-configure-Regenerated.patch
     950-gcc-4.7-configure-msys2.patch
-    951-gcc-4.8.0-msys2-spec.patch
-    'gcc-4.8-filename-output.patch'
+    951-gcc-4.7.0-msys2-spec.patch
     'gcc-4.7-lambda-ICE.patch'
-    'gcc-4.8-iconv.patch'
-    'gcc-4.8-libgcc-references.patch'
     'gcc-4.7-stdthreads.patch'
     'gcc-4.7-libstdc-cygwin.patch'
-    'gcc-4.8-libffi-cygwin64.patch'
 )
 sha256sums=('92e61c6dc3a0a449e62d72a38185fda550168a86702dea07125ebd3ec3996282'
             '1723f0fd7f647f4b8be043372285326bbecc21b47bfa11c270f1178cb01aea52'
@@ -268,13 +264,13 @@ prepare() {
     942-crossconfig.m4-Add-support-for-cygwin-x64-target.patch \
     943-config.host-Add-support-for-cygwin-x64-target.patch \
     944-configure-Regenerated.patch \
-    945-gcc-4.8-libdecnumber-cygwin64.patch \
+    945-gcc-4.7-libdecnumber-cygwin64.patch \
     946-configure-Regenerated.patch
 
   # MSYS2 Patches
   apply_patch_with_msg \
     950-gcc-4.7-configure-msys2.patch \
-    951-gcc-4.8.0-msys2-spec.patch
+    951-gcc-4.7.0-msys2-spec.patch
 
   # GCC Backport patches
   apply_patch_with_msg 104-gcc-4.6.4-Fix-texi-docs-syntax-errors.patch
