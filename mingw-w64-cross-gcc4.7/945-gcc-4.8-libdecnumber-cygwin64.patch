@@ -1,0 +1,24 @@
+From 0d8de2d7a8b197751cd1bda49a722ffa025bfdac Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Thu, 23 Jul 2020 10:40:40 -0400
+Subject: Backport of SVN 197179
+
+* configure: Regenerated.
+---
+ libdecnumber/configure | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/libdecnumber/configure b/libdecnumber/configure
+index 2b586848516..c761382ab5c 100755
+--- a/libdecnumber/configure
++++ b/libdecnumber/configure
+@@ -4612,7 +4612,7 @@ else
+   case $target in
+     powerpc*-*-linux* | i?86*-*-linux* | x86_64*-*-linux* | s390*-*-linux* | \
+     i?86*-*-mingw* | x86_64*-*-mingw* | \
+-    i?86*-*-cygwin*)
++    i?86*-*-cygwin* | x86_64*-*-cygwin*)
+       enable_decimal_float=yes
+       ;;
+     *)
+-- 
