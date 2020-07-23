@@ -52,7 +52,7 @@ source=(
     '010-4.7-lto-plugin-soname.patch'
     '011-gcc-4.7-specs-cygwin.patch'
     104-gcc-4.6.4-Fix-texi-docs-syntax-errors.patch
-    '400-gcc-4.8-libstdc++export.patch'
+    '400-gcc-4.7-libstdc++export.patch'
     461-gcc-4.0-cfns-fix-mismatch-in-gnu_inline-attributes.patch
     940-dfp.m4-Add-support-for-cygwin-x64-target.patch
     941-config.build-Add-support-for-cygwin-x64-target.patch
@@ -64,40 +64,38 @@ source=(
     950-gcc-4.7-configure-msys2.patch
     951-gcc-4.8.0-msys2-spec.patch
     'gcc-4.8-filename-output.patch'
-    'gcc-4.8-lambda-ICE.patch'
+    'gcc-4.7-lambda-ICE.patch'
     'gcc-4.8-iconv.patch'
     'gcc-4.8-libgcc-references.patch'
     'gcc-4.7-stdthreads.patch'
     'gcc-4.7-libstdc-cygwin.patch'
-    'gcc-4.8-libatomic-cygwin.patch'
     'gcc-4.8-libffi-cygwin64.patch'
 )
-sha256sums=('09dc2276c73424bbbfda1dbddc62bbbf900c9f185acf7f3e1d773ce2d7e3cdc8'
+sha256sums=('92e61c6dc3a0a449e62d72a38185fda550168a86702dea07125ebd3ec3996282'
             '1723f0fd7f647f4b8be043372285326bbecc21b47bfa11c270f1178cb01aea52'
             '669e6ac54d1e5bd92c23050db9a9245ac0c9f861609132a178083eec7ef77490'
-            '61ff12b14e1a0e1059235298cd8853bd75bff4f84ef2f5d2e3c0090f8df77f16'
-            '719da6d0995e5db807562165dc0e971c213e28746e75e1f21f9da48733199517'
-            '8a72e1b2cef99c78a9f7d8126d8509b580617fce68a289b8bcb05c98e4ffc548'
+            '8f15e1b794a5eaed51566fd100d93e3998fa41e9e350a61b5c1cdd1c451956fd'
+            '0e8939278ff74718fa1c471e4d62142921aaa5baafed9dca4170a2017ac9250a'
+            '39eaa58ce8e518ad8ba455ac074fd99fc203723eac0a14f7193896f0ea2e20f1'
+            '35bbb8cbda294bea0c67d54e7a89ca5ece59db414cc7877e3b0244ea1ee6c2e3'
             '21191b4fd57ce5f230fcc97b4d9ae31bdc387d7c7c8e39436aa7e4268d278d3d'
-            '714e18e8e1a89c149dfabde6eb6dd0a7518590b7a911643de761b6d31c7acd2d'
-            'f9b3270704b1a7769053b72dbc4471829b0bc3395743c3a1927729ebfc13dbb1'
-            '2fd097dcd783c187a480659939ab8cf133f697acde82e4e7b30609a9e6d0e8fe'
+            '37194977a8c71137485fb4b7d9e0d1a6ee4dbee8658df2de47860a1a4319c944'
+            '738e2bcb03c57ecd8440fce27c28662d87583a3a6c3ebb250d3f702077002782'
+            'da2ecb59ce873691c17483dcd7152eb3a313b4b6fcb2cddc3c3d9048d4a22412'
             'fba7508237bf8e6ae261ed6fcdbc02442241444048acef5c8e0a88d18d76c24b'
-            '7020b523797b5fdad1b7c0e10585a8af7c914baf977d99ca7fdfe15055efe6bd'
+            'feb0a38f4fdd5dd8bdeaa1e33d608e4a905c8ebea688b282591ed4211d19dcf2'
             '50d5449c610804fb1b059cbb28edf849e1e51c32e326a8b8d95301dff39c85a1'
             '865ed62eb9af20142fb2cae6708c52aabdc538284e8a88648bfec97abb7ccf70'
             '543d3f18edf80e125ec185df6a8d1e77db493f4e11b052397405ea143d88efb1'
-            '82e71409edd694337cc9b98b68105baf6417ca78ee3539f3d45a394376b0cb37'
+            '78e634b5a9ac24672c933ff027de426b9453d5fa21b9a05fb9e7de4747e605cb'
             '2106c9679c19a133ffffe64b9c950094695cf0d4e2609a90702f0d9e8bb9cfbc'
             '5b6f9b1d90073dfc8e8ada22e7663c1aa64b532315efc080591b69e176d70ef8'
             '301cfbe339043ca14205140acbec1d0f55178f01365ff309e4ddb90a3c934031'
             '9e0401c3e69317a45269fb689e4e89ee8f46997c2c52b11812a11c9faf142ede'
             '761f70e33dbb96c5749673e3577a155ff5d5692788f6181fccf2bcbba58bc2fd'
             '5e0fc1437ce0b357e78d440692e3a30a7905a5f360a67928a95b14ec8d45365b'
-            'd8224641edd432e9f027ff0f67dbcc4c336ddefbdd4fd3ea65054873251a49f1'
-            '165a90c518b268f05c635f4fe4cb2a6073dc34780f93a3c46581aa700cf840ca'
-            '9cc6d43cd3afb4c33b987692890c151aae07df71093c87368f181c89dfba6ac0'
-            '4647a06ebe951c1e8db88191f092c24b24cfaedef1aa9e3dc4afe036d4eb2cc4')
+            'fede6cb090b928b1f761e803e6faaf5cd5d4ed53ebc27f0ee882fc68e7fd97da'
+            '9cc6d43cd3afb4c33b987692890c151aae07df71093c87368f181c89dfba6ac0')
 
 # =========================================== #
 # Helper macro(s) to help make tasks easier   #
@@ -183,13 +181,6 @@ prepare() {
       gcc/doc/gcc.texi            \
       gcc/gtm-builtins.def        \
       libada/configure            \
-      libatomic/Makefile.am       \
-      libatomic/Makefile.in       \
-      libatomic/aclocal.m4        \
-      libatomic/configure         \
-      libatomic/configure.ac      \
-      libatomic/configure.tgt     \
-      libbacktrace/configure      \
       libdecnumber/configure      \
       libffi/acinclude.m4         \
       libffi/configure            \
@@ -221,7 +212,6 @@ prepare() {
       libobjc/configure           \
       libobjc/configure.ac        \
       libquadmath/configure       \
-      libsanitizer/configure      \
       libssp/configure            \
       libstdc++-v3/acinclude.m4   \
       libstdc++-v3/config/abi/pre/gnu.ver       \
@@ -256,25 +246,20 @@ prepare() {
     gcc/config/i386/t-cygwin-w64
 
   apply_patch_with_msg \
-    gcc-4.8-filename-output.patch \
-    gcc-4.8-lambda-ICE.patch
-  #apply_patch_with_msg gcc-4.8-iconv.patch
+    gcc-4.7-lambda-ICE.patch
 
   apply_patch_with_msg \
-    gcc-4.8-libgcc-references.patch \
-    400-gcc-4.8-libstdc++export.patch \
+    400-gcc-4.7-libstdc++export.patch \
     gcc-4.7-stdthreads.patch
 
   # Cygwin patches
   apply_patch_with_msg \
     001-4.7-execstack.patch \
-    gcc-4.8-libatomic-cygwin.patch \
     007-4.7-libffi-noinst.patch \
-    gcc-4.8-libffi-cygwin64.patch \
     009-4.7-libitm-cygwin.patch \
     gcc-4.7-libstdc-cygwin.patch \
-    010-4.8-lto-plugin-soname.patch \
-    011-gcc-4.8-specs-cygwin.patch
+    010-4.7-lto-plugin-soname.patch \
+    011-gcc-4.7-specs-cygwin.patch
 
   # Cygwin Backport patches
   apply_patch_with_msg \
@@ -288,7 +273,7 @@ prepare() {
 
   # MSYS2 Patches
   apply_patch_with_msg \
-    950-gcc-4.8.0-configure-msys2.patch \
+    950-gcc-4.7-configure-msys2.patch \
     951-gcc-4.8.0-msys2-spec.patch
 
   # GCC Backport patches
