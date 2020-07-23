@@ -43,6 +43,7 @@ noextract=("${_realname}-${pkgver}.tar.bz2")
 source=(
     "ftp://gcc.gnu.org/pub/gcc/releases/${_realname}-${pkgver}/${_realname}-${pkgver}.tar.bz2"
     104-gcc-4.6.4-Fix-texi-docs-syntax-errors.patch
+    461-gcc-4.0-cfns-fix-mismatch-in-gnu_inline-attributes.patch
     942-crossconfig.m4-Add-support-for-cygwin-x64-target.patch
     950-gcc-4.6.4-configure-msys2.patch
 )
@@ -194,7 +195,8 @@ prepare() {
     950-gcc-4.6.4-configure-msys2.patch
 
   # Misc Patches
-  # apply_patch_with_msg
+  apply_patch_with_msg \
+    461-gcc-4.0-cfns-fix-mismatch-in-gnu_inline-attributes.patch
 }
 
 build() {
