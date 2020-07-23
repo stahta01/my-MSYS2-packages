@@ -85,13 +85,9 @@ sha256sums=('92e61c6dc3a0a449e62d72a38185fda550168a86702dea07125ebd3ec3996282'
             '543d3f18edf80e125ec185df6a8d1e77db493f4e11b052397405ea143d88efb1'
             '72450f0776085415380b9c8377748eab82cb2b1692432d0dcaeb04be6d7492f1'
             '2106c9679c19a133ffffe64b9c950094695cf0d4e2609a90702f0d9e8bb9cfbc'
-            '5b6f9b1d90073dfc8e8ada22e7663c1aa64b532315efc080591b69e176d70ef8'
             '301cfbe339043ca14205140acbec1d0f55178f01365ff309e4ddb90a3c934031'
-            '9e0401c3e69317a45269fb689e4e89ee8f46997c2c52b11812a11c9faf142ede'
-            '761f70e33dbb96c5749673e3577a155ff5d5692788f6181fccf2bcbba58bc2fd'
             '5e0fc1437ce0b357e78d440692e3a30a7905a5f360a67928a95b14ec8d45365b'
-            'fede6cb090b928b1f761e803e6faaf5cd5d4ed53ebc27f0ee882fc68e7fd97da'
-            '9cc6d43cd3afb4c33b987692890c151aae07df71093c87368f181c89dfba6ac0')
+            'fede6cb090b928b1f761e803e6faaf5cd5d4ed53ebc27f0ee882fc68e7fd97da')
 
 # =========================================== #
 # Helper macro(s) to help make tasks easier   #
