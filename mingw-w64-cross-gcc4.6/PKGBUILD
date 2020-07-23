@@ -53,7 +53,7 @@ sha256sums=('35af16afa0b67af9b8eb15cafb76d2bc5f568540552522f5dc2c88dd45d977e8'
             '37194977a8c71137485fb4b7d9e0d1a6ee4dbee8658df2de47860a1a4319c944'
             'fba7508237bf8e6ae261ed6fcdbc02442241444048acef5c8e0a88d18d76c24b'
             'd32a4396ab835e6763aa73885503236cc700e53091d22788250e8ebeb260c18c'
-            'b02eef3de5ffcdd04a083a6c07c64d18b3594854bef8938e512d2020e90eb857')
+            '2c76160d093ea5f7231a611d761719ff241e58f63dbec1e72d5d76cf29c1a7c6')
 
 # =========================================== #
 # Helper macro(s) to help make tasks easier   #
