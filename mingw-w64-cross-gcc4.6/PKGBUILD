@@ -185,7 +185,11 @@ prepare() {
   # hack! - some configure tests for header files using "$CPP $CPPFLAGS"
   #sed -i "/ac_cpp=/s/\$CPPFLAGS/\$CPPFLAGS -O2/" {libiberty,gcc}/configure
 
-  # del_file_exists
+  del_file_exists \
+    gcc/config/i386/msys-w64.h \
+    gcc/config/i386/msys.h \
+    gcc/config/i386/t-msys-w64 \
+    libgcc/config/i386/t-msys
 
   # makeinfo Patches
   apply_patch_with_msg 104-gcc-4.6.4-Fix-texi-docs-syntax-errors.patch
