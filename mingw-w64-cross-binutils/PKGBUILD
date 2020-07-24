@@ -69,6 +69,7 @@ prepare() {
 
 build() {
   for _target in ${_targets}; do
+    [[ -d ${srcdir}/binutils-build-${_target} ]] && rm -rf ${srcdir}/binutils-build-${_target}
     mkdir -p ${srcdir}/binutils-build-${_target} && cd ${srcdir}/binutils-build-${_target}
 
     if [ "${_target}" != "armv7-w64-mingw32" ]; then
