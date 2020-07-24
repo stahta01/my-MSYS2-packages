@@ -14,7 +14,7 @@ url="https://mingw-w64.sourceforge.io/"
 license=('custom')
 provides=("${_mingw_suff}-${_realname}=${pkgver}")
 groups=("${_mingw_suff}-toolchain" "${_mingw_suff}")
-makedepends=()
+makedepends=('make')
 options=('!strip' '!libtool' 'emptydirs' '!buildflags')
 _sourcedir=mingw-w64-v${pkgver}
 source=("https://sourceforge.net/projects/mingw-w64/files/mingw-w64/mingw-w64-release/mingw-w64-v${pkgver}.tar.bz2")
