@@ -9,8 +9,8 @@ _targets="i686-w64-mingw32"
 _make_static_gcc_only=yes
 _threads="win32"
 if [[ "$_make_static_gcc_only" != "yes" ]] ; then
-  _enable_shared=no     # set to no or yes as wanted
-  _enable_gcc_lto=no    # set to no or yes as wanted
+  _enable_gcc_lto=no    # set to no or yes as wanted                        # TODO: Confirm "yes" works
+  _enable_shared=no     # set to no or yes as wanted                        # TODO: Confirm "yes" works
 else
   _enable_gcc_lto=no    # needs to be no when making only static GCC        # TODO: Confirm this is needed
   _enable_shared=no
