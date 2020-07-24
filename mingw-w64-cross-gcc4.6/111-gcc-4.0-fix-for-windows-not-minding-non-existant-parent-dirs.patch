@@ -12,13 +12,14 @@ diff --git a/libcpp/files.c b/libcpp/files.c
 index 29ccf3b7013..13cae5e6e2b 100644
 --- a/libcpp/files.c
 +++ b/libcpp/files.c
-@@ -32,6 +32,13 @@ along with this program; see the file COPYING3.  If not see
+@@ -32,6 +32,14 @@ along with this program; see the file COPYING3.  If not see
  #include "md5.h"
  #include <dirent.h>
  
 +/* Needed for stat_st_mode_symlink below */
 +#if defined(_WIN32)
 +#  include <windows.h>
++#  include <minwindef.h>
 +#  define S_IFLNK 0xF000
 +#  define S_ISLNK(m) (((m) & S_IFMT) == S_IFLNK)
 +#endif

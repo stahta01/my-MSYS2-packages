@@ -317,7 +317,7 @@ build() {
     CXXFALGS="-O2 -pipe"
 
   if [[ "$_make_static_gcc_only" == "yes" ]] ; then
-    make all-gcc
+    make -j1 all-gcc
   else
     make all
   fi
