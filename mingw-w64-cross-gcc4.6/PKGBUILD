@@ -43,7 +43,6 @@ noextract=("${_realname}-${pkgver}.tar.bz2")
 source=(
     "ftp://gcc.gnu.org/pub/gcc/releases/${_realname}-${pkgver}/${_realname}-${pkgver}.tar.bz2"
     104-gcc-4.6.4-Fix-texi-docs-syntax-errors.patch
-    111-gcc-4.0-fix-for-windows-not-minding-non-existant-parent-dirs.patch
     121-gcc-4.0-handle-use-mingw-ansi-stdio.patch
     131-gcc-4.0-windows-lrealpath-no-force-lowercase-nor-backslash.patch
     132-gcc-4.3-dont-escape-arguments-that-dont-need-it-in-pex-win32.c.patch
@@ -60,7 +59,6 @@ source=(
 )
 sha256sums=('35af16afa0b67af9b8eb15cafb76d2bc5f568540552522f5dc2c88dd45d977e8'
             '8a72e1b2cef99c78a9f7d8126d8509b580617fce68a289b8bcb05c98e4ffc548'
-            'ef56680941f2e7393acd31f747a3927db738fa92d409913736908fc283af29d3'
             '748a921674a663532426bfca61856517610154564cfed6949629ba62fdeb8de3'
             '1ae38b261fc68c332051ee3080dd4914323be16b50152a6ed7e14cca938e10af'
             '918152eb9c4654b7538dbe91e4ab939aab26e1b14f6a995492b9fccefff334fc'
@@ -233,7 +231,6 @@ prepare() {
   # Misc Patches
   apply_patch_with_msg \
     461-gcc-4.0-cfns-fix-mismatch-in-gnu_inline-attributes.patch \
-    111-gcc-4.0-fix-for-windows-not-minding-non-existant-parent-dirs.patch \
     121-gcc-4.0-handle-use-mingw-ansi-stdio.patch \
     131-gcc-4.0-windows-lrealpath-no-force-lowercase-nor-backslash.patch \
     132-gcc-4.3-dont-escape-arguments-that-dont-need-it-in-pex-win32.c.patch \
