@@ -269,9 +269,12 @@ build() {
 
   if [ "$_make_static_gcc_only" == "yes" ]; then
     configure_opts+=("--enable-static")
+    configure_opts+=("--disable-shared")
+    configure_opts+=("--disable-bootstrap")
   else
     configure_opts+=("--enable-static")
     configure_opts+=("--enable-shared")
+    configure_opts+=("--enable-bootstrap")
   fi
 
   local _languages="c,c++"
@@ -288,7 +291,6 @@ build() {
     --host=${CHOST} \
     --target=${_target} \
     --libexecdir=/opt/lib \
-    --disable-bootstrap \
     --with-arch=${_arch} \
     --with-tune=generic \
     --enable-languages=${_languages} \
@@ -309,6 +311,7 @@ build() {
     --disable-symvers \
     --with-libiconv \
     --with-system-zlib \
+    --without-ppl \
     --without-isl \
     --with-{gmp,mpfr,mpc}=/usr \
     --with-gnu-as --with-gnu-ld \
