@@ -32,8 +32,7 @@ build() {
     mkdir -p ${srcdir}/headers-${_target} && cd ${srcdir}/headers-${_target}
     ${srcdir}/${_sourcedir}/mingw-w64-headers/configure \
     --build=${CHOST} \
-    --host=${CHOST} \
-    --target=${_target} \
+    --host=${_target} \
     --prefix=/opt/${_target} \
     --enable-sdk=all \
     --with-default-win32-winnt=0x601 \
