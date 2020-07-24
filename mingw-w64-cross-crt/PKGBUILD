@@ -39,7 +39,7 @@ _sourcedir=mingw-w64-v${pkgver}
 source=("https://sourceforge.net/projects/mingw-w64/files/mingw-w64/mingw-w64-release/mingw-w64-v${pkgver}.tar.bz2"
         "0005-handle-ctor_list-internally.patch")
 
-sha256sums=('SKIP'
+sha256sums=('aa20dfff3596f08a7f427aab74315a6cb80c2b086b4a107ed35af02f9496b628'
             '0eabe00375d4e26fd7e9afa56f6a9da02845fe2c0f900f5e1f829842bff8624a')
 
 _targets="i686-w64-mingw32"
