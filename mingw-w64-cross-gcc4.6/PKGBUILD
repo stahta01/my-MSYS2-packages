@@ -6,7 +6,7 @@ _realname=gcc
 
 # Package build options
 _targets="i686-w64-mingw32"
-_make_static_gcc_only=yes
+_make_static_gcc_only=no
 _threads="win32"
 if [[ "$_make_static_gcc_only" != "yes" ]] ; then
   _enable_gcc_lto=yes   # set to no or yes as wanted
@@ -251,13 +251,13 @@ build() {
  
   case "${_target}" in
     i686*)
-      local _conf="--disable-sjlj-exceptions --with-dwarf2"
+      configure_opts+=("--disable-sjlj-exceptions")
+      configure_opts+=("--with-dwarf2")
       local _arch=i686
     ;;
     
     x86_64*)
       local _arch=x86-64
-      local _conf=""
     ;;
   esac
 
@@ -270,9 +270,12 @@ build() {
   if [ "$_make_static_gcc_only" == "yes" ]; then
     configure_opts+=("--enable-static")
     configure_opts+=("--disable-shared")
+    configure_opts+=("--disable-threads")
   else
     configure_opts+=("--enable-static")
     configure_opts+=("--enable-shared")
+    configure_opts+=("--enable-shared-libgcc") 
+    configure_opts+=("--enable-threads=${_threads}")
   fi
 
   local _languages="c,c++"
@@ -293,7 +296,6 @@ build() {
     --with-arch=${_arch} \
     --with-tune=generic \
     --enable-languages=${_languages} \
-    --enable-threads=${_threads} \
     --enable-graphite \
     --enable-fully-dynamic-string \
     --enable-libstdcxx-time=yes \
@@ -314,7 +316,6 @@ build() {
     --without-isl \
     --with-{gmp,mpfr,mpc}=/usr \
     --with-gnu-as --with-gnu-ld \
-    ${_conf} \
     "${configure_opts[@]}" \
     CFLAGS="-O2 -pipe" \
     CXXFALGS="-O2 -pipe"
