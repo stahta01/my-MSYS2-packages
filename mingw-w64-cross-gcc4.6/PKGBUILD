@@ -6,7 +6,7 @@ _realname=gcc
 
 # Package build options
 _targets="i686-w64-mingw32"
-_make_static_gcc_only=no
+_make_static_gcc_only=yes
 _threads="win32"
 if [[ "$_make_static_gcc_only" != "yes" ]] ; then
   _enable_gcc_lto=yes   # set to no or yes as wanted
@@ -270,7 +270,7 @@ build() {
   if [ "$_make_static_gcc_only" == "yes" ]; then
     configure_opts+=("--enable-static")
     configure_opts+=("--disable-shared")
-    configure_opts+=("--disable-bootstrap")
+    configure_opts+=("--enable-bootstrap")
   else
     configure_opts+=("--enable-static")
     configure_opts+=("--enable-shared")
