@@ -64,6 +64,7 @@ build() {
       _crt_configure_args="--disable-lib32 --disable-lib64 --enable-libarm32"
     ;;
   esac
+    [[ -d ${srcdir}/crt-${_target} ]] && rm -rf crt-${_target}
     mkdir -p ${srcdir}/crt-${_target} && cd ${srcdir}/crt-${_target}
 
     #--with-host-libstdcxx="-lstdc++ -lsupc++"
@@ -79,9 +80,10 @@ build() {
     fi
 
     ${srcdir}/${_sourcedir}/mingw-w64-crt/configure \
-    --build=${CHOST} \
     --prefix=/opt/${_target} \
-    --host=${_target} \
+    --build=${CHOST} \
+    --host=${CHOST} \
+    --target=${_target} \
     --enable-wildcard \
     ${_crt_configure_args}
 
