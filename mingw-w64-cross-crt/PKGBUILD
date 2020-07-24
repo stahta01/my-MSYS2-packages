@@ -82,8 +82,7 @@ build() {
     ${srcdir}/${_sourcedir}/mingw-w64-crt/configure \
     --prefix=/opt/${_target} \
     --build=${CHOST} \
-    --host=${CHOST} \
-    --target=${_target} \
+    --host=${_target} \
     --enable-wildcard \
     ${_crt_configure_args}
 
