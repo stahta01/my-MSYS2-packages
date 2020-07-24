@@ -39,11 +39,13 @@ prepare() {
 
 build() {
   for _target in ${_targets}; do
+    [[ -d ${srcdir}/winpthreads-build-${_target} ]] && rm -rf ${srcdir}/winpthreads-build-${_target}
     mkdir -p ${srcdir}/winpthreads-build-${_target} && cd ${srcdir}/winpthreads-build-${_target}
     ${srcdir}/${_sourcedir}/mingw-w64-libraries/winpthreads/configure \
       --prefix=/opt/${_target} \
       --build=${CHOST} \
-      --host=${_target} \
+      --host=${CHOST} \
+      --target=${_target} \
       --enable-static \
       --enable-shared
     make
