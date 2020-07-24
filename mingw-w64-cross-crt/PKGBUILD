@@ -1,4 +1,5 @@
-# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+# Maintainer: Tim Stahlhut <stahta01@gmail.com>
+# Contributor: Alexey Pavlov <alexpux@gmail.com>
 # Contributor: Martell Malone <martellmalone@gmail.com>
 
 # controls the compiler that builds the crt with _variant
