@@ -33,7 +33,7 @@ if [[ "$_make_static_gcc_only" != "yes" ]] ; then
   depends+=("${_mingw_suff}-crt"
             "${_mingw_suff}-winpthreads")
 fi
-makedepends=("gcc" 'lndir' 'patch' 'gmp' 'mpfr-devel' 'mpc-devel' 'zlib-devel' 'tar')
+makedepends=("gcc" 'lndir' 'patch' 'gmp' 'mpfr-devel' 'mpc-devel' 'zlib-devel' 'tar' 'diffutils' 'texinfo')
 #checkdepends=('dejagnu')
 optdepends=()
 replaces=()
@@ -329,8 +329,10 @@ package() {
     else
       make -j1 DESTDIR=${pkgdir} install
     fi
-    mv ${pkgdir}/opt/lib/gcc/${_target}/lib/libgcc_s.a ${pkgdir}/opt/lib/gcc/${_target}/${pkgver}/
-    mv ${pkgdir}/opt/lib/gcc/${_target}/libgcc*.dll ${pkgdir}/opt/lib/gcc/${_target}/${pkgver}/
+    if [[ "$_make_static_gcc_only" != "yes" ]] ; then
+      mv ${pkgdir}/opt/lib/gcc/${_target}/lib/libgcc_s.a ${pkgdir}/opt/lib/gcc/${_target}/${pkgver}/
+      mv ${pkgdir}/opt/lib/gcc/${_target}/libgcc*.dll ${pkgdir}/opt/lib/gcc/${_target}/${pkgver}/
+    fi
     for _f in ${pkgdir}/opt/bin/*.exe; do
       strip -s ${_f}
     done
