@@ -18,7 +18,7 @@ makedepends=('make')
 options=('!strip' '!libtool' 'emptydirs' '!buildflags')
 _sourcedir=mingw-w64-v${pkgver}
 source=("https://sourceforge.net/projects/mingw-w64/files/mingw-w64/mingw-w64-release/mingw-w64-v${pkgver}.tar.bz2")
-sha256sums=('SKIP')
+md5sums=('7cd9b09be0b2c658ce200c4c43b59b27')
 
 _targets="i686-w64-mingw32"
 
