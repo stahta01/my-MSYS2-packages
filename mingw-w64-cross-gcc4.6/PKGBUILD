@@ -270,11 +270,9 @@ build() {
   if [ "$_make_static_gcc_only" == "yes" ]; then
     configure_opts+=("--enable-static")
     configure_opts+=("--disable-shared")
-    configure_opts+=("--enable-bootstrap")
   else
     configure_opts+=("--enable-static")
     configure_opts+=("--enable-shared")
-    configure_opts+=("--enable-bootstrap")
   fi
 
   local _languages="c,c++"
@@ -286,6 +284,7 @@ build() {
   fi
 
   ../${_realname}-${pkgver}/configure \
+    --enable-bootstrap \
     --prefix=/opt \
     --build=${CHOST} \
     --host=${CHOST} \
