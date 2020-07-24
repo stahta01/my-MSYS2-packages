@@ -8,7 +8,11 @@ _realname=gcc
 _targets="i686-w64-mingw32"
 _make_static_gcc_only=yes
 _threads="win32"
-_enable_gcc_lto=yes
+if [[ "$_make_static_gcc_only" != "yes" ]] ; then
+  _enable_gcc_lto=yes   # set to no or yes as wanted
+else
+  _enable_gcc_lto=no    # needs to be no when making only static GCC        # CRT build fails if LTO enabled; because it is broken
+fi
 #_enable_ada=yes
 _enable_fortran=no
 #_enable_objc=no
@@ -240,8 +244,9 @@ prepare() {
 
 build() {
   for _target in ${_targets}; do
+  [[ -d ${srcdir}/gcc-build-${_target} ]] && rm -rf ${srcdir}/gcc-build-${_target}
   mkdir -p ${srcdir}/gcc-build-${_target} && cd ${srcdir}/gcc-build-${_target}
-   
+ 
   local -a configure_opts
  
   case "${_target}" in
