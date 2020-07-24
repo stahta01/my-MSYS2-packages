@@ -33,7 +33,7 @@ if [[ "$_make_static_gcc_only" != "yes" ]] ; then
   depends+=("${_mingw_suff}-crt"
             "${_mingw_suff}-winpthreads")
 fi
-makedepends=("gcc" 'lndir')
+makedepends=("gcc" 'lndir' 'patch' 'gmp' 'mpfr-devel')
 #checkdepends=('dejagnu')
 optdepends=()
 replaces=()
@@ -60,8 +60,18 @@ source=(
 )
 sha256sums=('35af16afa0b67af9b8eb15cafb76d2bc5f568540552522f5dc2c88dd45d977e8'
             '8a72e1b2cef99c78a9f7d8126d8509b580617fce68a289b8bcb05c98e4ffc548'
+            'ef56680941f2e7393acd31f747a3927db738fa92d409913736908fc283af29d3'
+            '748a921674a663532426bfca61856517610154564cfed6949629ba62fdeb8de3'
+            '1ae38b261fc68c332051ee3080dd4914323be16b50152a6ed7e14cca938e10af'
+            '918152eb9c4654b7538dbe91e4ab939aab26e1b14f6a995492b9fccefff334fc'
+            'fc1318f0ff236ea158f9123fe80ade0a64bd97cf68a0c076349bd501341a03f7'
             '37194977a8c71137485fb4b7d9e0d1a6ee4dbee8658df2de47860a1a4319c944'
+            '38d84eca3277bc938eb841ebd42dcdb64cea60b1aa805d64e092f2b1bbbea6df'
             'fba7508237bf8e6ae261ed6fcdbc02442241444048acef5c8e0a88d18d76c24b'
+            'd30d59c743cc0330a5d17e85857e4c5bc36165b94ff5ccc1a47549632bf1378e'
+            '50d5449c610804fb1b059cbb28edf849e1e51c32e326a8b8d95301dff39c85a1'
+            'b4b9fd5eba890fd7a8a2f3ca982b2ae8c4b34a81d563419c3bd90e7f38d00ef2'
+            '543d3f18edf80e125ec185df6a8d1e77db493f4e11b052397405ea143d88efb1'
             'd32a4396ab835e6763aa73885503236cc700e53091d22788250e8ebeb260c18c'
             '2c76160d093ea5f7231a611d761719ff241e58f63dbec1e72d5d76cf29c1a7c6')
 
@@ -111,6 +121,13 @@ prepare() {
       cp -R --target-directory="${srcdir}/${_realname}-${pkgver}" *
   else
     replace_file_exists \
+      libcpp/files.c \
+      gcc/config/i386/xm-mingw32.h \
+      libiberty/lrealpath.c \
+      libiberty/pex-win32.c \
+      libgomp/team.c \
+      libgomp/testsuite/config/default.exp \
+      libgomp/work.c \
       Makefile.in                 \
       boehm-gc/configure          \
       boehm-gc/configure.ac       \
@@ -120,8 +137,6 @@ prepare() {
       config/dfp.m4               \
       config/elf.m4               \
       config/lthostflags.m4       \
-      config/mmap.m4              \
-      config/picflag.m4           \
       config/tcl.m4               \
       configure                   \
       configure.ac                \
@@ -142,7 +157,6 @@ prepare() {
       gcc/cp/cfns.h               \
       gcc/cp/semantics.c          \
       gcc/doc/gcc.texi            \
-      gcc/gtm-builtins.def        \
       libada/configure            \
       libdecnumber/configure      \
       libffi/acinclude.m4         \
@@ -151,9 +165,7 @@ prepare() {
       libffi/src/x86/ffi.c        \
       libffi/src/x86/win64.S      \
       libgcc/config.host          \
-      libgcc/config/i386/cygming-crtbegin.c     \
       libgcc/configure            \
-      libgcc/gthr-posix.h         \
       libgfortran/acinclude.m4    \
       libgfortran/configure       \
       libgo/config/libtool.m4     \
@@ -208,10 +220,10 @@ prepare() {
   apply_patch_with_msg \
     941-config.build-Add-support-for-cygwin-x64-target.patch \
     942-crossconfig.m4-Add-support-for-cygwin-x64-target.patch \
-    943-config.host-Add-support-for-cygwin-x64-target.patch \
-    944-configure-Regenerated.patch \
-    945-gcc-4.6-libdecnumber-cygwin64.patch \
-    946-configure-Regenerated.patch
+    943-config.host-Add-support-for-cygwin-x64-target.patch
+    # 944-configure-Regenerated.patch
+    # 945-gcc-4.6-libdecnumber-cygwin64.patch
+    # 946-configure-Regenerated.patch
 
   # MSYS2 Patches
   apply_patch_with_msg \
