@@ -9,9 +9,11 @@ _targets="i686-w64-mingw32"
 _make_static_gcc_only=yes
 _threads="win32"
 if [[ "$_make_static_gcc_only" != "yes" ]] ; then
+  _enable_shared=no     # set to no or yes as wanted
   _enable_gcc_lto=no    # set to no or yes as wanted
 else
   _enable_gcc_lto=no    # needs to be no when making only static GCC        # TODO: Confirm this is needed
+  _enable_shared=no
 fi
 #_enable_ada=yes
 _enable_fortran=no
@@ -269,13 +271,17 @@ build() {
 
   if [ "$_make_static_gcc_only" == "yes" ]; then
     configure_opts+=("--enable-static")
-    configure_opts+=("--disable-shared")
     configure_opts+=("--disable-threads")
   else
     configure_opts+=("--enable-static")
+    configure_opts+=("--enable-threads=${_threads}")
+  fi
+
+  if [[ "$_enable_shared" != "yes" ]]; then
+    configure_opts+=("--disable-shared")
+  else
     configure_opts+=("--enable-shared")
     configure_opts+=("--enable-shared-libgcc") 
-    configure_opts+=("--enable-threads=${_threads}")
   fi
 
   local _languages="c,c++"
@@ -336,7 +342,7 @@ package() {
     else
       make -j1 DESTDIR=${pkgdir} install
     fi
-    if [[ "$_make_static_gcc_only" != "yes" ]] ; then
+    if [[ "$_enable_shared" == "yes" ]] ; then
       mv ${pkgdir}/opt/lib/gcc/${_target}/lib/libgcc_s.a ${pkgdir}/opt/lib/gcc/${_target}/${pkgver}/
       mv ${pkgdir}/opt/lib/gcc/${_target}/libgcc*.dll ${pkgdir}/opt/lib/gcc/${_target}/${pkgver}/
     fi
