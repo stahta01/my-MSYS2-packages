@@ -268,7 +268,8 @@ build() {
   if [ "$_make_static_gcc_only" == "yes" ]; then
     configure_opts+=("--enable-static")
   else
-    configure_opts+=("--enable-shared --enable-static")
+    configure_opts+=("--enable-static")
+    configure_opts+=("--enable-shared")
   fi
 
   local _languages="c,c++"
@@ -302,6 +303,7 @@ build() {
     --enable-checking=release \
     --disable-rpath \
     --disable-win32-registry \
+    --disable-nls \
     --disable-werror \
     --disable-symvers \
     --with-libiconv \
@@ -315,7 +317,7 @@ build() {
     CXXFALGS="-O2 -pipe"
 
   if [[ "$_make_static_gcc_only" == "yes" ]] ; then
-    make all gcc
+    make all-gcc
   else
     make all
   fi
@@ -326,7 +328,7 @@ package() {
   for _target in ${_targets}; do
     cd ${srcdir}/gcc-build-${_target}
     if [[ "$_make_static_gcc_only" == "yes" ]] ; then
-      make -j1 DESTDIR=${pkgdir} install gcc
+      make -j1 DESTDIR=${pkgdir} install-gcc
     else
       make -j1 DESTDIR=${pkgdir} install
     fi
