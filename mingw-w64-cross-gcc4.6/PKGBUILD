@@ -299,7 +299,6 @@ build() {
     --disable-libstdcxx-pch \
     --disable-libstdcxx-debug \
     --enable-version-specific-runtime-libs \
-    --enable-lto \
     --enable-libgomp \
     --disable-multilib \
     --enable-checking=release \
