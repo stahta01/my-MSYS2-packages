@@ -285,7 +285,8 @@ build() {
   ../${_realname}-${pkgver}/configure \
     --prefix=/opt \
     --build=${CHOST} \
-    --host=${_target} \
+    --host=${CHOST} \
+    --target=${_target} \
     --libexecdir=/opt/lib \
     --disable-bootstrap \
     --with-arch=${_arch} \
