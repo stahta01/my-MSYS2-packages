@@ -33,7 +33,7 @@ if [[ "$_make_static_gcc_only" != "yes" ]] ; then
   depends+=("${_mingw_suff}-crt"
             "${_mingw_suff}-winpthreads")
 fi
-makedepends=("gcc" 'lndir' 'patch' 'gmp' 'mpfr-devel')
+makedepends=("gcc" 'lndir' 'patch' 'gmp' 'mpfr-devel' 'mpc-devel')
 #checkdepends=('dejagnu')
 optdepends=()
 replaces=()
