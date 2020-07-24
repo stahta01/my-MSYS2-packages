@@ -1,0 +1,39 @@
+From 57bf10cfa93425faaabd8214981b08a49964bfca Mon Sep 17 00:00:00 2001
+From: Tim Stahlhut <stahta01@gmail.com>
+Date: Fri, 24 Jul 2020 08:31:09 -0400
+Subject: Remove option "-no-pthread"
+
+---
+ mingw-w64-libraries/winpthreads/Makefile.am | 2 +-
+ mingw-w64-libraries/winpthreads/Makefile.in | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/mingw-w64-libraries/winpthreads/Makefile.am b/mingw-w64-libraries/winpthreads/Makefile.am
+index 8a3b758c..d5469f6a 100644
+--- a/mingw-w64-libraries/winpthreads/Makefile.am
++++ b/mingw-w64-libraries/winpthreads/Makefile.am
+@@ -8,7 +8,7 @@ lib_LTLIBRARIES = libwinpthread.la
+ 
+ include_HEADERS = include/pthread.h include/sched.h include/semaphore.h include/pthread_unistd.h include/pthread_time.h include/pthread_compat.h include/pthread_signal.h
+ libwinpthread_la_CPPFLAGS = -I$(srcdir)/include -DIN_WINPTHREAD -DWINPTHREAD_DBG=1 -D__USE_MINGW_ANSI_STDIO=0
+-libwinpthread_la_LDFLAGS = -no-undefined -version-info 1:0:0 -L$(builddir)/fakelib -Wc,-no-pthread
++libwinpthread_la_LDFLAGS = -no-undefined -version-info 1:0:0 -L$(builddir)/fakelib
+ EXTRA_libwinpthread_la_DEPENDENCIES = fakelib/libgcc.a  fakelib/libgcc_eh.a  fakelib/libgcc_s.a
+ libwinpthread_la_SOURCES = \
+   src/barrier.h  src/cond.h  src/misc.h  src/mutex.h  src/rwlock.h  src/spinlock.h  src/thread.h  src/ref.h  src/sem.h  src/wpth_ver.h \
+diff --git a/mingw-w64-libraries/winpthreads/Makefile.in b/mingw-w64-libraries/winpthreads/Makefile.in
+index d70b6945..a4bc9a74 100644
+--- a/mingw-w64-libraries/winpthreads/Makefile.in
++++ b/mingw-w64-libraries/winpthreads/Makefile.in
+@@ -459,7 +459,7 @@ ACLOCAL_AMFLAGS = -I m4
+ lib_LTLIBRARIES = libwinpthread.la
+ include_HEADERS = include/pthread.h include/sched.h include/semaphore.h include/pthread_unistd.h include/pthread_time.h include/pthread_compat.h include/pthread_signal.h
+ libwinpthread_la_CPPFLAGS = -I$(srcdir)/include -DIN_WINPTHREAD -DWINPTHREAD_DBG=1 -D__USE_MINGW_ANSI_STDIO=0
+-libwinpthread_la_LDFLAGS = -no-undefined -version-info 1:0:0 -L$(builddir)/fakelib -Wc,-no-pthread
++libwinpthread_la_LDFLAGS = -no-undefined -version-info 1:0:0 -L$(builddir)/fakelib
+ EXTRA_libwinpthread_la_DEPENDENCIES = fakelib/libgcc.a  fakelib/libgcc_eh.a  fakelib/libgcc_s.a
+ libwinpthread_la_SOURCES = \
+   src/barrier.h  src/cond.h  src/misc.h  src/mutex.h  src/rwlock.h  src/spinlock.h  src/thread.h  src/ref.h  src/sem.h  src/wpth_ver.h \
+-- 
+2.27.0.windows.1
+

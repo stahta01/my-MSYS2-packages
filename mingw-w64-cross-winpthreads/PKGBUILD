@@ -24,9 +24,11 @@ backup=()
 options=('!strip' '!buildflags' 'staticlibs' '!emptydirs' '!buildflags')
 _sourcedir=mingw-w64-v${pkgver}
 source=("https://sourceforge.net/projects/mingw-w64/files/mingw-w64/mingw-w64-release/mingw-w64-v${pkgver}.tar.bz2"
-        0001-Define-__-de-register_frame_info-in-fake-libgcc_s.patch)
-sha256sums=('SKIP'
-            'd9e8af81682d9bf70e3d87506f51156cec61260b810a234bce861cb2eb3a5919')
+        0001-Define-__-de-register_frame_info-in-fake-libgcc_s.patch
+        002-Remove-option-no-pthread.patch)
+sha256sums=('aa20dfff3596f08a7f427aab74315a6cb80c2b086b4a107ed35af02f9496b628'
+            'd9e8af81682d9bf70e3d87506f51156cec61260b810a234bce861cb2eb3a5919'
+            '4fa716bbf132bb0898cd72e4f6012d9a48926157b18b7d6f2c7e11a8eb0dc890')
 
 _targets="i686-w64-mingw32"
 
@@ -34,6 +36,7 @@ prepare() {
   cd "${srcdir}/${_sourcedir}"
   rm -f mingw-w64-libraries/winpthreads/src/libgcc/dll_frame_info.c
   patch -Nbp1 -i "${srcdir}"/0001-Define-__-de-register_frame_info-in-fake-libgcc_s.patch
+  patch -Nbp1 -i "${srcdir}"/002-Remove-option-no-pthread.patch
   cd "${srcdir}/${_sourcedir}"/mingw-w64-libraries/winpthreads
   autoreconf -vfi
 }
