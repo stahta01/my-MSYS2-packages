@@ -83,8 +83,7 @@ build() {
 
     ${srcdir}/binutils-${pkgver}/configure \
       --build=${CHOST} \
-      --host=${CHOST} \
-      --target=${_target} \
+      --host=${_target} \
       --with-sysroot=/opt/${_target} \
       --prefix=/opt \
       --disable-nls \
