@@ -192,7 +192,7 @@ prepare() {
     400-gcc-4.8-libstdc++export.patch \
     405-dwarf-regression.patch \
     410-fix-using-large-pch.patch
-  
+
   # MSYS2 Patches
   apply_patch_with_msg \
     950-5.2.0-configure-msys2.patch \
@@ -264,7 +264,7 @@ build() {
     --host=${CHOST} \
     --target=${_target} \
     --libexecdir=/opt/lib \
-    --disable-bootstrap \
+    --enable-bootstrap \
     --with-arch=${_arch} \
     --with-tune=generic \
     --enable-languages=${_languages} \
