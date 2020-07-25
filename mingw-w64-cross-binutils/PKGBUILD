@@ -5,9 +5,7 @@
 _realname=binutils
 _mingw_suff=mingw-w64-cross
 pkgname=("${_mingw_suff}-${_realname}")
-#_basever=2.24.51
-#pkgver=${_basever}.20131119
-pkgver=2.28
+pkgver=2.24.51
 pkgrel=1
 pkgdesc="A set of programs to assemble and manipulate binary and object files"
 arch=('i686' 'x86_64')
@@ -19,7 +17,7 @@ checkdepends=('dejagnu' 'bc')
 makedepends=("libiconv" "zlib")
 options=('staticlibs' '!distcc' '!ccache' '!buildflags')
 #install=binutils.install
-source=(#"https://mirrors.kernel.org/sources.redhat.com/binutils/snapshots/binutils-${_basever}.tar.bz2"
+source=(#"https://mirrors.kernel.org/sources.redhat.com/binutils/snapshots/binutils-${pkgver}.tar.bz2"
         https://ftp.gnu.org/gnu/binutils/binutils-${pkgver}.tar.bz2{,.sig}
         0001-enable-gold-on.mingw32.patch
         0002-check-for-unusual-file-harder.patch
@@ -89,7 +87,7 @@ build() {
       --target=${_target} \
       --with-sysroot=/opt/${_target} \
       --prefix=/opt \
-      --disable-nls \
+      --enable-nls \
       --disable-werror \
       --with-libiconv-prefix=/usr \
       $_conf
