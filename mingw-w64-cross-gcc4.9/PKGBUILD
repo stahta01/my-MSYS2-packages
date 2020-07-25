@@ -137,6 +137,7 @@ prepare() {
 
 build() {
   for _target in ${_targets}; do
+  [[ -d ${srcdir}/gcc-build-${_target} ]] && rm -rf ${srcdir}/gcc-build-${_target}
   mkdir -p ${srcdir}/gcc-build-${_target} && cd ${srcdir}/gcc-build-${_target}
 
   local _langs="c,lto,c++"
