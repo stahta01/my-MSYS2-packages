@@ -6,14 +6,16 @@ _realname=gcc
 
 # Package build options
 _targets="i686-w64-mingw32"
-_make_static_gcc_only=no
+_make_static_gcc_only=yes
 _threads="win32"
 if [[ "$_make_static_gcc_only" != "yes" ]] ; then
   _enable_gcc_lto=no    # set to no or yes as wanted                        # TODO: Confirm "yes" works
   _enable_shared=no     # set to no or yes as wanted                        # TODO: Confirm "yes" works
+  _enable_threads=no    # set to no or yes as wanted                        # TODO: Confirm "yes" works
 else
   _enable_gcc_lto=no    # needs to be no when making only static GCC        # TODO: Confirm this is needed
   _enable_shared=no
+  _enable_threads=no
 fi
 #_enable_ada=yes
 _enable_fortran=no
@@ -32,12 +34,14 @@ url="http://gcc.gnu.org"
 license=('GPL' 'LGPL' 'FDL' 'custom')
 groups=("${_mingw_suff}-toolchain" "${_mingw_suff}")
 depends=("zlib"
-         "mpc"  
+         "mpc"
          "${_mingw_suff}-binutils" 
          "${_mingw_suff}-headers")
 if [[ "$_make_static_gcc_only" != "yes" ]] ; then
-  depends+=("${_mingw_suff}-crt"
-            "${_mingw_suff}-winpthreads")
+  depends+=("${_mingw_suff}-crt-gcc${_basegccver}")
+fi
+if [[ "$_enable_threads" == "yes" ]]; then
+  depends+=("${_mingw_suff}-winpthreads-gcc${_basegccver}")
 fi
 makedepends=("gcc" 'lndir' 'patch' 'gmp' 'mpfr-devel' 'mpc-devel' 'zlib-devel' 'tar' 'diffutils' 'texinfo')
 #checkdepends=('dejagnu')
@@ -269,11 +273,9 @@ build() {
     configure_opts+=("--disable-lto")
   fi
 
-  if [ "$_make_static_gcc_only" == "yes" ]; then
-    configure_opts+=("--enable-static")
+  if [[ "$_enable_threads" != "yes" ]]; then
     configure_opts+=("--disable-threads")
   else
-    configure_opts+=("--enable-static")
     configure_opts+=("--enable-threads=${_threads}")
   fi
 
@@ -294,6 +296,7 @@ build() {
 
   ../${_realname}-${pkgver}/configure \
     --enable-bootstrap \
+    --enable-static \
     --prefix=/opt \
     --build=${CHOST} \
     --host=${CHOST} \
