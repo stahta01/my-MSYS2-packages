@@ -42,7 +42,7 @@ build() {
       --target=${_target} \
       --with-sysroot=/opt/${_target} \
       --prefix=/opt \
-      --enable-nls \
+      --disable-nls \
       --disable-werror \
       ${_common_config_options}
 
@@ -65,11 +65,7 @@ package() {
     cd ${srcdir}/binutils-build-${_target}
     make DESTDIR=${pkgdir} install
 
-    # Remove unwanted files
-    #rm ${destdir}/usr/share/info/{configure,standards}.info
-
-    # Add some useful headers
-    #install -m644 ${srcdir}/binutils-${pkgver}/include/libiberty.h ${pkgdir}/opt/include
-    #install -m644 ${srcdir}/binutils-${pkgver}/include/demangle.h ${pkgdir}/opt/include
+    # Remove conflicts with other packages not part of this toolchain
+    rm -fr ${pkgdir}/opt/share/{locale,info}/
   done
 }
