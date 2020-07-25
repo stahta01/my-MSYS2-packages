@@ -10,7 +10,7 @@ _make_static_gcc_only=no
 _threads="win32"
 if [[ "$_make_static_gcc_only" != "yes" ]] ; then
   _enable_gcc_lto=no    # set to no or yes as wanted                        # TODO: Confirm "yes" works
-  _enable_shared=no     # set to no or yes as wanted                        # TODO: Confirm "yes" works
+  _enable_shared=yes    # set to no or yes as wanted                        # TODO: Confirm "yes" works
   _enable_threads=no    # set to no or yes as wanted                        # TODO: Confirm "yes" works
 else
   _enable_gcc_lto=no    # needs to be no when making only static GCC        # TODO: Confirm this is needed
@@ -332,7 +332,9 @@ build() {
   if [[ "$_make_static_gcc_only" == "yes" ]] ; then
     make -j1 all-gcc
   else
-    make -j1 all
+    make -j1 all-gcc
+    #make -j1 all-target-libgcc
+    #make -j1 all
   fi
   done
 }
@@ -343,7 +345,9 @@ package() {
     if [[ "$_make_static_gcc_only" == "yes" ]] ; then
       make -j1 DESTDIR=${pkgdir} install-gcc
     else
-      make -j1 DESTDIR=${pkgdir} install
+      make -j1 DESTDIR=${pkgdir} install-gcc
+      #make -j1 DESTDIR=${pkgdir} install-target-libgcc
+      #make -j1 DESTDIR=${pkgdir} install
     fi
     if [[ "$_enable_shared" == "yes" ]] ; then
       mv ${pkgdir}/opt/lib/gcc/${_target}/lib/libgcc_s.a ${pkgdir}/opt/lib/gcc/${_target}/${pkgver}/
