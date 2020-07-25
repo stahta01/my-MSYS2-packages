@@ -1,4 +1,5 @@
-# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+# Maintainer: Tim Stahlhut <stahta01@gmail.com>
+# Contributor: Alexey Pavlov <alexpux@gmail.com>
 
 _realname=gcc
 _mingw_suff=mingw-w64-cross
@@ -81,7 +82,7 @@ sha256sums=('2020c98295856aa13fda0f2f3a4794490757fc24bcca918d52cc8b4917b972dd'
             'ccee1d773230c8e6bd286ba3f9c9a04c7d655f84fd2a2385d2a0c3cbc60f881f')
 
 _threads="win32"
-_targets="armv7-w64-mingw32 i686-w64-mingw32 x86_64-w64-mingw32"
+_targets="i686-w64-mingw32"
 
 prepare() {
   cd ${srcdir}/${_realname}-${pkgver}
