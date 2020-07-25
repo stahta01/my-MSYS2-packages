@@ -5,7 +5,7 @@ _mingw_suff=mingw-w64-cross
 _realname=gcc
 
 # Package build options
-_make_static_gcc_only=yes
+_make_static_gcc_only=no
 _threads="win32"
 _targets="i686-w64-mingw32"
 if [[ "$_make_static_gcc_only" != "yes" ]] ; then
