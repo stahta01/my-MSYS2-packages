@@ -1,0 +1,97 @@
+# Maintainer: Tim Stahlhut <stahta01@gmail.com>
+# Contributor: Alexey Pavlov <alexpux@gmail.com>
+
+_realname=gcc
+
+# begin common toolchain options
+_mingw_suff=aarch64-elf-cross
+_targets="aarch64-elf"
+_common_config_options="--disable-multilib --disable-threads"
+# end common toolchain options
+
+pkgname=("${_mingw_suff}-${_realname}")
+pkgver=4.9.4
+pkgrel=1
+pkgdesc="Cross GCC for the aarch64-elf target"
+arch=('i686' 'x86_64')
+url="https://gcc.gnu.org"
+license=('GPL' 'LGPL' 'FDL' 'custom')
+groups=("${_mingw_suff}-toolchain" "${_mingw_suff}")
+depends=("zlib" "${_mingw_suff}-binutils")
+makedepends=("gcc" 'lndir')
+#checkdepends=('dejagnu')
+options=('!strip' 'staticlibs' '!emptydirs' '!buildflags')
+
+_MPFR_VERSION=3.1.2
+_GMP_VERSION=6.0.0
+_MPC_VERSION=1.0.2
+_ISL_VERSION=0.12.2
+_CLOOG_VERSION=0.18.1
+
+source=(https://ftp.gnu.org/gnu/gcc/gcc-${pkgver}/gcc-${pkgver}.tar.gz
+        https://ftp.gnu.org/gnu/mpfr/mpfr-$_MPFR_VERSION.tar.xz
+        https://ftp.gnu.org/gnu/gmp/gmp-${_GMP_VERSION}a.tar.xz
+        https://ftp.gnu.org/gnu/mpc/mpc-$_MPC_VERSION.tar.gz
+        ftp://gcc.gnu.org/pub/gcc/infrastructure/isl-$_ISL_VERSION.tar.bz2
+        ftp://gcc.gnu.org/pub/gcc/infrastructure/cloog-$_CLOOG_VERSION.tar.gz)
+sha256sums=('1680f92781b92cbdb57d7e4f647c650678c594154cb0d707fd9a994424a9860d'
+            '399d0f47ef6608cc01d29ed1b99c7faff36d9994c45f36f41ba250147100453b'
+            '9156d32edac6955bc53b0218f5f3763facb890b73a835d5e1b901dcf8eb8b764'
+            'b561f54d8a479cee3bc891ee52735f18ff86712ba30f036f8b8537bae380c488'
+            'f4b3dbee9712850006e44f0db2103441ab3d13b406f77996d1df19ee89d11fb4'
+            '02500a4edd14875f94fe84cbeda4290425cb0c1c2474c6f75d75a303d64b4196')
+
+# Helper macros to help make tasks easier #
+apply_patch_with_msg() {
+  for _fname in "$@"
+  do
+    msg2 "Applying ${_fname}"
+    patch -Nbp1 -i "${srcdir}"/${_fname}
+  done
+}
+
+del_file_exists() {
+  for _fname in "$@"
+  do
+    if [ -f $_fname ] || [ -d $_fname ]; then
+      rm -rf $_fname
+    fi
+  done
+}
+# =========================================== #
+
+prepare() {
+  cd ${srcdir}/${_realname}-${pkgver}
+
+  ln -sf ../mpfr-$_MPFR_VERSION/ mpfr
+  ln -sf ../gmp-$_GMP_VERSION/ gmp
+  ln -sf ../mpc-$_MPC_VERSION/ mpc
+  ln -sf ../isl-$_ISL_VERSION/ isl
+  ln -sf ../cloog-$_CLOOG_VERSION/ cloog
+}
+
+build() {
+  for _target in ${_targets}; do
+    [[ -d ${srcdir}/gcc-build-${_target} ]] && rm -rf ${srcdir}/gcc-build-${_target}
+    mkdir -p ${srcdir}/gcc-build-${_target} && cd ${srcdir}/gcc-build-${_target}
+
+    ../${_realname}-${pkgver}/configure \
+      --prefix=/opt \
+      --build=${CHOST} \
+      --host=${CHOST} \
+      --target=${_target} \
+      --enable-languages=c,c++ \
+      --with-newlib \
+      ${_common_config_options}
+ 
+    make all-gcc
+  done
+}
+
+package() {
+  for _target in ${_targets}; do
+    cd ${srcdir}/gcc-build-${_target}
+    make -j1 DESTDIR=${pkgdir} install-gcc
+    rm -rf ${pkgdir}/opt/share
+  done
+}
