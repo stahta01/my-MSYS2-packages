@@ -1,0 +1,318 @@
+diff --exclude-from=exclude.lst -Nrup binutils-2.15/bfd/ChangeLog.M68HC11 binutils-2.15-m68hc1x/bfd/ChangeLog.M68HC11
+--- binutils-2.15/bfd/ChangeLog.M68HC11	Thu Jan  1 01:00:00 1970
++++ binutils-2.15-m68hc1x/bfd/ChangeLog.M68HC11	Sun Aug  1 18:48:03 2004
+@@ -0,0 +1,4 @@
++2004-08-01  Stephane Carrez  <stcarrez@nerim.fr>
++
++	* elf32-m68hc1x.c (elf32_m68hc11_size_stubs): Handle bfd_link_hash_new
++
+diff --exclude-from=exclude.lst -Nrup binutils-2.15/bfd/elf32-m68hc1x.c binutils-2.15-m68hc1x/bfd/elf32-m68hc1x.c
+--- binutils-2.15/bfd/elf32-m68hc1x.c	Mon May 17 21:35:59 2004
++++ binutils-2.15-m68hc1x/bfd/elf32-m68hc1x.c	Sun Aug  1 18:46:33 2004
+@@ -471,7 +471,8 @@ elf32_m68hc11_size_stubs (bfd *output_bf
+                             hash->root.u.i.link);
+ 
+                   if (hash->root.type == bfd_link_hash_defined
+-                      || hash->root.type == bfd_link_hash_defweak)
++                      || hash->root.type == bfd_link_hash_defweak
++                      || hash->root.type == bfd_link_hash_new)
+                     {
+                       if (!(hash->other & STO_M68HC12_FAR))
+                         continue;
+diff --exclude-from=exclude.lst -Nrup binutils-2.15/binutils/testsuite/ChangeLog.M68HC11 binutils-2.15-m68hc1x/binutils/testsuite/ChangeLog.M68HC11
+--- binutils-2.15/binutils/testsuite/ChangeLog.M68HC11	Thu Jan  1 01:00:00 1970
++++ binutils-2.15-m68hc1x/binutils/testsuite/ChangeLog.M68HC11	Sun Aug  1 11:47:06 2004
+@@ -0,0 +1,4 @@
++2004-08-01  Stephane Carrez  <stcarrez@nerim.fr>
++
++	* binutils-all/objcopy.exp: Mark XFAIL for m6811 and m6812
++
+diff --exclude-from=exclude.lst -Nrup binutils-2.15/binutils/testsuite/binutils-all/objcopy.exp binutils-2.15-m68hc1x/binutils/testsuite/binutils-all/objcopy.exp
+--- binutils-2.15/binutils/testsuite/binutils-all/objcopy.exp	Mon May 17 21:35:55 2004
++++ binutils-2.15-m68hc1x/binutils/testsuite/binutils-all/objcopy.exp	Sun Aug  1 11:46:44 2004
+@@ -523,6 +523,10 @@ proc copy_executable { prog flags test1 
+ 	setup_xfail "thumb*-*-coff"
+ 	setup_xfail "thumb*-*-pe"
+     
++	# The copy test fails because the .page0 section is filled after
++	# the copy.
++	setup_xfail "m6811-*-*"
++	setup_xfail "m6812-*-*"
+ 	fail $test1
+     }
+ 
+diff --exclude-from=exclude.lst -Nrup binutils-2.15/gas/testsuite/ChangeLog.M68HC11 binutils-2.15-m68hc1x/gas/testsuite/ChangeLog.M68HC11
+--- binutils-2.15/gas/testsuite/ChangeLog.M68HC11	Thu Jan  1 01:00:00 1970
++++ binutils-2.15-m68hc1x/gas/testsuite/ChangeLog.M68HC11	Sun Aug  1 11:33:00 2004
+@@ -0,0 +1,6 @@
++2004-08-01  Stephane Carrez  <stcarrez@nerim.fr>
++
++	* gas/m68hc11/m68hc11.exp: Fix tests for 2.15
++	* gas/elf/elf.exp: Test obj-elf for m6811-* and m6812-*
++	* gas/symver/symver.exp: Likewise for symver tests.
++
+diff --exclude-from=exclude.lst -Nrup binutils-2.15/gas/testsuite/gas/elf/elf.exp binutils-2.15-m68hc1x/gas/testsuite/gas/elf/elf.exp
+--- binutils-2.15/gas/testsuite/gas/elf/elf.exp	Thu Nov  6 16:30:05 2003
++++ binutils-2.15-m68hc1x/gas/testsuite/gas/elf/elf.exp	Sun Aug  1 11:00:42 2004
+@@ -33,6 +33,8 @@ proc run_list_test { name suffix opts re
+ # We're testing bits in obj-elf -- don't run on anything else.
+ if { ([istarget "*-*-elf*"]		
+       || [istarget "*-*-linux*"]
++      || [istarget "m6811-*"]
++      || [istarget "m6812-*"]
+       || [istarget "sparc*-*-solaris*"]
+       || [istarget "mips*-*-irix6*"])
+      && ![istarget *-*-linux*aout*]
+diff --exclude-from=exclude.lst -Nrup binutils-2.15/gas/testsuite/gas/m68hc11/m68hc11.exp binutils-2.15-m68hc1x/gas/testsuite/gas/m68hc11/m68hc11.exp
+--- binutils-2.15/gas/testsuite/gas/m68hc11/m68hc11.exp	Wed Jan 21 12:17:51 2004
++++ binutils-2.15-m68hc1x/gas/testsuite/gas/m68hc11/m68hc11.exp	Sun Aug  1 11:32:34 2004
+@@ -153,15 +153,12 @@ gas_m68hc11_error "-m68hc12" "movb 2,x,b
+ gas_m68hc11_error "-m68hc12" "movb bar,pc,2,x\nbar=300\n" \
+     "Offset out of 5-bit range for movw/movb insn: 300"
+ 
+-setup_xfail m6811-*-*
+-setup_xfail m6812-*-*
+-
+ # ------------------
+ # Specific commands
+ gas_m68hc11_warning "" ".mode \"bar\"\n" "Invalid mode: .bar."
+ gas_m68hc11_error "" ".relax 23\n" "bad .relax format"
+ gas_m68hc11_error "" ".relax bar-23\n" "bad .relax format"
+-gas_m68hc11_warning "" ".far bar bar\n" "rest of line ignored"
++gas_m68hc11_error "" ".far bar bar\n" "junk at end of line"
+ 
+ 
+ run_dump_test insns
+diff --exclude-from=exclude.lst -Nrup binutils-2.15/gas/testsuite/gas/symver/symver.exp binutils-2.15-m68hc1x/gas/testsuite/gas/symver/symver.exp
+--- binutils-2.15/gas/testsuite/gas/symver/symver.exp	Thu Nov 16 20:28:10 2000
++++ binutils-2.15-m68hc1x/gas/testsuite/gas/symver/symver.exp	Sun Aug  1 11:03:35 2004
+@@ -16,6 +16,8 @@ proc run_error_test { name opts } {
+ 
+ # symver is only supported by ELF targets.
+ if { ([istarget "*-*-elf*"]		
++      || [istarget "m6811-*"]
++      || [istarget "m6812-*"]
+       || [istarget "*-*-linux*"])
+      && ![istarget *-*-linux*aout*]
+      && ![istarget *-*-linux*oldld*] } then {
+diff --exclude-from=exclude.lst -Nrup binutils-2.15/ld/ChangeLog.M68HC11 binutils-2.15-m68hc1x/ld/ChangeLog.M68HC11
+--- binutils-2.15/ld/ChangeLog.M68HC11	Thu Jan  1 01:00:00 1970
++++ binutils-2.15-m68hc1x/ld/ChangeLog.M68HC11	Sun Aug  1 11:15:52 2004
+@@ -0,0 +1,9 @@
++2004-08-01  Stephane Carrez  <stcarrez@nerim.fr>
++
++	* ld.texinfo (Top): Document specific options of 68HC11 and 68HC12.
++
++2003-09-07  Stephane Carrez  <stcarrez@nerim.fr>
++
++	* scripttempl/elfm68hc12.sc: Align text, rodata and data section
++	on power of 2.
++
+diff --exclude-from=exclude.lst -Nrup binutils-2.15/ld/configdoc.texi binutils-2.15-m68hc1x/ld/configdoc.texi
+--- binutils-2.15/ld/configdoc.texi	Tue Apr  1 17:50:25 2003
++++ binutils-2.15-m68hc1x/ld/configdoc.texi	Sun Aug  1 11:17:41 2004
+@@ -7,6 +7,7 @@
+ @set I960
+ @set ARM
+ @set HPPA
++@set M68HC11
+ @set MMIX
+ @set MSP430
+ @set TICOFF
+diff --exclude-from=exclude.lst -Nrup binutils-2.15/ld/ld.texinfo binutils-2.15-m68hc1x/ld/ld.texinfo
+--- binutils-2.15/ld/ld.texinfo	Mon May 17 21:36:16 2004
++++ binutils-2.15-m68hc1x/ld/ld.texinfo	Sun Aug  1 11:14:19 2004
+@@ -152,6 +152,9 @@ section entitled ``GNU Free Documentatio
+ @ifset HPPA
+ * HPPA ELF32::                  ld and HPPA 32-bit ELF
+ @end ifset
++@ifset M68HC11
++* M68HC11/68HC12::              ld and the Motorola 68HC11 and 68HC12 families
++@end ifset
+ @ifset TICOFF
+ * TI COFF::                     ld and the TI COFF
+ @end ifset
+@@ -1299,6 +1302,9 @@ This option is only supported on a few t
+ @ifset XTENSA
+ @xref{Xtensa,, @command{ld} and Xtensa Processors}.
+ @end ifset
++@ifset M68HC11
++@xref{M68HC11/68HC12,,@command{ld} and the 68HC11 and 68HC12}.
++@end ifset
+ 
+ On some platforms, the @samp{--relax} option performs global
+ optimizations that become possible when the linker resolves addressing
+@@ -2139,6 +2145,34 @@ subsystem version also.
+ 
+ @c man end
+ 
++@ifset M68HC11
++@subsection Options specific to Motorola 68HC11 and 68HC12 targets
++
++@c man begin OPTIONS
++
++The 68HC11 and 68HC12 linkers support specific options to control the
++memory bank switching mapping and trampoline code generation.
++
++@table @gcctabopt
++
++@kindex --no-trampoline
++@item --no-trampoline
++This option disables the generation of trampoline. By default a trampoline
++is generated for each far function which is called using a @code{jsr}
++instruction (this happens when a pointer to a far function is taken).
++
++@kindex --bank-window
++@item --bank-window @var{name}
++This option indicates to the linker the name of the memory region in
++the @samp{MEMORY} specification that describes the memory bank window.
++The definition of such region is then used by the linker to compute
++paging and addresses within the memory window.
++
++@end table
++
++@c man end
++@end ifset
++
+ @ifset UsesEnvVars
+ @node Environment
+ @section Environment Variables
+@@ -4614,6 +4648,9 @@ functionality are not listed.
+ @ifset MSP430
+ * MSP430::			@command{ld} and MSP430
+ @end ifset
++@ifset M68HC11
++* M68HC11/68HC12::		@code{ld} and the Motorola 68HC11 and 68HC12 families
++@end ifset
+ @ifset TICOFF
+ * TI COFF::                     @command{ld} and TI COFF
+ @end ifset
+@@ -4736,6 +4773,57 @@ not itself call any subroutines).
+ @ifclear GENERIC
+ @raisesections
+ @end ifclear
++
++@ifset M68HC11
++@ifclear GENERIC
++@raisesections
++@end ifclear
++
++@node M68HC11/68HC12
++@section @command{ld} and the Motorola 68HC11 and 68HC12 families
++
++@cindex M68HC11 and 68HC12 support
++
++@subsection Linker Relaxation
++
++For the Motorola 68HC11, @command{ld} can perform these global
++optimizations when you specify the @samp{--relax} command-line option.
++
++@table @emph
++@cindex relaxing on M68HC11
++@item relaxing address modes
++@command{ld} finds all @code{jsr} and @code{jmp} instructions whose
++targets are within eight bits, and turns them into eight-bit
++program-counter relative @code{bsr} and @code{bra} instructions,
++respectively.
++
++@command{ld} also looks at all 16-bit extended addressing modes and
++transforms them in a direct addressing mode when the address is in
++page 0 (between 0 and 0x0ff).
++
++@item relaxing gcc instruction group
++When @command{gcc} is called with @option{-mrelax}, it can emit group
++of instructions that the linker can optimize to use a 68HC11 direct
++addressing mode. These instructions consists of @code{bclr} or
++@code{bset} instructions.
++
++@end table
++
++@subsection Trampoline Generation
++
++@cindex trampoline generation on M68HC11
++@cindex trampoline generation on M68HC12
++For 68HC11 and 68HC12, @command{ld} can generate trampoline code to
++call a far function using a normal @code{jsr} instruction. The linker
++will also change the relocation to some far function to use the 
++trampoline address instead of the function address. This is typically the
++case when a pointer to a function is taken. The pointer will in fact
++point to the function trampoline.
++
++@ifclear GENERIC
++@lowersections
++@end ifclear
++@end ifset
+ 
+ @node ARM
+ @section @command{ld}'s Support for Interworking Between ARM and Thumb Code
+diff --exclude-from=exclude.lst -Nrup binutils-2.15/ld/scripttempl/elfm68hc12.sc binutils-2.15-m68hc1x/ld/scripttempl/elfm68hc12.sc
+--- binutils-2.15/ld/scripttempl/elfm68hc12.sc	Mon Oct 27 11:10:57 2003
++++ binutils-2.15-m68hc1x/ld/scripttempl/elfm68hc12.sc	Sun Aug  1 11:06:53 2004
+@@ -319,8 +319,8 @@ SECTIONS
+ 
+     ${RELOCATING+_etext = .;}
+     ${RELOCATING+PROVIDE (etext = .);}
+-
+-  } ${RELOCATING+ > ${TEXT_MEMORY}}
++    ${RELOCATING+. = ALIGN(2);}
++  } ${RELOCATING+ > ${TEXT_MEMORY} =0xa7a7a7a7}
+ 
+   .eh_frame ${RELOCATING-0} :
+   {
+@@ -337,12 +337,14 @@ SECTIONS
+     *(.rodata)
+     ${RELOCATING+*(.rodata.*)}
+     ${RELOCATING+*(.gnu.linkonce.r*)}
+-  } ${RELOCATING+ > ${TEXT_MEMORY}}
++    ${RELOCATING+. = ALIGN(2);}
++  } ${RELOCATING+ > ${TEXT_MEMORY} =0xffffffff}
+ 
+   .rodata1 ${RELOCATING-0} :
+   {
+     *(.rodata1)
+-  } ${RELOCATING+ > ${TEXT_MEMORY}}
++    ${RELOCATING+. = ALIGN(2);}
++  } ${RELOCATING+ > ${TEXT_MEMORY} =0xffffffff}
+ 
+   /* Constructor and destructor tables are in ROM.  */
+   ${RELOCATING+${CTOR}}
+@@ -376,7 +378,8 @@ SECTIONS
+ 
+     ${RELOCATING+_edata  =  .;}
+     ${RELOCATING+PROVIDE (edata = .);}
+-  } ${RELOCATING+ > ${DATA_MEMORY}}
++    ${RELOCATING+. = ALIGN(2);}
++  } ${RELOCATING+ > ${DATA_MEMORY} =0xffffffff}
+ 
+   ${RELOCATING+__data_section_size = SIZEOF(.data);}
+   ${RELOCATING+PROVIDE (__data_section_size = SIZEOF(.data));}
+diff --exclude-from=exclude.lst -Nrup binutils-2.15/ld/testsuite/ChangeLog.M68HC11 binutils-2.15-m68hc1x/ld/testsuite/ChangeLog.M68HC11
+--- binutils-2.15/ld/testsuite/ChangeLog.M68HC11	Thu Jan  1 01:00:00 1970
++++ binutils-2.15-m68hc1x/ld/testsuite/ChangeLog.M68HC11	Sun Aug  1 11:35:58 2004
+@@ -0,0 +1,5 @@
++2004-08-01  Stephane Carrez  <stcarrez@nerim.fr>
++
++	* ld-undefined/undefined.exp: The undefine tests now work on
++	68HC11 and 68HC12.
++
+diff --exclude-from=exclude.lst -Nrup binutils-2.15/ld/testsuite/ld-undefined/undefined.exp binutils-2.15-m68hc1x/ld/testsuite/ld-undefined/undefined.exp
+--- binutils-2.15/ld/testsuite/ld-undefined/undefined.exp	Mon Oct 27 12:42:30 2003
++++ binutils-2.15-m68hc1x/ld/testsuite/ld-undefined/undefined.exp	Sun Aug  1 11:35:03 2004
+@@ -78,8 +78,6 @@ setup_xfail "alpha*-*-linux*"
+ setup_xfail "hppa*64*-*-*"
+ setup_xfail "mn10300-*-elf"
+ setup_xfail "sh-*-*"
+-setup_xfail "m6811-*-*"
+-setup_xfail "m6812-*-*"
+ 
+ set mf "tmpdir/undefined.o* In function `function':"
+ checkund $mf $testfn
+@@ -134,8 +132,6 @@ set ml "undefined.c:9: undefined referen
+ setup_xfail mcore-*-elf
+ setup_xfail mips-sgi-irix6*
+ setup_xfail "sh64-*-*"
+-setup_xfail "m6811-*-*"
+-setup_xfail "m6812-*-*"
+ 
+ # The undefined test fails on 31 bit s/390 because the address of the 
+ # function `this_function_is_not_defined' is stored in the literal pool of

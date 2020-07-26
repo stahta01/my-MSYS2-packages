@@ -1,0 +1,73 @@
+# Maintainer: Tim Stahlhut <stahta01@gmail.com>
+# Contributor: Alexey Pavlov <alexpux@gmail.com>
+# Contributor: Martell Malone <martellmalone@gmail.com>
+
+_realname=binutils
+
+# begin common toolchain options
+_mingw_suff=m6812-elf-cross
+_targets="m6812-elf"
+_common_config_options="--disable-multilib --disable-threads"
+# end common toolchain options
+
+pkgname=("${_mingw_suff}-${_realname}")
+pkgver=2.15
+pkgrel=1
+pkgdesc="A set of programs to assemble and manipulate binary and object files"
+arch=('i686' 'x86_64')
+url="https://www.gnu.org/software/binutils/"
+license=('GPL')
+groups=("${_mingw_suff}-toolchain" "${_mingw_suff}")
+depends=("libiconv" "zlib")
+checkdepends=('dejagnu' 'bc')
+makedepends=("libiconv" "zlib")
+options=('staticlibs' '!distcc' '!ccache' '!buildflags')
+#install=binutils.install
+source=(https://ftp.gnu.org/gnu/binutils/binutils-${pkgver}.tar.bz2
+        binutils-2.15-m68hc1x-20040801.diffs)
+sha256sums=('7b99deeba79e362b724db923d5b7afd46a4d38e922ada4054eae99b80dc9aa93'
+            '1b8a85729cc33307def0ab10fc9c165da77da81f393ad6c8da1af36cb83ce7cc')
+
+prepare() {
+  cd ${srcdir}/binutils-${pkgver}
+  patch -Nbp1 -i "${srcdir}"/binutils-2.15-m68hc1x-20040801.diffs
+}
+
+build() {
+  for _target in ${_targets}; do
+    [[ -d ${srcdir}/binutils-build-${_target} ]] && rm -rf ${srcdir}/binutils-build-${_target}
+    mkdir -p ${srcdir}/binutils-build-${_target} && cd ${srcdir}/binutils-build-${_target}
+
+    ${srcdir}/binutils-${pkgver}/configure \
+      --build=${CHOST} \
+      --host=${CHOST} \
+      --target=${_target} \
+      --with-sysroot=/opt/${_target} \
+      --prefix=/opt \
+      --disable-nls \
+      --disable-werror \
+      ${_common_config_options}
+
+    make
+  done
+}
+
+check() {
+  for _target in ${_targets}; do
+    cd ${srcdir}/binutils-build-${_target}
+
+    # unset LDFLAGS as testsuite makes assumptions about which ones are active
+    # do not abort on errors - manually check log files
+    make LDFLAGS="" -k check || true
+  done
+}
+
+package() {
+  for _target in ${_targets}; do
+    cd ${srcdir}/binutils-build-${_target}
+    make DESTDIR=${pkgdir} install
+
+    # Remove conflicts with other packages not part of this toolchain
+    rm -fr ${pkgdir}/opt/share/{locale,info}/
+  done
+}
