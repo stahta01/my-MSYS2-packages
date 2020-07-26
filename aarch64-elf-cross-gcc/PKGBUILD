@@ -77,33 +77,33 @@ build() {
   local _saved_path=$PATH
 
   for _target in ${_targets}; do
-    [[ -d ${srcdir}/gcc-build-${_target} ]] && rm -rf ${srcdir}/gcc-build-${_target}
-    [[ -d ${srcdir}/gcc-install-${_target} ]] && rm -rf ${srcdir}/gcc-install-${_target}
-    mkdir -p ${srcdir}/gcc-build-${_target} && cd ${srcdir}/gcc-build-${_target}
+    #[[ -d ${srcdir}/gcc-build-${_target} ]] && rm -rf ${srcdir}/gcc-build-${_target}
+    #[[ -d ${srcdir}/gcc-install-${_target} ]] && rm -rf ${srcdir}/gcc-install-${_target}
+    #mkdir -p ${srcdir}/gcc-build-${_target} && cd ${srcdir}/gcc-build-${_target}
 
     export PATH=${srcdir}/gcc-install-${_target}/opt/bin:/opt/bin:${_saved_path}
 
-    # Build First Part of GCC
-    ../${_realname}-${pkgver}/configure \
-      --prefix=/opt \
-      --build=${CHOST} \
-      --host=${CHOST} \
-      --target=${_target} \
-      --enable-languages=c,c++ \
-      --with-newlib \
-      ${_common_config_options}
- 
-    make all-gcc
-    make -j1 DESTDIR=${srcdir}/gcc-install-${_target} install-gcc
+    ## Build First Part of GCC
+    #../${_realname}-${pkgver}/configure \
+      #--prefix=/opt \
+      #--build=${CHOST} \
+      #--host=${CHOST} \
+      #--target=${_target} \
+      #--enable-languages=c,c++ \
+      #--with-newlib \
+      #${_common_config_options}
+
+    #make all-gcc
+    #make -j1 DESTDIR=${srcdir}/gcc-install-${_target} install-gcc
 
     # Build Newlib
     [[ -d ${srcdir}/newlib-build-${_target} ]] && rm -rf ${srcdir}/newlib-build-${_target}
     [[ -d ${srcdir}/newlib-install-${_target} ]] && rm -rf ${srcdir}/newlib-install-${_target}
     mkdir -p ${srcdir}/newlib-build-${_target} && cd ${srcdir}/newlib-build-${_target}
 
-    ../newlib-$_NEWLIB_VERSION/configure 
-      --prefix=/opt \ 
-      --target=${_target} 
+    ../newlib-$_NEWLIB_VERSION/configure \
+      --prefix=/opt \
+      --target=${_target} \
       ${_common_config_options}
     make
     make -j1 DESTDIR=${srcdir}/newlib-install-${_target} install
