@@ -29,6 +29,14 @@ _ISL_VERSION=0.12.2
 _CLOOG_VERSION=0.18.1
 _NEWLIB_VERSION=2.1.0
 
+noextract=("gcc-${pkgver}.tar.gz"
+  "mpfr-$_MPFR_VERSION.tar.xz"
+  "gmp-${_GMP_VERSION}a.tar.xz"
+  "mpc-$_MPC_VERSION.tar.gz"
+  "isl-$_ISL_VERSION.tar.bz2"
+  "cloog-$_CLOOG_VERSION.tar.gz"
+  "newlib-$_NEWLIB_VERSION.tar.gz")
+
 source=(https://ftp.gnu.org/gnu/gcc/gcc-${pkgver}/gcc-${pkgver}.tar.gz
         https://ftp.gnu.org/gnu/mpfr/mpfr-$_MPFR_VERSION.tar.xz
         https://ftp.gnu.org/gnu/gmp/gmp-${_GMP_VERSION}a.tar.xz
@@ -66,11 +74,12 @@ del_file_exists() {
 prepare() {
   cd ${srcdir}/${_realname}-${pkgver}
 
-  ln -sf ../mpfr-$_MPFR_VERSION/ mpfr
-  ln -sf ../gmp-$_GMP_VERSION/ gmp
-  ln -sf ../mpc-$_MPC_VERSION/ mpc
-  ln -sf ../isl-$_ISL_VERSION/ isl
-  ln -sf ../cloog-$_CLOOG_VERSION/ cloog
+  #[[ ! -d mpfr ]] && ln -sf ../mpfr-$_MPFR_VERSION/ mpfr
+  #mkdir -p gmp; lndir -silent ../../gmp-$_GMP_VERSION/ gmp
+  #ln -sf ../gmp-$_GMP_VERSION/ gmp
+  #ln -sf ../mpc-$_MPC_VERSION/ mpc
+  #ln -sf ../isl-$_ISL_VERSION/ isl
+  #ln -sf ../cloog-$_CLOOG_VERSION/ cloog
 }
 
 build() {
@@ -81,7 +90,9 @@ build() {
     #[[ -d ${srcdir}/gcc-install-${_target} ]] && rm -rf ${srcdir}/gcc-install-${_target}
     #mkdir -p ${srcdir}/gcc-build-${_target} && cd ${srcdir}/gcc-build-${_target}
 
-    export PATH=${srcdir}/gcc-install-${_target}/opt/bin:/opt/bin:${_saved_path}
+
+    # opt\aarch64-elf\bin
+    export PATH=${srcdir}/gcc-install-${_target}/opt/bin:${srcdir}/gcc-install-${_target}/opt/libexec/gcc/aarch64-elf/4.9.4:/opt/bin:/opt/aarch64-elf/bin:${_saved_path}
 
     ## Build First Part of GCC
     #../${_realname}-${pkgver}/configure \
@@ -96,8 +107,10 @@ build() {
     #make all-gcc
     #make -j1 DESTDIR=${srcdir}/gcc-install-${_target} install-gcc
 
+    echo "PATH := $PATH"
+    which as
     # Build Newlib
-    [[ -d ${srcdir}/newlib-build-${_target} ]] && rm -rf ${srcdir}/newlib-build-${_target}
+    #[[ -d ${srcdir}/newlib-build-${_target} ]] && rm -rf ${srcdir}/newlib-build-${_target}
     [[ -d ${srcdir}/newlib-install-${_target} ]] && rm -rf ${srcdir}/newlib-install-${_target}
     mkdir -p ${srcdir}/newlib-build-${_target} && cd ${srcdir}/newlib-build-${_target}
 
@@ -105,7 +118,7 @@ build() {
       --prefix=/opt \
       --target=${_target} \
       ${_common_config_options}
-    make
+    make -j1
     make -j1 DESTDIR=${srcdir}/newlib-install-${_target} install
 
     # Build Standard C++ Library & the rest of GCC
