@@ -83,13 +83,13 @@ _extract_to_gcc_folder() {
     local subfolder="$(echo "$tarfile" | sed 's/-.*$//')"
     if [ ! -d  "${srcdir}/gcc-${pkgver}/$subfolder" ]; then
         mkdir -p "${srcdir}/gcc-${pkgver}/$subfolder"
-        tar --strip-components=1 xf "${srcdir}/$tarfile" -C "${srcdir}/gcc-${pkgver}/$subfolder"
+        tar -x --strip-components=1 -f "${srcdir}/$tarfile" -C "${srcdir}/gcc-${pkgver}/$subfolder"
     fi
 }
 # =========================================== #
 
 prepare() {
-  _extract                "gcc-${pkgver}/gcc-${pkgver}.tar.gz"
+  _extract                "gcc-${pkgver}.tar.gz"
   _extract_to_gcc_folder  "mpfr-$_MPFR_VERSION.tar.xz"
   _extract_to_gcc_folder  gmp-${_GMP_VERSION}a.tar.xz
   _extract_to_gcc_folder  mpc-$_MPC_VERSION.tar.gz
