@@ -33,7 +33,7 @@ _NEWLIB_VERSION=2.1.0
 
 noextract=("gcc-${pkgver}.tar.gz"
   "mpfr-$_MPFR_VERSION.tar.xz"
-  "gmp-${_GMP_VERSION}a.tar.xz"
+  "gmp-${_GMP_VERSION}.tar.xz"
   "mpc-$_MPC_VERSION.tar.gz"
   "isl-$_ISL_VERSION.tar.bz2"
   "cloog-$_CLOOG_VERSION.tar.gz"
@@ -93,7 +93,7 @@ _extract_to_gcc_folder() {
 prepare() {
   _extract                "gcc-${pkgver}.tar.gz"
   _extract_to_gcc_folder  "mpfr-$_MPFR_VERSION.tar.xz"
-  _extract_to_gcc_folder  gmp-${_GMP_VERSION}a.tar.bz2
+  _extract_to_gcc_folder  gmp-${_GMP_VERSION}.tar.bz2
   _extract_to_gcc_folder  mpc-$_MPC_VERSION.tar.gz
   _extract_to_gcc_folder  isl-$_ISL_VERSION.tar.bz2
   _extract_to_gcc_folder  cloog-$_CLOOG_VERSION.tar.gz 
