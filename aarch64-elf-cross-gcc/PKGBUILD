@@ -69,16 +69,38 @@ del_file_exists() {
     fi
   done
 }
+
+_extract() {
+    local tarfile="$1"
+    local extracted="$(echo "$tarfile" | sed 's/\.tar.*$//')"
+    if [ ! -d  "${srcdir}/$extracted" ]; then
+        tar xf "${srcdir}/$tarfile" -C "${srcdir}"
+    fi
+}
+
+_extract_to_gcc_folder() {
+    local tarfile="$1"
+    local subfolder="$(echo "$tarfile" | sed 's/-.*$//')"
+    if [ ! -d  "${srcdir}/gcc-${pkgver}/$subfolder" ]; then
+        mkdir -p "${srcdir}/gcc-${pkgver}/$subfolder"
+        tar --strip-components=1 xf "${srcdir}/$tarfile" -C "${srcdir}/gcc-${pkgver}/$subfolder"
+    fi
+}
 # =========================================== #
 
 prepare() {
+  _extract                "gcc-${pkgver}/gcc-${pkgver}.tar.gz"
+  _extract_to_gcc_folder  "mpfr-$_MPFR_VERSION.tar.xz"
+  _extract_to_gcc_folder  gmp-${_GMP_VERSION}a.tar.xz
+  _extract_to_gcc_folder  mpc-$_MPC_VERSION.tar.gz
+  _extract_to_gcc_folder  isl-$_ISL_VERSION.tar.bz2
+  _extract_to_gcc_folder  cloog-$_CLOOG_VERSION.tar.gz 
+  _extract                "newlib-$_NEWLIB_VERSION.tar.gz"
+
   cd ${srcdir}/${_realname}-${pkgver}
 
-  #ln -sf ../mpfr-$_MPFR_VERSION/ mpfr
-  #ln -sf ../gmp-$_GMP_VERSION/ gmp
-  #ln -sf ../mpc-$_MPC_VERSION/ mpc
-  #ln -sf ../isl-$_ISL_VERSION/ isl
-  #ln -sf ../cloog-$_CLOOG_VERSION/ cloog
+  #do not install libiberty
+  sed -i 's/install_to_$(INSTALL_DEST) //' libiberty/Makefile.in
 }
 
 build() {
@@ -121,7 +143,7 @@ build() {
 
     # Build Standard C++ Library & the rest of GCC
     cd ${srcdir}/gcc-build-${_target}
-    make all
+    make -j1 all
     make -j1 DESTDIR=${srcdir}/gcc-install-${_target} install
 
   done
