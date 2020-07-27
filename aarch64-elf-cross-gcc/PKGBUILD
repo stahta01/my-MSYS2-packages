@@ -24,9 +24,9 @@ makedepends=("gcc" 'lndir')
 #checkdepends=('dejagnu')
 options=('!strip' 'staticlibs' '!emptydirs' '!buildflags')
 
-_MPFR_VERSION=2.4.2       # 2.4.2 to 3.1.2 # 2.4.2 needs msys2 patch
-_GMP_VERSION=4.3.2
-_MPC_VERSION=0.8.1
+_MPFR_VERSION=2.4.2       # Regenerated config.guess and config.sub needed
+_GMP_VERSION=4.3.2        # Regenerated config.guess and config.sub needed
+_MPC_VERSION=0.8.1        # Regenerated config.guess and config.sub needed
 _ISL_VERSION=0.12.2
 _CLOOG_VERSION=0.18.1
 _NEWLIB_VERSION=2.1.0
@@ -46,8 +46,10 @@ source=(https://ftp.gnu.org/gnu/gcc/gcc-${pkgver}/gcc-${pkgver}.tar.gz
         ftp://gcc.gnu.org/pub/gcc/infrastructure/isl-$_ISL_VERSION.tar.bz2
         ftp://gcc.gnu.org/pub/gcc/infrastructure/cloog-$_CLOOG_VERSION.tar.gz
         ftp://sourceware.org/pub/newlib/newlib-$_NEWLIB_VERSION.tar.gz
+        461-gcc-4.0-cfns-fix-mismatch-in-gnu_inline-attributes.patch
+        704-gcc-4.6.4-Fix-texi-docs-syntax-errors.patch
         801-mpfr-2.4.2-Regenerate-config.guess-and-config.sub.patch
-        802-gmp-4.3.2-Update-config.guess-and-config.sub.patch
+        802-gmp-4.3.2-Regenerate-config.guess-and-config.sub.patch
         803-mpc-0.8.1-Regenerate-config.guess-and-config.sub.patch)
 sha256sums=('1dbc5cd94c9947fe5dffd298e569de7f44c3cedbd428fceea59490d336d8295a'
             'd7271bbfbc9ddf387d3919df8318cd7192c67b232919bfa1cb3202d07843da1b'
@@ -56,6 +58,8 @@ sha256sums=('1dbc5cd94c9947fe5dffd298e569de7f44c3cedbd428fceea59490d336d8295a'
             'f4b3dbee9712850006e44f0db2103441ab3d13b406f77996d1df19ee89d11fb4'
             '02500a4edd14875f94fe84cbeda4290425cb0c1c2474c6f75d75a303d64b4196'
             '3e4d5ab9f0508942b6231b8ade4f8e5048cf92c96ed574c2bd6bd3320a599a48'
+            '714e18e8e1a89c149dfabde6eb6dd0a7518590b7a911643de761b6d31c7acd2d'
+            '35bbb8cbda294bea0c67d54e7a89ca5ece59db414cc7877e3b0244ea1ee6c2e3'
             '4dac6470395eddce4a44590ba5cc002f4b4b062b674640f09fec8418941fb4aa'
             'cac6a6b1fe8f0bb52c6dcdd8bc43d10f93bff2c9fe66df5d06d13114ce61882a'
             '05425799b049ec9b709e7592b9b47bdf2e09555c340964b2e1baa9b809aa8c3a')
@@ -110,14 +114,17 @@ prepare() {
   #do not install libiberty
   sed -i 's/install_to_$(INSTALL_DEST) //' libiberty/Makefile.in
 
+  patch -Nbp1 -i "${srcdir}"/461-gcc-4.0-cfns-fix-mismatch-in-gnu_inline-attributes.patch
+#  patch -Nbp1 -i "${srcdir}"/704-gcc-4.6.4-Fix-texi-docs-syntax-errors.patch
+
 #  cd ${srcdir}/${_realname}-${pkgver}/mpfr
 #  patch -Nbp1 -i "${srcdir}"/801-mpfr-2.4.2-Regenerate-config.guess-and-config.sub.patch
 #
 #  cd ${srcdir}/${_realname}-${pkgver}/gmp
-#  patch -Nbp1 -i "${srcdir}"/802-gmp-4.3.2-Update-config.guess-and-config.sub.patch
-
-   cd ${srcdir}/${_realname}-${pkgver}/mpc
-   patch -Nbp1 -i "${srcdir}"/803-mpc-0.8.1-Regenerate-config.guess-and-config.sub.patch
+#  patch -Nbp1 -i "${srcdir}"/802-gmp-4.3.2-Regenerate-config.guess-and-config.sub.patch
+#
+#  cd ${srcdir}/${_realname}-${pkgver}/mpc
+#  patch -Nbp1 -i "${srcdir}"/803-mpc-0.8.1-Regenerate-config.guess-and-config.sub.patch
 }
 
 build() {
