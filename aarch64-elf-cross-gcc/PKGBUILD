@@ -1,6 +1,8 @@
 # Maintainer: Tim Stahlhut <stahta01@gmail.com>
 # Contributor: Alexey Pavlov <alexpux@gmail.com>
 
+# pacman -R mpfr-devel # This package interferes with this package buiding
+
 _realname=gcc
 
 # begin common toolchain options
@@ -22,9 +24,9 @@ makedepends=("gcc" 'lndir')
 #checkdepends=('dejagnu')
 options=('!strip' 'staticlibs' '!emptydirs' '!buildflags')
 
-_MPFR_VERSION=3.1.2
-_GMP_VERSION=6.0.0
-_MPC_VERSION=1.0.2
+_MPFR_VERSION=2.4.2
+_GMP_VERSION=4.3.2
+_MPC_VERSION=0.8.1
 _ISL_VERSION=0.12.2
 _CLOOG_VERSION=0.18.1
 _NEWLIB_VERSION=2.1.0
@@ -111,7 +113,9 @@ build() {
     [[ -d ${srcdir}/gcc-install-${_target} ]] && rm -rf ${srcdir}/gcc-install-${_target}
     mkdir -p ${srcdir}/gcc-build-${_target} && cd ${srcdir}/gcc-build-${_target}
 
-    export PATH=${srcdir}/gcc-install-${_target}/opt/bin:${srcdir}/gcc-install-${_target}/opt/libexec/gcc/aarch64-elf/4.9.4:/opt/bin:/opt/aarch64-elf/bin:${_saved_path}
+    #export PATH=${srcdir}/gcc-install-${_target}/opt/bin:${srcdir}/gcc-install-${_target}/opt/libexec/gcc/aarch64-elf/4.9.4:/opt/bin:/opt/aarch64-elf/bin:${_saved_path}
+    export PATH=/opt/bin:${_saved_path}
+    echo "PATH := $PATH"
 
     # Build First Part of GCC
     ../${_realname}-${pkgver}/configure \
@@ -122,13 +126,15 @@ build() {
       --enable-languages=c,c++ \
       --disable-libssp \
       --with-newlib \
+      --with-headers=../newlib-${_NEWLIB_VERSION}/newlib/libc/include \
       ${_common_config_options}
 
     make all-gcc
     make -j1 DESTDIR=${srcdir}/gcc-install-${_target} install-gcc
 
+    PATH=${srcdir}/gcc-install-${_target}/opt/bin:$PATH
     echo "PATH := $PATH"
-    which as
+
     # Build Newlib
     [[ -d ${srcdir}/newlib-build-${_target} ]] && rm -rf ${srcdir}/newlib-build-${_target}
     [[ -d ${srcdir}/newlib-install-${_target} ]] && rm -rf ${srcdir}/newlib-install-${_target}
