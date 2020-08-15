@@ -1,0 +1,63 @@
+# Contributor: Tim Stahlhut <stahta01@gmail.com>
+# Fork of ArchLinux package: https://www.archlinux.org/packages/community/any/aarch64-linux-gnu-linux-api-headers/
+
+_targets="aarch64-linux-gnu"
+
+_realname=headers
+_mingw_suff=linux-cross
+pkgname=("${_mingw_suff}-${_realname}")
+pkgver=5.5
+pkgrel=1
+pkgdesc="Kernel headers sanitized for use in userspace"
+arch=('i686' 'x86_64')
+url='https://www.kernel.org'
+license=(GPL2)
+makedepends=('rsync' 'gcc' 'tar' 'make')
+groups=("${_mingw_suff}-toolchain" "${_mingw_suff}")
+options=('!strip' '!libtool' '!emptydirs' '!buildflags')
+_pkgsourcedir=linux-${pkgver}
+source=(https://www.kernel.org/pub/linux/kernel/v5.x/linux-$pkgver.tar.xz )
+sha256sums=('a6fbd4ee903c128367892c2393ee0d9657b6ed3ea90016d4dc6f1f6da20b2330')
+noextract=(${_pkgsourcedir}.tar.xz)
+
+# Helper macros to help make tasks easier #
+_extract() {
+    local tarfile="$1"
+    local extracted="$(echo "$tarfile" | sed 's/\.tar.*$//')"
+    if [ ! -d  "$extracted" ]; then
+        echo "Extracting ${tarfile}"
+        tar -xf $tarfile --checkpoint=1000
+    fi
+}
+# ======================================= #
+
+prepare() {
+  _extract ${_pkgsourcedir}.tar.xz || true
+}
+
+build() {
+  cd ${_pkgsourcedir}
+}
+
+package() {
+  cd ${_pkgsourcedir}
+
+  for _target in ${_targets}; do
+    msg "Packaging ${_target} headers"
+
+    if [ "${_target}" = "aarch64-linux-gnu" ]; then
+      _target_arch='arm64'
+    fi
+    if [ "${_target}" = "riscv64-linux-gnu" ]; then
+      _target_arch='riscv'
+    fi
+    if [ "${_target}" = "x86_64-pc-linux-gnu" ]; then
+      _target_arch='x86_64'
+    fi
+
+    make ARCH=${_target_arch} INSTALL_HDR_PATH="$pkgdir/opt/$_target/" headers_install
+
+    # clean-up unnecessary files generated during install
+    find "$pkgdir" \( -name .install -or -name ..install.cmd \) -delete
+  done
+}
