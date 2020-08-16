@@ -1,0 +1,107 @@
+# Contributer: Tim Stahlhut <stahta01@gmail.com>
+# Fork of: https://www.archlinux.org/packages/community/any/aarch64-linux-gnu-glibc/
+
+_targets="aarch64-linux-gnu"
+_run_helper_script=yes         # Set to no once linux-cross-glibc and linux-cross-gcc packages have been built and installed
+
+_realname=glibc
+_mingw_suff=linux-cross
+pkgname=("${_mingw_suff}-${_realname}")
+pkgver=2.32
+pkgrel=1
+pkgdesc="GNU C Library for Linux targets"
+arch=('i686' 'x86_64')
+url='https://gcc.gnu.org/'
+license=(GPL LGPL FDL)
+depends=("${_mingw_suff}-headers")
+makedepends=('rsync' 'gcc' 'tar' 'make' 'python' 'bison'
+  $([[ "$_run_helper_script" != "no" ]] && echo 'diffutils' 'texinfo')
+  $([[ "$_run_helper_script" == "no" ]] && echo "${_mingw_suff}-gcc") )
+groups=("${_mingw_suff}-toolchain" "${_mingw_suff}")
+options=(!emptydirs !strip staticlibs !buildflags)
+source=(https://ftp.gnu.org/gnu/libc/glibc-$pkgver.tar.xz )
+sha256sums=('1627ea54f5a1a8467032563393e0901077626dc66f37f10ee6363bb722222836')
+noextract=(glibc-$pkgver.tar.xz )
+_pkgsourcedir=glibc-${pkgver}
+
+# Helper macros to help make tasks easier #
+_extract() {
+    local tarfile="$1"
+    local extracted="$(echo "$tarfile" | sed 's/\.tar.*$//')"
+    if [ ! -d  "$extracted" ]; then
+        echo "Extracting ${tarfile}"
+        tar -xf $tarfile --checkpoint=1000
+    fi
+}
+# ======================================= #
+
+prepare() {
+  _extract glibc-$pkgver.tar.xz || true
+
+  cd ${_pkgsourcedir}
+  # Replace "oS" with "oZ" to avoid filename clashes
+  sed -i 's/.oS)/.oZ)/g; s/.oS$/.oZ/g; s/.oS =/.oZ =/g'       Makeconfig
+  sed -i 's/.oS,/.oZ,/g; s/.oS +=/.oZ +=/g; s/.oS)/.oZ)/g'    Makerules 
+  sed -i 's/.oS)/.oZ)/g; s/.oS,/.oZ,/g'                       extra-lib.mk        
+  sed -i 's/.oS)/.oZ)/g'                                      nptl/Makefile
+  sed -i 's/.oS +=/.oZ +=/g'                                  csu/Makefile
+  sed -i 's/.oS +=/.oZ +=/g'                                  sysdeps/i386/i686/Makefile
+  sed -i 's/.oS,/.oZ,/g'                                      sysdeps/ieee754/ldbl-opt/Makefile
+  sed -i 's/.oS +=/.oZ +=/g'                                  sysdeps/sparc/sparc32/sparcv9/Makefile
+  sed -i 's/.oS +=/.oZ +=/g'                                  sysdeps/sparc/sparc64/Makefile
+  sed -i 's/.oS +=/.oZ +=/g'                                  sysdeps/unix/sysv/linux/mips/Makefile
+  sed -i 's/.oS +=/.oZ +=/g'                                  sysdeps/x86/Makefile
+  sed -i 's/,oS}/,oZ}/g'                                      scripts/check-local-headers.sh
+  # use copy because the rellns-sh has issues under msys2
+  sed -i 's|$(LN_S) `$(..)scripts/rellns-sh -p $< $@` $@|cp -p $< $@|' Makerules
+}
+
+build() {
+  local _path=$PATH         
+  for _target in ${_targets}; do
+    if [ "${_run_helper_script}" = "yes" ]; then
+      msg "Running build_cross_linux_gcc.sh for ${_target}"
+      cd ${srcdir}/..
+      ./build_cross_linux_gcc.sh $_target "/opt/local/cross"
+      _gcc_bin=/opt/local/cross/bin
+    else
+      _gcc_bin=/opt/bin
+    fi
+
+    export PATH=/opt/bin:${_path}
+    msg "Building ${_target} glibc"
+    [[ -d "${srcdir}"/build-glibc-${_target} ]] && rm -rf "${srcdir}"/build-glibc-${_target}
+    mkdir -p "${srcdir}"/build-glibc-${_target} && cd "${srcdir}"/build-glibc-${_target}
+
+    BUILD_CC=${CHOST}-gcc \
+    CC=${_gcc_bin}/${_target}-gcc \
+    CXX=${_gcc_bin}/${_target}-g++ \
+    AR=${_target}-ar \
+    AS=${_target}-as \
+    RANLIB=${_target}-ranlib \
+    ../${_pkgsourcedir}/configure \
+        --prefix=/opt/$_target \
+        --datarootdir=/opt/$_target/share \
+        --includedir=/opt/$_target/include \
+        --target=$_target \
+        --host=$_target \
+        --build=$CHOST \
+        --with-headers=/opt/$_target/include \
+        --enable-shared --enable-static \
+        --disable-profile \
+        --disable-werror
+
+    echo "build-programs=no" >> configparms
+    make -j1    
+  done
+}
+
+package() {
+  for _target in ${_targets}; do
+    msg "Packaging ${_target} headers"
+
+    cd "${srcdir}"/build-glibc-${_target}
+
+    make install_root="$pkgdir" install
+  done
+}
