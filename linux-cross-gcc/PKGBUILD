@@ -1,0 +1,79 @@
+# Contributor: Tim Stahlhut <stahta01@gmail.com>
+# Fork of: https://github.com/archlinux/svntogit-community/blob/packages/aarch64-linux-gnu-gcc/trunk/PKGBUILD
+
+_targets="aarch64-linux-gnu"
+
+_realname=gcc
+_mingw_suff=linux-cross
+pkgname=("${_mingw_suff}-${_realname}")
+pkgver=10.2.0
+pkgrel=1
+pkgdesc="Cross GCC for Linux targets"
+arch=('i686' 'x86_64')
+url="https://gcc.gnu.org"
+license=('GPL' 'LGPL' 'FDL' 'custom')
+groups=("${_mingw_suff}-toolchain" "${_mingw_suff}")
+depends=('zlib' 'mpc' 'isl'
+         "${_mingw_suff}-binutils"
+         "${_mingw_suff}-headers"
+         "${_mingw_suff}-glibc")
+makedepends=('gcc' 'lndir' 'gmp-devel' 'mpc-devel' 'zlib-devel' 'isl-devel' 'libiconv-devel' 'make' 'diffutils' 'tar')
+#checkdepends=('dejagnu')
+options=('!strip' 'staticlibs' '!emptydirs' '!buildflags')
+source=(https://ftp.gnu.org/gnu/gcc/gcc-${pkgver}/gcc-${pkgver}.tar.gz)
+sha256sums=('27e879dccc639cd7b0cc08ed575c1669492579529b53c9ff27b0b96265fa867d')
+
+prepare() {
+  cd ${srcdir}/${_realname}-${pkgver}
+}
+
+build() {
+  #export lt_cv_deplibs_check_method='pass_all'
+  for _target in ${_targets}; do
+    mkdir -p ${srcdir}/gcc-build-${_target} && cd ${srcdir}/gcc-build-${_target}
+
+    local _langs="c,c++"
+
+    ../${_realname}-${pkgver}/configure \
+      --prefix=/opt \
+      --build=${CHOST} \
+      --host=${CHOST} \
+      --target=${_target} \
+      --disable-libssp \
+      --disable-libsanitizer \
+      --enable-languages=${_langs} \
+      --enable-shared --enable-static \
+      --enable-threads=posix \
+      --disable-libstdcxx-pch \
+      --disable-multilib \
+      --enable-checking=release \
+      --disable-werror \
+      --with-system-zlib \
+      --with-{gmp,mpfr,mpc,isl}=/usr \
+      --with-gnu-as --with-gnu-ld
+
+    make all
+  done
+}
+
+package() {
+  for _target in ${_targets}; do
+    cd ${srcdir}/gcc-build-${_target}
+    make DESTDIR="$pkgdir" install-gcc install-target-{libgcc,libstdc++-v3,libgomp,libgfortran,libquadmath}
+
+    # strip target binaries
+    find "$pkgdir"/opt/lib/gcc/$_target/ "$pkgdir"/opt/$_target/lib \
+         -type f -and \( -name \*.a -or -name \*.o \) \
+         -exec $_target-objcopy -R .comment -R .note -R .debug_info -R .debug_aranges \
+             -R .debug_pubnames -R .debug_pubtypes -R .debug_abbrev -R .debug_line \
+             -R .debug_str -R .debug_ranges -R .debug_loc '{}' \;
+
+    # strip host binaries
+    find "$pkgdir"/opt/bin/ "$pkgdir"/opt/lib/gcc/$_target/ -type f -and \( -executable \) -exec strip '{}' \;
+
+#    # Remove files that conflict with host gcc package
+#    rm -r "$pkgdir"/opt/share/man/man7
+    rm -r "$pkgdir"/opt/share/info
+#    rm -r "$pkgdir"/opt/share/gcc-$pkgver
+  done
+}
