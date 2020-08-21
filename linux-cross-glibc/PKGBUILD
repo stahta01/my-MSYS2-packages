@@ -2,7 +2,7 @@
 # Fork of: https://www.archlinux.org/packages/community/any/aarch64-linux-gnu-glibc/
 
 _targets="aarch64-linux-gnu"
-_run_helper_script=yes         # Set to no once linux-cross-glibc and linux-cross-gcc packages have been built and installed
+_run_helper_script=no          # Set to no once linux-cross-glibc and linux-cross-gcc packages have been built and installed
 
 _realname=glibc
 _mingw_suff=linux-cross
